@@ -9,13 +9,16 @@ import SwiftUI
 
 @main
 struct yootnoriApp: App {
+    @StateObject private var model = AppModel()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            FullSpaceView()
+                .environmentObject(model)
         }.windowStyle(.volumetric)
 
         ImmersiveSpace(id: "ImmersiveSpace") {
-            ImmersiveView()
-        }.immersionStyle(selection: .constant(.full), in: .full)
+            FullSpaceView()
+                .environmentObject(model)
+        }
     }
 }
