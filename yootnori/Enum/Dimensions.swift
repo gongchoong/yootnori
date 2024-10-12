@@ -12,10 +12,10 @@ enum Dimensions {
     enum Board {
         static let tileSize: Float = 0.07
         static let padding: CGFloat = 0.04
+        static let tileCount: Int = 6
+        static let stageTileCount: Int = 6
         static var board: CGFloat {
-            .init(Self.tileSize) * 8
-            +
-            (Self.padding * 2)
+            .init(Self.tileSize) * CGFloat(tileCount)
         }
         static let pieceLiftOffset: Float = 0.1
     }
