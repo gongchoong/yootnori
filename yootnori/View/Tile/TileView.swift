@@ -23,8 +23,12 @@ struct TileView: View {
                         .fill(.blue)
                 case .hidden:
                     Rectangle()
-                        .fill(.clear)
+                        .fill(.blue)
                 case .inner:
+                    Rectangle()
+                        .fill(.blue)
+                        .border(.black, width: 1)
+                case .stage:
                     Rectangle()
                         .fill(.blue)
                 }

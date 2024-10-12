@@ -22,6 +22,8 @@
 		540EE1C32C9F74570056F03C /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1C22C9F74570056F03C /* TileView.swift */; };
 		5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */; };
 		5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D5112CA0CDC60065A4E3 /* TilePathView.swift */; };
+		544B33042CB1DBC100365A68 /* Index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544B33032CB1DBC100365A68 /* Index.swift */; };
+		5451CEC82CBB21B500025081 /* PositionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5451CEC72CBB21B500025081 /* PositionError.swift */; };
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
 		5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B42CA9F9B500C5EFB7 /* Board.swift */; };
@@ -45,6 +47,8 @@
 		540EE1C22C9F74570056F03C /* TileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileView.swift; sourceTree = "<group>"; };
 		5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileView.swift; sourceTree = "<group>"; };
 		5436D5112CA0CDC60065A4E3 /* TilePathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilePathView.swift; sourceTree = "<group>"; };
+		544B33032CB1DBC100365A68 /* Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Index.swift; sourceTree = "<group>"; };
+		5451CEC72CBB21B500025081 /* PositionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionError.swift; sourceTree = "<group>"; };
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
 		5457F5B42CA9F9B500C5EFB7 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
@@ -82,6 +86,7 @@
 		540A18EC2C9F6CD500291CEF /* yootnori */ = {
 			isa = PBXGroup;
 			children = (
+				5451CEC62CBB21AA00025081 /* Error */,
 				5457F5B12CA9F5C800C5EFB7 /* Board */,
 				5457F5AE2CA9F25F00C5EFB7 /* Enum */,
 				540EE1BF2C9F6F7E0056F03C /* ViewModel */,
@@ -142,11 +147,20 @@
 			path = Tile;
 			sourceTree = "<group>";
 		};
+		5451CEC62CBB21AA00025081 /* Error */ = {
+			isa = PBXGroup;
+			children = (
+				5451CEC72CBB21B500025081 /* PositionError.swift */,
+			);
+			path = Error;
+			sourceTree = "<group>";
+		};
 		5457F5AE2CA9F25F00C5EFB7 /* Enum */ = {
 			isa = PBXGroup;
 			children = (
 				5457F5AF2CA9F27300C5EFB7 /* TileType.swift */,
 				5408E1B72CAB4BA800580E82 /* Dimensions.swift */,
+				544B33032CB1DBC100365A68 /* Index.swift */,
 			);
 			path = Enum;
 			sourceTree = "<group>";
@@ -247,7 +261,9 @@
 				5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */,
 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
 				5408E1B82CAB4BA800580E82 /* Dimensions.swift in Sources */,
+				5451CEC82CBB21B500025081 /* PositionError.swift in Sources */,
 				540EE1BB2C9F6EC70056F03C /* GameView.swift in Sources */,
+				544B33042CB1DBC100365A68 /* Index.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

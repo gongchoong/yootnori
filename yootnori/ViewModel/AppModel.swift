@@ -16,6 +16,3 @@ class AppModel: ObservableObject {
         
     }
 }
-
-extension AppModel {
-}

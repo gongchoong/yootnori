@@ -9,6 +9,7 @@ enum TileType {
     case edge
     case hidden
     case inner
+    case stage
 }
 
 enum TilePosition {
