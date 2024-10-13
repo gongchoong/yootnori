@@ -10,26 +10,51 @@
 
 def Xform "Root"
 {
+<<<<<<< Updated upstream
     def Cube "Cube" (
+=======
+    reorder nameChildren = ["Cylinder", "Divider_1"]
+    def Cylinder "Cylinder" (
+>>>>>>> Stashed changes
         active = true
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
+<<<<<<< Updated upstream
         rel material:binding = </Root/Cube/DefaultMaterial>
         double size = 0.2
         quatf xformOp:orient = (1, 0, 0, 0)
         float3 xformOp:scale = (1, 1, 1)
         float3 xformOp:translate = (-0.0019240803, 0, 0.012482107)
+=======
+        uniform token axis = "Y"
+        double height = 0.017
+        rel material:binding = </Root/Cylinder/DefaultMaterial>
+        double radius = 0.017
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 1, 1)
+        float3 xformOp:translate = (0, 0.0085, 0)
+>>>>>>> Stashed changes
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def Material "DefaultMaterial"
         {
+<<<<<<< Updated upstream
             prepend token outputs:surface.connect = </Root/Cube/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+=======
+            token outputs:mtlx:surface
+            token outputs:realitykit:vertex
+            token outputs:surface.connect = </Root/Cylinder/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+            float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (0, 109.5)
+            float2 ui:nodegraph:realitykit:subgraphOutputs:size = (182, 99)
+>>>>>>> Stashed changes
 
             def Shader "DefaultSurfaceShader"
             {
                 uniform token info:id = "UsdPreviewSurface"
-                color3f inputs:diffuseColor = (1, 1, 1)
+                color3f inputs:diffuseColor = (0.999996, 1, 1) (
+                    colorSpace = "srgb_texture"
+                )
                 float inputs:roughness = 0.75
                 token outputs:surface
             }
