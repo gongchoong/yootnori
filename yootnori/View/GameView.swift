@@ -22,7 +22,7 @@ struct GameView: View {
                 let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
                 let rotationAngle: Float = .pi / 2
                 entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
-                entity.position = Index.stage(column: 0, row: 5).position
+                entity.position = Index.inner(column: 1, row: 3).position
                 entity.components.set([
                     CollisionComponent(shapes: [{
                         var value: ShapeResource = .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
