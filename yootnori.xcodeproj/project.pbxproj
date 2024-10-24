@@ -27,6 +27,8 @@
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
 		5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B42CA9F9B500C5EFB7 /* Board.swift */; };
+		548F23042CC5D64D00A50F3F /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* MainView.swift */; };
+		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +54,8 @@
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
 		5457F5B42CA9F9B500C5EFB7 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
+		548F23032CC5D64D00A50F3F /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +129,7 @@
 				5436D50E2CA0C9B40065A4E3 /* Tile */,
 				540EE1BA2C9F6EC70056F03C /* GameView.swift */,
 				540EE1BC2C9F6F290056F03C /* BoardView.swift */,
+				548F23032CC5D64D00A50F3F /* MainView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -161,6 +166,7 @@
 				5457F5AF2CA9F27300C5EFB7 /* TileType.swift */,
 				5408E1B72CAB4BA800580E82 /* Dimensions.swift */,
 				544B33032CB1DBC100365A68 /* Index.swift */,
+				54911FA82CC7551600A9FDDE /* GameRule.swift */,
 			);
 			path = Enum;
 			sourceTree = "<group>";
@@ -257,8 +263,10 @@
 				5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */,
 				540A18F22C9F6CD500291CEF /* App.swift in Sources */,
 				5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */,
+				54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */,
 				540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */,
 				5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */,
+				548F23042CC5D64D00A50F3F /* MainView.swift in Sources */,
 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
 				5408E1B82CAB4BA800580E82 /* Dimensions.swift in Sources */,
 				5451CEC82CBB21B500025081 /* PositionError.swift in Sources */,

@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct TileView: View {
+    @EnvironmentObject var model: AppModel
     private let tile: Tile
-    private let row: Int
-    private let column: Int
+    private let index: Index
+    @State private var taken: Bool = false
     
     var body: some View {
         GeometryReader { geometry in
@@ -43,12 +44,26 @@ struct TileView: View {
                 }
             }
         }
+        .onTapGesture {
+            print(index)
+            Task { @MainActor in
+                if !taken {
+                    do {
+                        try await model.perform(index: index)
+                        taken = true
+                    } catch {
+                        //
+                        print(error.localizedDescription)
+                        taken = false
+                    }
+                }
+            }
+        }
     }
     
-    init(tile: Tile, row: Int, column: Int) {
+    init(tile: Tile, index: Index) {
         self.tile = tile
-        self.row = row
-        self.column = column
+        self.index = index
     }
 }
 
@@ -63,7 +78,6 @@ struct TileView: View {
                 .bottomRight
             ]
         ),
-        row: 0,
-        column: 0
+        index: Index.inner(column: 0, row: 0)
     )
 }
