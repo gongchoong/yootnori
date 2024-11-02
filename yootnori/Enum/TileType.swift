@@ -12,7 +12,7 @@ enum TileType {
     case stage
 }
 
-enum TilePosition {
+enum TileLocation {
     case topLeftCorner
     case topRightCorner
     case bottomRightCorner

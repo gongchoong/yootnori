@@ -9,12 +9,12 @@ import Foundation
 
 struct Tile {
     let type: TileType
-    let position: TilePosition?
+    let location: TileLocation?
     let paths: [TilePath]?
     
-    init(type: TileType, position: TilePosition?, paths: [TilePath]?) {
+    init(type: TileType, location: TileLocation?, paths: [TilePath]?) {
         self.type = type
-        self.position = position
+        self.location = location
         self.paths = paths
     }
 }

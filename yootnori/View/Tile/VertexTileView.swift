@@ -21,7 +21,7 @@ struct VertexTileView: View {
     private let tileWidth: CGFloat
     private let tileHeight: CGFloat
     var body: some View {
-        switch tile.position {
+        switch tile.location {
         case .topLeftCorner, .topRightCorner, .bottomLeftCorner, .bottomRightCorner, .center:
             let innerCircleWidth = tile.type == .edge ?
                 tileHeight * Constants.verticeInnerHeightConstant :
@@ -100,7 +100,7 @@ struct VertexTileView: View {
     VertexTileView(
         tile: Tile(
             type: .edge,
-            position: .topLeftCorner,
+            location: .topLeftCorner,
             paths: [
                 .right,
                 .bottom,

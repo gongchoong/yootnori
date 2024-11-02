@@ -15,6 +15,7 @@ class AppModel: ObservableObject {
     @State var markersToGo: Int = 4
     @Published var newMarkerSelected: Bool = false
     @Published var yootRoll: Yoot?
+    var tileViews: [TileView] = []
     
     init() {
         
@@ -56,26 +57,25 @@ extension AppModel {
         try await playMarker(index: index)
     }
 
+    @MainActor
     func playMarker(index: Index) async throws {
-        Task { @MainActor in
-            do {
-                let position = try index.position()
-                let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
-                let rotationAngle: Float = .pi / 2
-                entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
-                entity.position = position
-                entity.components.set([
-                    CollisionComponent(shapes: [{
-                        var value: ShapeResource = .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
-                        value = value.offsetBy(translation: [0, value.bounds.extents.y / 2, 0])
-                        return value
-                    }()]),
-                    InputTargetComponent()
-                ])
-                self.rootEntity.addChild(entity)
-            } catch {
-                throw error
-            }
+        do {
+            let position = try index.position()
+            let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
+            let rotationAngle: Float = .pi / 2
+            entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
+            entity.position = position
+            entity.components.set([
+                CollisionComponent(shapes: [{
+                    var value: ShapeResource = .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
+                    value = value.offsetBy(translation: [0, value.bounds.extents.y / 2, 0])
+                    return value
+                }()]),
+                InputTargetComponent()
+            ])
+            self.rootEntity.addChild(entity)
+        } catch {
+            throw error
         }
     }
 }

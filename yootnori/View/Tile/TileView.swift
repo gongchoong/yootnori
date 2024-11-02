@@ -71,7 +71,7 @@ struct TileView: View {
     TileView(
         tile: Tile(
             type: .edge,
-            position: .topLeftCorner,
+            location: .topLeftCorner,
             paths: [
                 .right,
                 .bottom,

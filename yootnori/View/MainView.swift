@@ -43,6 +43,7 @@ struct MainView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .animation(.easeInOut, value: model.newMarkerSelected)
+                .disabled(model.yootRoll == nil)
             }
         }
     }
