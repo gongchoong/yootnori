@@ -11,10 +11,12 @@ struct Tile {
     let type: TileType
     let location: TileLocation?
     let paths: [TilePath]?
-    
-    init(type: TileType, location: TileLocation?, paths: [TilePath]?) {
+    let node: Node
+
+    init(type: TileType, location: TileLocation?, paths: [TilePath]?, node: Node) {
         self.type = type
         self.location = location
         self.paths = paths
+        self.node = node
     }
 }
