@@ -16,9 +16,10 @@ class AppModel: ObservableObject {
     @Published var newMarkerSelected: Bool = false
     @Published var yootRoll: Yoot?
     var tileViews: [TileView] = []
+    var markerMap: [NodeName: Int] = [:]
     
     init() {
-        
+        generateMarkerMap()
     }
 
     func roll() {
@@ -53,14 +54,23 @@ class AppModel: ObservableObject {
 }
 
 extension AppModel {
-    func perform(index: Index) async throws {
-        try await playMarker(index: index)
+    func perform(node: Node) {
+        defer {
+            updateMarkerMap(node: node)
+        }
+        Task { @MainActor in
+            do {
+                try await createMarker(at: node)
+            } catch {
+                fatalError("Failed to move marker to \(node.index)")
+            }
+        }
     }
 
     @MainActor
-    func playMarker(index: Index) async throws {
+    func createMarker(at node: Node) async throws {
         do {
-            let position = try index.position()
+            let position = try node.index.position()
             let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
             let rotationAngle: Float = .pi / 2
             entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
@@ -77,5 +87,28 @@ extension AppModel {
         } catch {
             throw error
         }
+    }
+}
+
+// MARK: MarkerMap
+extension AppModel {
+    func generateMarkerMap() {
+        for nodeName in NodeName.allCases {
+            markerMap[nodeName] = 0
+        }
+    }
+
+    func updateMarkerMap(node: Node) {
+        guard let markerCount = markerMap[node.details.name] else {
+            return
+        }
+        markerMap[node.details.name] = markerCount + 1
+    }
+
+    func hasMarker(on node: Node) -> Bool {
+        guard let markerCounter = markerMap[node.details.name] else {
+            fatalError("markerMap should have markerCount per every node name")
+        }
+        return markerCounter > 0
     }
 }

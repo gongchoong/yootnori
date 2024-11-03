@@ -17,8 +17,15 @@ struct BoardView: View {
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, _ in
                             // Outer blue tiles on the edges (first and last row/column)
-                            let tile = Board.edgeTileLayout[rowIndex][columnIndex]
-                            TileView(tile: tile, index: .outer(column: columnIndex, row: rowIndex))
+                            let edgeTile = Board.edgeTileLayout[rowIndex][columnIndex]
+                            let node = Node(
+                                details: edgeTile.nodeDetails,
+                                index: .outer(
+                                    column: columnIndex,
+                                    row: rowIndex
+                                )
+                            )
+                            TileView(tile: edgeTile, node: node)
                         }
                     }
                 }
@@ -30,8 +37,15 @@ struct BoardView: View {
                 ForEach(Array(Board.innerTileLayout.enumerated()), id: \.offset) { rowIndex, row in
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, _ in
-                            let tile = Board.innerTileLayout[rowIndex][columnIndex]
-                            TileView(tile: tile, index: .inner(column: columnIndex, row: rowIndex))
+                            let innerTile = Board.innerTileLayout[rowIndex][columnIndex]
+                            let node = Node(
+                                details: innerTile.nodeDetails,
+                                index: .inner(
+                                    column: columnIndex,
+                                    row: rowIndex
+                                )
+                            )
+                            TileView(tile: innerTile, node: node)
                         }
                     }
                 }

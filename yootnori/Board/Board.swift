@@ -18,43 +18,31 @@ extension Board {
                 type: .edge,
                 location: .topLeftCorner,
                 paths: [.right, .bottom, .bottomRight],
-                node: .topLeftVertex
+                nodeDetails: .topLeftVertex
             ),
             Tile(
                 type: .edge,
                 location: .edgeTop,
                 paths: [.left, .right],
-                node: .topNode4
+                nodeDetails: .topNode4
             ),
             Tile(
                 type: .edge,
                 location: .edgeTop,
                 paths: [.left, .right],
-                node: Node(
-                    type: .topNode3,
-                    next: [.topNode4],
-                    prev: [.topNode2]
-                )
+                nodeDetails: .topNode3
             ),
             Tile(
                 type: .edge,
                 location: .edgeTop,
                 paths: [.left, .right],
-                node: Node(
-                    type: .topNode2,
-                    next: [.topNode3],
-                    prev: [.topNode1]
-                )
+                nodeDetails: .topNode2
             ),
             Tile(
                 type: .edge,
                 location: .edgeTop,
                 paths: [.left, .right],
-                node: Node(
-                    type: .topNode1,
-                    next: [.topNode2],
-                    prev: [.topRightVertex]
-                )
+                nodeDetails: .topNode1
             ),
             Tile(
                 type: .edge,
@@ -64,11 +52,7 @@ extension Board {
                     .bottom,
                     .bottomLeft
                 ],
-                node: Node(
-                    type: .topRightVertex,
-                    next: [.topNode1, .rightTopDiagonal1],
-                    prev: [.rightNode4]
-                )
+                nodeDetails: .topRightVertex
             )
        ],
         [
@@ -79,25 +63,17 @@ extension Board {
                     .top,
                     .bottom
                 ],
-                node: Node(
-                    type: .leftNode1,
-                    next: [.leftNode2],
-                    prev: [.topLeftVertex]
-                )
+                nodeDetails: .leftNode1
             ),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .edge,
                 location: .edgeRight,
                 paths: [.top, .bottom],
-                node: Node(
-                    type: .rightNode4,
-                    next: [.topRightVertex],
-                    prev: [.rightNode3]
-                )
+                nodeDetails: .rightNode4
             )
        ],
         [
@@ -108,25 +84,17 @@ extension Board {
                     .top,
                     .bottom
                 ],
-                node: Node(
-                    type: .leftNode2,
-                    next: [.leftNode3],
-                    prev: [.leftNode1]
-                )
+                nodeDetails: .leftNode2
             ),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .edge,
                 location: .edgeRight,
                 paths: [.top, .bottom],
-                node: Node(
-                    type: .rightNode3,
-                    next: [.rightNode4],
-                    prev: [.rightNode2]
-                )
+                nodeDetails: .rightNode3
             )
        ],
         [
@@ -134,25 +102,17 @@ extension Board {
                 type: .edge,
                 location: .edgeLeft,
                 paths: [.top, .bottom],
-                node: Node(
-                    type: .leftNode3,
-                    next: [.leftNode4],
-                    prev: [.leftNode2]
-                )
+                nodeDetails: .leftNode3
             ),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .edge,
                 location: .edgeRight,
                 paths: [.top, .bottom],
-                node: Node(
-                    type: .rightNode2,
-                    next: [.rightNode3],
-                    prev: [.rightNode1]
-                )
+                nodeDetails: .rightNode2
             )
        ],
         [
@@ -160,25 +120,17 @@ extension Board {
                 type: .edge,
                 location: .edgeLeft,
                 paths: [.top, .bottom],
-                node: Node(
-                    type: .leftNode4,
-                    next: [.bottomLeftVertex],
-                    prev: [.leftNode3]
-                )
+                nodeDetails: .leftNode4
             ),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
-            Tile(type: .hidden, location: nil, paths: nil, node: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .hidden, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .edge,
                 location: .edgeRight,
                 paths: [.top, .bottom],
-                node: Node(
-                    type: .rightNode1,
-                    next: [.rightNode2],
-                    prev: [.bottomRightVertex]
-                )
+                nodeDetails: .rightNode1
             )
        ],
         [
@@ -186,61 +138,37 @@ extension Board {
                 type: .edge,
                 location: .bottomLeftCorner,
                 paths: [.top, .right, .topRight],
-                node: Node(
-                    type: .bottomLeftVertex,
-                    next: [.bottomNode1],
-                    prev: [.leftNode4, .leftBottomDiagonal2]
-                )
+                nodeDetails: .bottomLeftVertex
             ),
             Tile(
                 type: .edge,
                 location: .edgeBottom,
                 paths: [.left, .right],
-                node: Node(
-                    type: .bottomNode1,
-                    next: [.bottomNode2],
-                    prev: [.bottomLeftVertex]
-                )
+                nodeDetails: .bottomNode1
             ),
             Tile(
                 type: .edge,
                 location: .edgeBottom,
                 paths: [.left, .right],
-                node: Node(
-                    type: .bottomNode2,
-                    next: [.bottomNode3],
-                    prev: [.bottomNode1]
-                )
+                nodeDetails: .bottomNode2
             ),
             Tile(
                 type: .edge,
                 location: .edgeBottom,
                 paths: [.left, .right],
-                node: Node(
-                    type: .bottomNode3,
-                    next: [.bottomNode4],
-                    prev: [.bottomNode2]
-                )
+                nodeDetails: .bottomNode3
             ),
             Tile(
                 type: .edge,
                 location: .edgeBottom,
                 paths: [.left, .right],
-                node: Node(
-                    type: .bottomNode4,
-                    next: [.bottomRightVertex],
-                    prev: [.bottomNode3]
-                )
+                nodeDetails: .bottomNode4
             ),
             Tile(
                 type: .edge,
                 location: .bottomRightCorner,
                 paths: [.top, .left, .topLeft],
-                node: Node(
-                    type: .bottomRightVertex,
-                    next: [.rightNode1],
-                    prev: [.bottomNode4, .rightBottomDiagonal2]
-                )
+                nodeDetails: .bottomRightVertex
             )
        ],
    ]
@@ -251,115 +179,79 @@ extension Board {
                 type: .inner,
                 location: .diagonalTopLeft,
                 paths: [.topLeft, .bottomRight],
-                node: Node(
-                    type: .leftTopDiagonal1,
-                    next: [.leftTopDiagonal2],
-                    prev: [.topLeftVertex]
-                )
+                nodeDetails: .leftTopDiagonal1
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .diagonalTopRight,
                 paths: [.topRight, .bottomLeft],
-                node: Node(
-                    type: .rightTopDiagonal1,
-                    next: [.rightTopDiagonal2],
-                    prev: [.topRightVertex]
-                )
+                nodeDetails: .rightTopDiagonal1
             ),
         ],
         [
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .diagonalTopLeft,
                 paths: [.topLeft, .bottomRight],
-                node: Node(
-                    type: .leftTopDiagonal2,
-                    next: [.center],
-                    prev: [.leftTopDiagonal1]
-                )
+                nodeDetails: .leftTopDiagonal2
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .diagonalTopRight,
                 paths: [.topRight, .bottomLeft],
-                node: Node(
-                    type: .rightTopDiagonal2,
-                    next: [.center],
-                    prev: [.rightTopDiagonal1]
-                )
+                nodeDetails: .rightTopDiagonal2
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
         ],
         [
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .center,
                 paths: [.topRight, .topLeft, .bottomRight, .bottomLeft],
-                node: Node(
-                    type: .center,
-                    next: [.leftBottomDiagonal1, .rightBottomDiagonal1],
-                    prev: [.leftTopDiagonal2, .rightTopDiagonal2]
-                )
+                nodeDetails: .center
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
         ],
         [
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .diagonalBottomLeft,
                 paths: [.topRight, .bottomLeft],
-                node: Node(
-                    type: .leftBottomDiagonal1,
-                    next: [.leftBottomDiagonal2],
-                    prev: [.center]
-                )
+                nodeDetails: .leftBottomDiagonal1
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .diagonalBottomRight,
                 paths: [.topLeft, .bottomRight],
-                node: Node(
-                    type: .rightBottomDiagonal1,
-                    next: [.rightBottomDiagonal2],
-                    prev: [.center]
-                )
+                nodeDetails: .rightBottomDiagonal1
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
         ],
         [
             Tile(
                 type: .inner,
                 location: .diagonalBottomLeft,
                 paths: [.topRight, .bottomLeft],
-                node: Node(
-                    type: .leftBottomDiagonal2,
-                    next: [.bottomLeftVertex],
-                    prev: [.leftBottomDiagonal1]
-                )
+                nodeDetails: .leftBottomDiagonal2
             ),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
-            Tile(type: .inner, location: nil, paths: nil, node: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
+            Tile(type: .inner, location: nil, paths: nil, nodeDetails: .empty),
             Tile(
                 type: .inner,
                 location: .diagonalBottomRight,
                 paths: [.topLeft, .bottomRight],
-                node: Node(
-                    type: .rightBottomDiagonal2,
-                    next: [.bottomRightVertex],
-                    prev: [.rightBottomDiagonal1]
-                )
+                nodeDetails: .rightBottomDiagonal2
             ),
         ],
     ]

@@ -10,8 +10,7 @@ import SwiftUI
 struct TileView: View {
     @EnvironmentObject var model: AppModel
     private let tile: Tile
-    private let index: Index
-    @State private var taken: Bool = false
+    private let node: Node
     
     var body: some View {
         GeometryReader { geometry in
@@ -45,25 +44,30 @@ struct TileView: View {
             }
         }
         .onTapGesture {
-            print(index)
-            Task { @MainActor in
-                if !taken {
-                    do {
-                        try await model.perform(index: index)
-                        taken = true
-                    } catch {
-                        //
-                        print(error.localizedDescription)
-                        taken = false
-                    }
-                }
+            if canPlaceMarker {
+                print(node)
+                model.perform(node: node)
             }
         }
     }
     
-    init(tile: Tile, index: Index) {
+    init(tile: Tile, node: Node) {
         self.tile = tile
-        self.index = index
+        self.node = node
+    }
+}
+
+extension TileView {
+    var canPlaceMarker: Bool {
+        isVisibleTile && !containsMarker
+    }
+
+    var isVisibleTile: Bool {
+        node.details.name != .empty
+    }
+
+    var containsMarker: Bool {
+        model.hasMarker(on: node)
     }
 }
 
@@ -76,8 +80,9 @@ struct TileView: View {
                 .right,
                 .bottom,
                 .bottomRight
-            ]
+            ],
+            nodeDetails: .empty
         ),
-        index: Index.inner(column: 0, row: 0)
+        node: Node(details: .empty, index: .outer(column: 0, row: 0))
     )
 }

@@ -7,19 +7,19 @@
 
 import Foundation
 
-// Unique node type assigned for each visible tile on the board.
+// Unique node name assigned for each visible tile on the board.
 //  TLV --- TN4 --- TN3 --- TN2 --- TN1 --- TRV
 //   |    \                              /   |
 //  LN1    LTD1                     RTD1    RN4
 //   |       \                      /        |
 //  LN2        LTD2             RTD2        RN3
 //   |                CENTER                 |
-//  LN3        LBD2             RBD2        RN2
+//  LN3        LBD1             RBD1        RN2
 //   |       /                      \        |
-//  LN4    LBD1                     RBD1    RN1
+//  LN4    LBD2                     RBD2    RN1
 //   |   /                                \  |
 //  BLV --- BN1 --- BN2 --- BN3 --- BN4 --- BRV
-enum NodeType {
+enum NodeName: Equatable, CaseIterable {
     case bottomRightVertex
     case rightNode1
     case rightNode2

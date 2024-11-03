@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Index {
+enum Index: Hashable {
     case inner(column: Int, row: Int)
     case outer(column: Int, row: Int)
 }
