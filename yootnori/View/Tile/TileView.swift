@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct TileView: View {
+    @EnvironmentObject var model: AppModel
     private let tile: Tile
-    private let row: Int
-    private let column: Int
+    private let node: Node
     
     var body: some View {
         GeometryReader { geometry in
@@ -20,13 +20,13 @@ struct TileView: View {
                 switch tile.type {
                 case .edge:
                     Rectangle()
-                        .fill(.blue)
+                        .fill(isMarkerPlaceable ? .white : .blue)
                 case .hidden:
                     Rectangle()
                         .fill(.blue)
                 case .inner:
                     Rectangle()
-                        .fill(.blue)
+                        .fill(isMarkerPlaceable ? .white : .blue)
                         .border(.black, width: 1)
                 case .stage:
                     Rectangle()
@@ -43,12 +43,35 @@ struct TileView: View {
                 }
             }
         }
+        .onTapGesture {
+            if canPlaceMarker {
+                print(node)
+                model.perform(node: node)
+            }
+        }
     }
     
-    init(tile: Tile, row: Int, column: Int) {
+    init(tile: Tile, node: Node) {
         self.tile = tile
-        self.row = row
-        self.column = column
+        self.node = node
+    }
+}
+
+extension TileView {
+    var canPlaceMarker: Bool {
+        isVisibleTile && !containsMarker
+    }
+
+    var isVisibleTile: Bool {
+        node.name != .empty
+    }
+
+    var containsMarker: Bool {
+        model.hasMarker(on: node)
+    }
+
+    var isMarkerPlaceable: Bool {
+        model.destinationNodes.contains { $0 == node.name }
     }
 }
 
@@ -56,14 +79,14 @@ struct TileView: View {
     TileView(
         tile: Tile(
             type: .edge,
-            position: .topLeftCorner,
+            location: .topLeftCorner,
             paths: [
                 .right,
                 .bottom,
                 .bottomRight
-            ]
+            ],
+            nodeName: .empty
         ),
-        row: 0,
-        column: 0
+        node: Node(name: .empty, index: .outer(column: 0, row: 0))
     )
 }

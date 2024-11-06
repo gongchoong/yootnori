@@ -9,13 +9,25 @@ import SwiftUI
 
 struct FullSpaceView: View {
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
+    @Environment(\.physicalMetrics) var physicalMetrics
     @EnvironmentObject var model: AppModel
     var body: some View {
         VStack(spacing: 12) {
-            GameView()
-                .environmentObject(model)
+            DebugMainView()
+                .frame(width: gameBoardSize, height: gameBoardSize * 0.5)
+            Spacer()
+            HStack {
+                GameView()
+            }
         }
-        .offset(z: 500)
+        .frame(width: self.gameBoardSize * 2, height: self.gameBoardSize)
+        .frame(depth: self.gameBoardSize)
+    }
+}
+
+private extension FullSpaceView {
+    private var gameBoardSize: CGFloat {
+        return Dimensions.Screen.totalSize(self.physicalMetrics)
     }
 }
 

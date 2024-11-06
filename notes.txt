@@ -1,0 +1,22 @@
+10/29/24
+Done: 1.Updated Tile: from position to location
+- position now represent unique name for each tile
+Done: 2. Build a board map
+- dictionary
+- [tilePosition(unique): connected tiles[tilePosition]]
+TODO: 3. Create a recursive function to determine whether the selected tile is eligible for marker placement.
+
+import Foundation
+
+// Unique node type assigned for each visible tile on the board.
+//  TLV --- TN4 --- TN3 --- TN2 --- TN1 --- TRV
+//   |    \                              /   |
+//  LN1    LTD1                     RTD1    RN4
+//   |       \                      /        |
+//  LN2        LTD2             RTD2        RN3
+//   |                CENTER                 |
+//  LN3        LBD1             RBD1        RN2
+//   |       /                      \        |
+//  LN4    LBD2                     RBD2    RN1
+//   |   /                                \  |
+//  BLV --- BN1 --- BN2 --- BN3 --- BN4 --- BRV

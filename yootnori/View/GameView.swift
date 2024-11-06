@@ -7,7 +7,6 @@
 
 import SwiftUI
 import RealityKit
-import RealityKitContent
 
 struct GameView: View {
     @EnvironmentObject var model: AppModel
@@ -18,23 +17,6 @@ struct GameView: View {
             attachments.entity(for: "board")!.name = "board"
             self.model.rootEntity.addChild(attachments.entity(for: "board")!)
             content.add(self.model.rootEntity)
-            do {
-                let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
-                let rotationAngle: Float = .pi / 2
-                entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
-                entity.position = Index.inner(column: 1, row: 3).position
-                entity.components.set([
-                    CollisionComponent(shapes: [{
-                        var value: ShapeResource = .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
-                        value = value.offsetBy(translation: [0, value.bounds.extents.y / 2, 0])
-                        return value
-                    }()]),
-                    InputTargetComponent()
-                ])
-                self.model.rootEntity.addChild(entity)
-            } catch let error {
-                print(error)
-            }
         } attachments: {
             Attachment(id: "board") {
                 BoardView()
