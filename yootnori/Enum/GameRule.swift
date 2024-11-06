@@ -8,11 +8,11 @@
 import Foundation
 
 enum Yoot: CustomStringConvertible {
-    case doe(steps: Int = 1)
-    case gae(steps: Int = 2)
-    case gull(steps: Int = 3)
-    case yoot(steps: Int = 4)
-    case mo(steps: Int = 5)
+    case doe
+    case gae
+    case gull
+    case yoot
+    case mo
 
     var description: String {
         switch self {
@@ -26,6 +26,21 @@ enum Yoot: CustomStringConvertible {
                 return "Yoot: Four steps"
             case .mo:
                 return "Mo: Five steps"
+        }
+    }
+
+    var steps: Int {
+        switch self {
+        case .doe:
+            return 1
+        case .gae:
+            return 2
+        case .gull:
+            return 3
+        case .yoot:
+            return 4
+        case .mo:
+            return 5
         }
     }
 }

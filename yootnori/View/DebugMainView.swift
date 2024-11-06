@@ -1,5 +1,5 @@
 //
-//  MainView.swift
+//  DebugMainView.swift
 //  yootnori
 //
 //  Created by David Lee on 10/20/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MainView: View {
+struct DebugMainView: View {
     @EnvironmentObject var model: AppModel
 
     var body: some View {
@@ -16,7 +16,9 @@ struct MainView: View {
                 .fill(.blue)
             VStack(spacing: 10) {
                 Button {
-                    model.roll()
+                    Task { @MainActor in
+                        await model.pressedRollButton()
+                    }
                 } label: {
                     Text("Roll!")
                         .font(.system(size: 40))
@@ -26,13 +28,13 @@ struct MainView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
 
-                Text(model.yootRoll?.description ?? "")
+                Text(String(describing: model.yootRollSteps))
                     .font(.system(size: 40))
                     .frame(maxWidth: .infinity)
                     .frame(height: 40)
 
                 Button {
-                    model.newMarkerSelected.toggle()
+                    model.pressedNewMarkerButton()
                 } label: {
                     Text("\(model.markersToGo)x")
                         .font(.system(size: 40))
@@ -43,12 +45,12 @@ struct MainView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .animation(.easeInOut, value: model.newMarkerSelected)
-                .disabled(model.yootRoll == nil)
+                .disabled(!model.canPlayMarker)
             }
         }
     }
 }
 
 #Preview {
-    MainView()
+    DebugMainView()
 }

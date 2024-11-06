@@ -13,7 +13,7 @@ struct FullSpaceView: View {
     @EnvironmentObject var model: AppModel
     var body: some View {
         VStack(spacing: 12) {
-            MainView()
+            DebugMainView()
                 .frame(width: gameBoardSize, height: gameBoardSize * 0.5)
             Spacer()
             HStack {

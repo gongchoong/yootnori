@@ -27,8 +27,9 @@
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
 		5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B42CA9F9B500C5EFB7 /* Board.swift */; };
-		548F23042CC5D64D00A50F3F /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* MainView.swift */; };
+		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
+		54B21C592CDB29F10083CFD3 /* NodeMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B21C582CDB29F10083CFD3 /* NodeMap.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
 /* End PBXBuildFile section */
@@ -56,8 +57,9 @@
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
 		5457F5B42CA9F9B500C5EFB7 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
-		548F23032CC5D64D00A50F3F /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
+		54B21C582CDB29F10083CFD3 /* NodeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMap.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,7 +135,7 @@
 				5436D50E2CA0C9B40065A4E3 /* Tile */,
 				540EE1BA2C9F6EC70056F03C /* GameView.swift */,
 				540EE1BC2C9F6F290056F03C /* BoardView.swift */,
-				548F23032CC5D64D00A50F3F /* MainView.swift */,
+				548F23032CC5D64D00A50F3F /* DebugMainView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -182,6 +184,7 @@
 				5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */,
 				5457F5B42CA9F9B500C5EFB7 /* Board.swift */,
 				54CEB39D2CD6A9A500E1F5C2 /* Node.swift */,
+				54B21C582CDB29F10083CFD3 /* NodeMap.swift */,
 			);
 			path = Board;
 			sourceTree = "<group>";
@@ -260,6 +263,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54B21C592CDB29F10083CFD3 /* NodeMap.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,
@@ -274,7 +278,7 @@
 				54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */,
 				54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */,
 				5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */,
-				548F23042CC5D64D00A50F3F /* MainView.swift in Sources */,
+				548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */,
 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
 				5408E1B82CAB4BA800580E82 /* Dimensions.swift in Sources */,
 				5451CEC82CBB21B500025081 /* PositionError.swift in Sources */,

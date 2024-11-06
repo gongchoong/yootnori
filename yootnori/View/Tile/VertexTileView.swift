@@ -106,7 +106,7 @@ struct VertexTileView: View {
                 .bottom,
                 .bottomRight
             ],
-            nodeDetails: .empty
+            nodeName: .empty
         ),
         tileWidth: 100,
         tileHeight: 100

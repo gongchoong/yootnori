@@ -19,7 +19,7 @@ struct BoardView: View {
                             // Outer blue tiles on the edges (first and last row/column)
                             let edgeTile = Board.edgeTileLayout[rowIndex][columnIndex]
                             let node = Node(
-                                details: edgeTile.nodeDetails,
+                                name: edgeTile.nodeName,
                                 index: .outer(
                                     column: columnIndex,
                                     row: rowIndex
@@ -39,7 +39,7 @@ struct BoardView: View {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, _ in
                             let innerTile = Board.innerTileLayout[rowIndex][columnIndex]
                             let node = Node(
-                                details: innerTile.nodeDetails,
+                                name: innerTile.nodeName,
                                 index: .inner(
                                     column: columnIndex,
                                     row: rowIndex

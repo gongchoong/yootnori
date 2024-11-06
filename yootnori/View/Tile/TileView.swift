@@ -20,13 +20,13 @@ struct TileView: View {
                 switch tile.type {
                 case .edge:
                     Rectangle()
-                        .fill(.blue)
+                        .fill(isMarkerPlaceable ? .white : .blue)
                 case .hidden:
                     Rectangle()
                         .fill(.blue)
                 case .inner:
                     Rectangle()
-                        .fill(.blue)
+                        .fill(isMarkerPlaceable ? .white : .blue)
                         .border(.black, width: 1)
                 case .stage:
                     Rectangle()
@@ -63,11 +63,15 @@ extension TileView {
     }
 
     var isVisibleTile: Bool {
-        node.details.name != .empty
+        node.name != .empty
     }
 
     var containsMarker: Bool {
         model.hasMarker(on: node)
+    }
+
+    var isMarkerPlaceable: Bool {
+        model.destinationNodes.contains { $0 == node.name }
     }
 }
 
@@ -81,8 +85,8 @@ extension TileView {
                 .bottom,
                 .bottomRight
             ],
-            nodeDetails: .empty
+            nodeName: .empty
         ),
-        node: Node(details: .empty, index: .outer(column: 0, row: 0))
+        node: Node(name: .empty, index: .outer(column: 0, row: 0))
     )
 }
