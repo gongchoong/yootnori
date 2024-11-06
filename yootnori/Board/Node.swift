@@ -11,3 +11,8 @@ struct Node: Hashable {
     let name: NodeName
     let index: Index
 }
+
+struct TargetNode: Hashable {
+    let name: NodeName
+    let yootRoll: Yoot
+}
