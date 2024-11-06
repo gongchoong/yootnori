@@ -18,95 +18,104 @@ class AppModel: ObservableObject {
 
     @State var markersToGo: Int = 4
     @Published var newMarkerSelected: Bool = false
-    @Published var yootRoll: [Yoot] = []
-    @Published var destinationNodes = Set<NodeName>()
+    @Published var rollResult: [Yoot] = []
+    @Published var targetNodes = Set<TargetNode>()
+
+    var canRollOnceMore: Bool = false
 
     init() {
         generateMarkerMap()
     }
-
-    func pressedRollButton() async {
-        await roll()
-    }
 }
 
 extension AppModel {
-    var canPlayMarker: Bool {
-        !yootRoll.isEmpty
+    var hasRemainingRoll: Bool {
+        !rollResult.isEmpty && !canRollOnceMore
     }
     
     var yootRollSteps: [String] {
-        return yootRoll.map { "\($0.steps)" }
+        return rollResult.map { "\($0.steps)" }
     }
 }
 
 // MARK: Yoot roll
-extension AppModel {
+private extension AppModel {
     func roll() async {
         var result: Yoot
+        canRollOnceMore = false
         switch Int.random(in: 1...5) {
         case 1: result = .doe
         case 2: result = .gae
         case 3: result = .gull
-        case 4: result = .yoot
-        case 5: result = .mo
+        case 4:
+            result = .yoot
+            canRollOnceMore = true
+        case 5:
+            result = .mo
+            canRollOnceMore = true
         default:
             result = .doe
         }
 
-//        switch result {
-//        case .doe:
-//            print("yootRoll: \(String(describing: result)), steps: \(Yoot.doe.steps))")
-//        case .gae:
-//            print("yootRoll: \(String(describing: result)), steps: \(Yoot.gae.steps))")
-//        case .gull:
-//            print("yootRoll: \(String(describing: result)), steps: \(Yoot.gull.steps))")
-//        case .yoot:
-//            print("yootRoll: \(String(describing: result)), steps: \(Yoot.yoot.steps))")
-//        case .mo:
-//            print("yootRoll: \(String(describing: result)), steps: \(Yoot.mo.steps))")
-//        }
-
-        yootRoll.append(result)
+        rollResult.append(result)
+    }
+    
+    func discardRollFor(target: TargetNode) {
+        rollResult = rollResult.filter { $0 != target.yootRoll }
     }
 }
 
 // MARK: Button tap
 extension AppModel {
+    func pressedRollButton() async {
+        await roll()
+    }
+
     func pressedNewMarkerButton() {
-        newMarkerSelected.toggle()
-        destinationNodes = getDestinationNodes()
+        self.newMarkerSelected = true
+        self.updateTargetNodes()
     }
 }
 
 // MARK: Calculations
 extension AppModel {
     // Retrieve the names of all possible nodes where a marker can be placed based on the outcome of each Yoot roll.
-    func getDestinationNodes(starting: NodeName = .bottomRightVertex) -> Set<NodeName> {
-        func step(node: NodeName, remainingSteps: Int, destination: inout Set<NodeName>) {
+    func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
+        func step(name: NodeName, yootRoll: Yoot, remainingSteps: Int, destination: inout Set<TargetNode>) {
             guard remainingSteps > 0 else {
-                destination.insert(node)
+                destination.insert(TargetNode(name: name, yootRoll: yootRoll))
                 return
             }
-            let nextNodes = nodeMap.getNextNodes(name: node)
+            let nextNodes = nodeMap.getNext(name: name)
             guard !nextNodes.isEmpty else { return }
             for nextNode in nextNodes {
-                step(node: nextNode, remainingSteps: remainingSteps - 1, destination: &destination)
+                step(name: nextNode, yootRoll: yootRoll, remainingSteps: remainingSteps - 1, destination: &destination)
             }
         }
 
-        var destinationNodes = Set<NodeName>()
-        for yootRoll in self.yootRoll {
-            step(node: starting, remainingSteps: yootRoll.steps, destination: &destinationNodes)
+        var targetNodes = Set<TargetNode>()
+        for yootRoll in self.rollResult {
+            step(name: starting, yootRoll: yootRoll, remainingSteps: yootRoll.steps, destination: &targetNodes)
         }
-        return destinationNodes
+        self.targetNodes = targetNodes
+    }
+    
+    func getTargetNode(nodeName: NodeName) -> TargetNode? {
+        targetNodes.filter({ $0.name == nodeName }).first
+    }
+    
+    func clearTargetNodes() {
+        self.targetNodes.removeAll()
     }
 }
 
 extension AppModel {
     func perform(node: Node) {
+        guard let targetNode = getTargetNode(nodeName: node.name) else { return }
         defer {
             updateMarkerMap(node: node)
+            discardRollFor(target: targetNode)
+            clearTargetNodes()
         }
         Task { @MainActor in
             do {
@@ -153,6 +162,7 @@ extension AppModel {
             return
         }
         markerMap[node.name] = markerCount + 1
+        print("Marker updated \(markerMap)")
     }
 
     func hasMarker(on node: Node) -> Bool {

@@ -4,7 +4,7 @@ Done: 1.Updated Tile: from position to location
 Done: 2. Build a board map
 - dictionary
 - [tilePosition(unique): connected tiles[tilePosition]]
-TODO: 3. Create a recursive function to determine whether the selected tile is eligible for marker placement.
+Done: 3. Create a recursive function to determine whether the selected tile is eligible for marker placement.
 
 import Foundation
 
@@ -20,3 +20,16 @@ import Foundation
 //  LN4    LBD2                     RBD2    RN1
 //   |   /                                \  |
 //  BLV --- BN1 --- BN2 --- BN3 --- BN4 --- BRV
+
+11/6/24
+Done
+1. If more than one yootRoll ex) [.mo, .gae], highlight the two tiles, move or place marker, then hightlight tile for the remaining yootRoll. 
+Maybe update var destinationNodes = Set<NodeName>() to var destinationNodes = Set<DestinationNode>()
+
+struct DestinationNode {
+	var name: NodeName
+	var yoot: Yoot
+}
+
+Todo
+2. Implement shortcut nodes. Diagonal nodes are only reachable from vertex nodes.

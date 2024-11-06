@@ -44,7 +44,7 @@ struct TileView: View {
             }
         }
         .onTapGesture {
-            if canPlaceMarker {
+            if isMarkerPlaceable {
                 print(node)
                 model.perform(node: node)
             }
@@ -58,20 +58,16 @@ struct TileView: View {
 }
 
 extension TileView {
-    var canPlaceMarker: Bool {
-        isVisibleTile && !containsMarker
+    var isMarkerPlaceable: Bool {
+        isVisibleTile && isDestinationNode
     }
 
     var isVisibleTile: Bool {
         node.name != .empty
     }
 
-    var containsMarker: Bool {
-        model.hasMarker(on: node)
-    }
-
-    var isMarkerPlaceable: Bool {
-        model.destinationNodes.contains { $0 == node.name }
+    var isDestinationNode: Bool {
+        model.targetNodes.contains { $0.name == node.name }
     }
 }
 
