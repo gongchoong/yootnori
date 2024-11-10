@@ -14,7 +14,7 @@ class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private let nodeMap = NodeMap()
 
-    var markerMap: [NodeName: Int] = [:]
+    private var markerMap: [Node: Entity] = [:]
 
     @State var markersToGo: Int = 4
     @Published var newMarkerSelected: Bool = false
@@ -23,9 +23,7 @@ class AppModel: ObservableObject {
 
     var canRollOnceMore: Bool = false
 
-    init() {
-        generateMarkerMap()
-    }
+    init() {}
 }
 
 extension AppModel {
@@ -113,7 +111,7 @@ extension AppModel {
     func perform(node: Node) {
         guard let targetNode = getTargetNode(nodeName: node.name) else { return }
         defer {
-            updateMarkerMap(node: node)
+            // updateMarkerMap(node: node)
             discardRollFor(target: targetNode)
             clearTargetNodes()
         }
@@ -151,24 +149,17 @@ extension AppModel {
 
 // MARK: MarkerMap
 extension AppModel {
-    func generateMarkerMap() {
-        for nodeName in NodeName.allCases {
-            markerMap[nodeName] = 0
-        }
+    @discardableResult
+    func updateMarkerMap(node: Node) -> Node{
+        markerMap[node] = .empty
+        return node
     }
 
     func updateMarkerMap(node: Node) {
-        guard let markerCount = markerMap[node.name] else {
+        guard let entity = markerMap[node] else {
             return
         }
-        markerMap[node.name] = markerCount + 1
-        print("Marker updated \(markerMap)")
-    }
 
-    func hasMarker(on node: Node) -> Bool {
-        guard let markerCounter = markerMap[node.name] else {
-            fatalError("markerMap should have markerCount per every node name")
-        }
-        return markerCounter > 0
+        print("Marker updated \(markerMap)")
     }
 }

@@ -25,7 +25,7 @@ struct BoardView: View {
                                     row: rowIndex
                                 )
                             )
-                            TileView(tile: edgeTile, node: node)
+                            TileView(tile: edgeTile, node: model.updateMarkerMap(node: node))
                         }
                     }
                 }
@@ -45,7 +45,7 @@ struct BoardView: View {
                                     row: rowIndex
                                 )
                             )
-                            TileView(tile: innerTile, node: node)
+                            TileView(tile: innerTile, node: model.updateMarkerMap(node: node))
                         }
                     }
                 }
