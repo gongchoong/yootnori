@@ -23,6 +23,13 @@ struct GameView: View {
                     .environmentObject(model)
             }
         }
+        .gesture(
+            TapGesture()
+                .targetedToAnyEntity()
+                .onEnded {
+                    self.model.perform(action: .tapMarker($0.entity))
+                }
+        )
         .frame(
             width: Dimensions.Screen.totalSize(self.physicalMetrics),
             height: 0

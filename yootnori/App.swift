@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RealityKitContent
 
 @main
 struct yootnoriApp: App {
@@ -20,5 +21,9 @@ struct yootnoriApp: App {
             FullSpaceView()
                 .environmentObject(model)
         }
+    }
+
+    init() {
+        RealityKitContent.MarkerComponent.registerComponent()
     }
 }

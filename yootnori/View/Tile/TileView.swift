@@ -45,8 +45,7 @@ struct TileView: View {
         }
         .onTapGesture {
             if isMarkerPlaceable {
-                print(node)
-                model.perform(node: node)
+                model.perform(action: .tapTile(node))
             }
         }
     }

@@ -14,7 +14,7 @@ class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private let nodeMap = NodeMap()
 
-    private var markerMap: [Node: Entity] = [:]
+    private var markerMap: MarkerMap
 
     @State var markersToGo: Int = 4
     @Published var newMarkerSelected: Bool = false
@@ -23,7 +23,9 @@ class AppModel: ObservableObject {
 
     var canRollOnceMore: Bool = false
 
-    init() {}
+    init() {
+        markerMap = MarkerMap()
+    }
 }
 
 extension AppModel {
@@ -108,50 +110,42 @@ extension AppModel {
 }
 
 extension AppModel {
-    func perform(node: Node) {
-        guard let targetNode = getTargetNode(nodeName: node.name) else { return }
-        defer {
-            // updateMarkerMap(node: node)
-            discardRollFor(target: targetNode)
-            clearTargetNodes()
-        }
-        Task { @MainActor in
-            do {
+    func perform(action: Action) {
+        switch action {
+        case .tapMarker(let entity):
+            let node = markerMap.getNode(from: entity)
+            print(node)
+        case .tapTile(let node):
+            // Create a new node
+            Task { @MainActor in
                 try await createNewMarker(at: node)
-            } catch {
-                fatalError("Failed to move marker to \(node.index)")
             }
         }
     }
 
     @MainActor
     func createNewMarker(at node: Node) async throws {
+        guard let targetNode = getTargetNode(nodeName: node.name) else { return }
+        defer {
+            discardRollFor(target: targetNode)
+            clearTargetNodes()
+        }
+
         do {
             let position = try node.index.position()
             let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
-//            let rotationAngle: Float = .pi / 2
-//            entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
             entity.position = position
             entity.components.set([
                 CollisionComponent(shapes: [{
-                    var value: ShapeResource = .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
-                    value = value.offsetBy(translation: [0, value.bounds.extents.y / 2, 0])
-                    return value
+                    .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
                 }()]),
-                InputTargetComponent()
+                InputTargetComponent(),
+                MarkerComponent(nodeName: node.name.rawValue)
             ])
             self.rootEntity.addChild(entity)
+            markerMap.update(node: node, entity: entity)
         } catch {
-            throw error
+            fatalError("Failed to move marker to \(node.index)")
         }
-    }
-}
-
-// MARK: MarkerMap
-extension AppModel {
-    @discardableResult
-    func updateMarkerMap(node: Node, entity: Entity = .empty) -> Node{
-        markerMap[node] = entity
-        return node
     }
 }
