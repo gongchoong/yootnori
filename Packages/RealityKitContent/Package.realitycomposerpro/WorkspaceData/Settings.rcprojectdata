@@ -7,7 +7,7 @@
     "sceneReverbPreset" : -1
   },
   "unitDefaults" : {
-    "°" : "°",
+    "°" : "rad",
     "kg" : "g",
     "m" : "cm",
     "m\/s" : "m\/s",

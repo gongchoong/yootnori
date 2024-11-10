@@ -117,7 +117,7 @@ extension AppModel {
         }
         Task { @MainActor in
             do {
-                try await createMarker(at: node)
+                try await createNewMarker(at: node)
             } catch {
                 fatalError("Failed to move marker to \(node.index)")
             }
@@ -125,12 +125,12 @@ extension AppModel {
     }
 
     @MainActor
-    func createMarker(at node: Node) async throws {
+    func createNewMarker(at node: Node) async throws {
         do {
             let position = try node.index.position()
             let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
-            let rotationAngle: Float = .pi / 2
-            entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
+//            let rotationAngle: Float = .pi / 2
+//            entity.transform.rotation = simd_quatf(angle: rotationAngle, axis: [1, 0, 0])
             entity.position = position
             entity.components.set([
                 CollisionComponent(shapes: [{
@@ -150,16 +150,8 @@ extension AppModel {
 // MARK: MarkerMap
 extension AppModel {
     @discardableResult
-    func updateMarkerMap(node: Node) -> Node{
-        markerMap[node] = .empty
+    func updateMarkerMap(node: Node, entity: Entity = .empty) -> Node{
+        markerMap[node] = entity
         return node
-    }
-
-    func updateMarkerMap(node: Node) {
-        guard let entity = markerMap[node] else {
-            return
-        }
-
-        print("Marker updated \(markerMap)")
     }
 }

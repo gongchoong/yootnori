@@ -23,12 +23,10 @@ struct GameView: View {
                     .environmentObject(model)
             }
         }
-        .rotation3DEffect(.degrees(45), axis: .x)
         .frame(
             width: Dimensions.Screen.totalSize(self.physicalMetrics),
             height: 0
         )
-        .frame(depth: Dimensions.Screen.totalSize(self.physicalMetrics))
     }
 }
 
