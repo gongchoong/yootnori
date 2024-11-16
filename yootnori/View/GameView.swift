@@ -27,13 +27,21 @@ struct GameView: View {
             TapGesture()
                 .targetedToAnyEntity()
                 .onEnded {
-                    self.model.perform(action: .tapMarker($0.entity))
+                    if isMarkerMovable {
+                        self.model.perform(action: .tapMarker($0.entity))
+                    }
                 }
         )
         .frame(
             width: Dimensions.Screen.totalSize(self.physicalMetrics),
             height: 0
         )
+    }
+}
+
+extension GameView {
+    var isMarkerMovable: Bool {
+        model.hasRemainingRoll
     }
 }
 

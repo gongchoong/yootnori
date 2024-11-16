@@ -40,12 +40,12 @@ struct DebugMainView: View {
                     Text("\(model.markersToGo)x")
                         .font(.system(size: 40))
                 }
-                .foregroundStyle(model.newMarkerSelected ? Color.accentColor : .white)
-                .background(model.newMarkerSelected ? Color.white : Color.accentColor)
+                .foregroundStyle(model.selectedMarker == .new ? Color.accentColor : .white)
+                .background(model.selectedMarker == .new ? Color.white : Color.accentColor)
                 .clipShape(Capsule())
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
-                .animation(.easeInOut, value: model.newMarkerSelected)
+                .animation(.easeInOut, value: model.selectedMarker == .new)
                 .disabled(!model.hasRemainingRoll)
             }
         }

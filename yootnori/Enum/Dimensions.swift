@@ -19,6 +19,11 @@ enum Dimensions {
         }
         static let pieceLiftOffset: Float = 0.1
     }
+    
+    enum Marker {
+        static let elevated: Float = 0.05
+        static let dropped: Float = 0.01
+    }
 #if os(visionOS)
     enum Screen {
         static func padding(_ physicalMetrics: PhysicalMetricsConverter) -> CGFloat {

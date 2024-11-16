@@ -51,3 +51,15 @@ enum NodeName: String, Equatable, CaseIterable {
     case center
     case empty
 }
+
+extension NodeName {
+    var isVertex: Bool {
+        let vertices: [Self] = [.bottomRightVertex, .topRightVertex, .topLeftVertex, .bottomLeftVertex, .center]
+        return vertices.contains(self)
+    }
+
+    var isInnerNode: Bool {
+        let innerNodes: [Self] = [.leftTopDiagonal1, .leftTopDiagonal2, .leftBottomDiagonal1, .leftBottomDiagonal2, .rightTopDiagonal1, .rightTopDiagonal2, .rightBottomDiagonal1, .rightBottomDiagonal2, .center]
+        return innerNodes.contains(self)
+    }
+}
