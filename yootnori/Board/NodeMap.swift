@@ -43,6 +43,14 @@ extension NodeMap {
     func getNodeDetail(from node: Node) -> NodeDetails? {
         return map.filter { $0.name == node.name }.first
     }
+
+    func getNodeDetail(from nodeName: NodeName) -> NodeDetails? {
+        return map.filter { $0.name == nodeName }.first
+    }
+
+    func getPrevious(name: NodeName) -> [NodeName] {
+        return map.filter { $0.name == name }.first?.prev ?? []
+    }
 }
 
 struct NodeDetails: Hashable {
