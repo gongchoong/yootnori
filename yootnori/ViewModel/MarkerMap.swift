@@ -13,8 +13,30 @@ class MarkerMap {
     private var map: [Node: Entity] = [:]
 
     init() {
-        initializeInnerNodes()
-        initializeOuterNodes()
+    }
+}
+
+extension MarkerMap {
+    func initializeOuterNodes(nodeMap: NodeMap) {
+        for (rowIndex, row) in Board.edgeTileLayout.enumerated() {
+            for (columnIndex, _) in row.enumerated() {
+                // Outer blue tiles on the edges (first and last row/column)
+                let edgeTile = Board.edgeTileLayout[rowIndex][columnIndex]
+                guard let node = nodeMap.getNode(from: edgeTile.nodeName) else { return }
+                map[node] = .empty
+            }
+        }
+    }
+
+    func initializeInnerNodes(nodeMap: NodeMap) {
+        for (rowIndex, row) in Board.innerTileLayout.enumerated() {
+            for (columnIndex, _) in row.enumerated() {
+                let innerTile = Board.innerTileLayout[rowIndex][columnIndex]
+                print(innerTile.nodeName)
+                guard let node = nodeMap.getNode(from: innerTile.nodeName) else { return }
+                map[node] = .empty
+            }
+        }
     }
 }
 
@@ -31,40 +53,5 @@ extension MarkerMap {
             let entityComponent: MarkerComponent = entity.components[MarkerComponent.self]!
             return valueComponent.nodeName == entityComponent.nodeName
         })?.key
-    }
-}
-
-private extension MarkerMap {
-    func initializeOuterNodes() {
-        for (rowIndex, row) in Board.edgeTileLayout.enumerated() {
-            for (columnIndex, _) in row.enumerated() {
-                // Outer blue tiles on the edges (first and last row/column)
-                let edgeTile = Board.edgeTileLayout[rowIndex][columnIndex]
-                let node = Node(
-                    name: edgeTile.nodeName,
-                    index: .outer(
-                        column: columnIndex,
-                        row: rowIndex
-                    )
-                )
-                map[node] = .empty
-            }
-        }
-    }
-
-    func initializeInnerNodes() {
-        for (rowIndex, row) in Board.innerTileLayout.enumerated() {
-            for (columnIndex, _) in row.enumerated() {
-                let innerTile = Board.innerTileLayout[rowIndex][columnIndex]
-                let node = Node(
-                    name: innerTile.nodeName,
-                    index: .inner(
-                        column: columnIndex,
-                        row: rowIndex
-                    )
-                )
-                map[node] = .empty
-            }
-        }
     }
 }

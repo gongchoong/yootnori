@@ -82,6 +82,6 @@ extension TileView {
             ],
             nodeName: .empty
         ),
-        node: Node(name: .empty, index: .outer(column: 0, row: 0))
+        node: Node(name: .empty, index: .outer(column: 0, row: 0), next: [], prev: [])
     )
 }

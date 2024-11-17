@@ -18,10 +18,9 @@ enum SelectedMarker: Equatable {
 @MainActor
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
-    private let nodeMap = NodeMap()
+    private let nodeMap: NodeMap
 
     private var markerMap: MarkerMap
-    var allNodes: [Node] = []
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
@@ -31,7 +30,10 @@ class AppModel: ObservableObject {
     var canRollOnceMore: Bool = false
 
     init() {
-        markerMap = MarkerMap()
+        self.nodeMap = NodeMap()
+        self.markerMap = MarkerMap()
+        markerMap.initializeInnerNodes(nodeMap: self.nodeMap)
+        markerMap.initializeOuterNodes(nodeMap: self.nodeMap)
     }
 }
 
@@ -163,12 +165,9 @@ extension AppModel {
             return [start]
         }
 
-        // Get the current node details
-        guard let currentNode = nodeMap.getNodeDetail(from: start) else { return nil }
-
         // Recursively explore each next node
-        for nextNodeName in currentNode.next {
-            guard let nextNode = allNodes.filter({ $0.name == nextNodeName }).first else { break }
+        for nextNodeName in start.next {
+            guard let nextNode = nodeMap.getNode(from: nextNodeName) else { break }
             if let path = findRoute(from: nextNode, to: destination, visited: newVisited) {
                 return [start] + path
             }
@@ -261,7 +260,7 @@ extension AppModel {
             }
         }
 
-        guard let currentNode = getNode(from: marker), let currentNodeDetail = nodeMap.getNodeDetail(from: currentNode) else { return }
+        guard let currentNode = getNode(from: marker) else { return }
         // get route from where current marker is to the destination node
         guard var route = findRoute(from: currentNode, to: node) else { return }
         route = route.filter { $0.name != currentNode.name }
@@ -329,9 +328,9 @@ private extension AppModel {
     }
 }
 
+// MARK: NodeMap
 extension AppModel {
-    func insertNode(node: Node) -> Node {
-        allNodes.append(node)
-        return node
+    func getNode(from nodeName: NodeName) -> Node? {
+        nodeMap.getNode(from: nodeName)
     }
 }
