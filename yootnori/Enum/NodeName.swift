@@ -53,13 +53,35 @@ enum NodeName: String, Equatable, CaseIterable {
 }
 
 extension NodeName {
-    var isVertex: Bool {
-        let vertices: [Self] = [.bottomRightVertex, .topRightVertex, .topLeftVertex, .bottomLeftVertex, .center]
-        return vertices.contains(self)
+    var isStartNode: Bool {
+        return self == .bottomRightVertex
+    }
+
+    var isTopVertexNode: Bool {
+        return [.topLeftVertex, .topRightVertex].contains(self)
     }
 
     var isInnerNode: Bool {
-        let innerNodes: [Self] = [.leftTopDiagonal1, .leftTopDiagonal2, .leftBottomDiagonal1, .leftBottomDiagonal2, .rightTopDiagonal1, .rightTopDiagonal2, .rightBottomDiagonal1, .rightBottomDiagonal2, .center]
-        return innerNodes.contains(self)
+        return [.leftTopDiagonal1, .leftTopDiagonal2, .leftBottomDiagonal1, .leftBottomDiagonal2, .rightTopDiagonal1, .rightTopDiagonal2, .rightBottomDiagonal1, .rightBottomDiagonal2, .center].contains(self)
+    }
+
+    var isBottomRightDiagonalNode: Bool {
+        return [.rightBottomDiagonal1, .rightBottomDiagonal2].contains(self)
+    }
+
+    var isBottomLeftDiagonalNode: Bool {
+        return [.leftBottomDiagonal1, .leftBottomDiagonal2].contains(self)
+    }
+
+    var isTopRightDiagonalNode: Bool {
+        return [.rightTopDiagonal1, .rightTopDiagonal2].contains(self)
+    }
+
+    var isTopLeftDiagonalNode: Bool {
+        return [.leftTopDiagonal1, .leftTopDiagonal2].contains(self)
+    }
+
+    var isCenterNode: Bool {
+        return self == .center
     }
 }

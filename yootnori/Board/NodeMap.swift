@@ -6,18 +6,23 @@
 //
 
 import Foundation
+import RealityKit
+import RealityKitContent
 
 class NodeMap {
-    private var map = Set<Node>()
+    private var nodeSet = Set<Node>()
+    private var markerMap: [Node: Entity] = [:]
 
     init() {
-        generateNodeMap()
+        generateNodeSet()
+        initializeMarkerMap()
     }
 }
 
-private extension NodeMap {
-    func generateNodeMap() {
-        map = [
+// MARK: Node Set
+extension NodeMap {
+    private func generateNodeSet() {
+        nodeSet = [
             // Outer nodes
             .topLeftVertex, .bottomLeftVertex, .topRightVertex, .bottomRightVertex,
             .topNode1, .topNode2, .topNode3, .topNode4,
@@ -33,18 +38,52 @@ private extension NodeMap {
             .rightBottomDiagonal1, .rightBottomDiagonal2
         ]
     }
-}
 
-extension NodeMap {
-    func getNext(name: NodeName) -> [NodeName] {
-        return map.filter { $0.name == name }.first?.next ?? []
+    func getNext(from nodeName: NodeName) -> [NodeName] {
+        return nodeSet.filter { $0.name == nodeName }.first?.next ?? []
     }
 
     func getNode(from nodeName: NodeName) -> Node? {
-        return map.filter { $0.name == nodeName }.first
+        return nodeSet.filter { $0.name == nodeName }.first
     }
 
-    func getPrevious(name: NodeName) -> [NodeName] {
-        return map.filter { $0.name == name }.first?.prev ?? []
+    func getPrevious(from nodeName: NodeName) -> [NodeName] {
+        return nodeSet.filter { $0.name == nodeName }.first?.prev ?? []
+    }
+}
+
+// MARK: Marker Map
+extension NodeMap {
+    private func initializeMarkerMap() {
+        for (rowIndex, row) in Board.innerTileLayout.enumerated() {
+            for (columnIndex, _) in row.enumerated() {
+                let innerTile = Board.innerTileLayout[rowIndex][columnIndex]
+                guard let node = getNode(from: innerTile.nodeName) else { return }
+                setEmpty(node: node)
+            }
+        }
+
+        for (rowIndex, row) in Board.edgeTileLayout.enumerated() {
+            for (columnIndex, _) in row.enumerated() {
+                // Outer blue tiles on the edges (first and last row/column)
+                let edgeTile = Board.edgeTileLayout[rowIndex][columnIndex]
+                guard let node = getNode(from: edgeTile.nodeName) else { return }
+                setEmpty(node: node)
+            }
+        }
+    }
+
+    func setEmpty(node: Node) {
+        markerMap[node] = .empty
+    }
+
+    func update(marker: Entity, node: Node) {
+        markerMap[node] = marker
+    }
+
+    func getNode(from entity: Entity) -> Node? {
+        return markerMap.first(where: {
+            $0.value == entity
+        })?.key
     }
 }

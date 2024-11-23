@@ -40,7 +40,7 @@ extension Node {
         Node(
             name: .topLeftVertex,
             index: Index.outer(column: 0, row: 0),
-            next: [.leftNode1, .leftTopDiagonal1],
+            next: [.leftTopDiagonal1, .leftNode1],
             prev: [.topNode4]
         )
     }
@@ -58,7 +58,7 @@ extension Node {
         Node(
             name: .topRightVertex,
             index: Index.outer(column: 5, row: 0),
-            next: [.topNode1, .rightTopDiagonal1],
+            next: [.rightTopDiagonal1, .topNode1],
             prev: [.rightNode4]
         )
     }
@@ -256,7 +256,7 @@ extension Node {
         Node(
             name: .center,
             index: Index.inner(column: 2, row: 2),
-            next: [.leftBottomDiagonal1, .rightBottomDiagonal1],
+            next: [.rightBottomDiagonal1, .leftBottomDiagonal1],
             prev: [.leftTopDiagonal2, .rightTopDiagonal2]
         )
     }

@@ -20,8 +20,6 @@ class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private let nodeMap: NodeMap
 
-    private var markerMap: MarkerMap
-
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
     @Published var rollResult: [Yoot] = []
@@ -31,9 +29,6 @@ class AppModel: ObservableObject {
 
     init() {
         self.nodeMap = NodeMap()
-        self.markerMap = MarkerMap()
-        markerMap.initializeInnerNodes(nodeMap: self.nodeMap)
-        markerMap.initializeOuterNodes(nodeMap: self.nodeMap)
     }
 }
 
@@ -70,7 +65,10 @@ private extension AppModel {
     }
     
     func discardRoll(for target: TargetNode) {
-        rollResult = rollResult.filter { $0 != target.yootRoll }
+        guard let index = rollResult.firstIndex(of: target.yootRoll) else {
+            return
+        }
+        rollResult.remove(at: index)
     }
 }
 
@@ -102,28 +100,24 @@ extension AppModel {
     // Retrieve the names of all possible nodes where a marker can be placed based on the outcome of each Yoot roll.
     func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
         func step(
-            starting: NodeName,
-            name: NodeName,
+            from: NodeName,
+            to: NodeName,
             yootRoll: Yoot,
             remainingSteps: Int,
             destination: inout Set<TargetNode>
         ) {
             guard remainingSteps > 0 else {
-                destination.insert(TargetNode(name: name, yootRoll: yootRoll))
+                destination.insert(TargetNode(name: to, yootRoll: yootRoll))
                 return
             }
-            var nextNodes = nodeMap.getNext(name: name)
-            
-            // inner nodes should only be reachable from vertex and other inner nodes
-            nextNodes = nextNodes.filter({ nodeName in
-                return nodeName.isInnerNode ? starting.isVertex || name.isInnerNode : true
-            })
+            var nextNodes = nodeMap.getNext(from: to)
+            filter(nextNodes: &nextNodes)
 
             guard !nextNodes.isEmpty else { return }
             for nextNode in nextNodes {
                 step(
-                    starting: starting,
-                    name: nextNode,
+                    from: starting,
+                    to: nextNode,
                     yootRoll: yootRoll,
                     remainingSteps: remainingSteps - 1,
                     destination: &destination
@@ -131,11 +125,40 @@ extension AppModel {
             }
         }
 
+        func filter(nextNodes: inout [NodeName]) {
+            // Inner nodes can only be reached if starting node is topRightVertex, topLeftVertex, or inner node
+            nextNodes = nextNodes.filter({ node in
+                node.isInnerNode ? starting.isInnerNode || starting == .topRightVertex || starting == .topLeftVertex : true
+            })
+
+            // If starting node is topRightVertex, or topLeftVertex, marker can only travel towards inner nodes.
+            nextNodes = nextNodes.filter({ node in
+                starting.isTopVertexNode ? node.isInnerNode : true
+            })
+
+            // If starting node is topRightVertex, or topRightDiagonals, marker cannot travel
+            // towards the bottomRightDiagonal nodes.
+            nextNodes = nextNodes.filter({ node in
+                starting == .topRightVertex || starting.isTopRightDiagonalNode ? !node.isBottomRightDiagonalNode : true
+            })
+
+            // If starting node is topLeftVertex, or topLeftDiagonals, marker cannot travel
+            // towards the bottomLeftDiagonal nodes.
+            nextNodes = nextNodes.filter({ node in
+                starting == .topLeftVertex || starting.isTopLeftDiagonalNode ? !node.isBottomLeftDiagonalNode : true
+            })
+
+            // If starting node is center, marker cannot travel towards the bottomLeftDiagonal nodes.
+            nextNodes = nextNodes.filter({ node in
+                starting == .center ? !node.isBottomLeftDiagonalNode : true
+            })
+        }
+
         var targetNodes = Set<TargetNode>()
         for yootRoll in self.rollResult {
             step(
-                starting: starting,
-                name: starting,
+                from: starting,
+                to: starting,
                 yootRoll: yootRoll,
                 remainingSteps: yootRoll.steps,
                 destination: &targetNodes
@@ -160,7 +183,7 @@ extension AppModel {
         var newVisited = visited
         newVisited.insert(start)
 
-        // If the start is the destination, return an empty array (exclude the starting node)
+        // If the start is the destination, return start
         if start == destination {
             return [start]
         }
@@ -239,10 +262,10 @@ extension AppModel {
                     .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
                 }()]),
                 InputTargetComponent(),
-                MarkerComponent(nodeName: node.name.rawValue)
+                MarkerComponent(level: 1)
             ])
             self.rootEntity.addChild(entity)
-            updateMarkerMap(node: node, entity: entity)
+            updateMarker(marker: entity, destination: node)
         } catch {
             fatalError("Failed to create a new marker at \(node.index)")
         }
@@ -251,25 +274,26 @@ extension AppModel {
     private func move(entity marker: Entity, to node: Node) async {
         func step(entity marker: Entity, to newNode: Node) async {
             do {
-                print("moving marker to \(newNode.name)")
-                await elevate(entity: marker, duration: 0.1)
-                try await advance(entity: marker, to: newNode)
-                await drop(entity: marker, duration: 0.1)
+                try await advance(entity: marker, to: newNode, duration: 0.2)
+                await drop(entity: marker, duration: 0.05)
             } catch {
                 fatalError("Failed to move selected marker to \(newNode.index)")
             }
         }
 
+        defer {
+            updateMarker(marker: marker, destination: node)
+        }
+
+        // get route from current node to the destination node
         guard let currentNode = getNode(from: marker) else { return }
-        // get route from where current marker is to the destination node
         guard var route = findRoute(from: currentNode, to: node) else { return }
+        // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
 
         for routeNode in route {
             await step(entity: marker, to: routeNode)
         }
-
-        updateMarkerMap(node: node, entity: marker)
     }
 
     private func advance(entity marker: Entity, to node: Node, duration: CGFloat = 0.5) async throws {
@@ -313,18 +337,18 @@ extension AppModel {
 
 // MARK: Marker Map
 private extension AppModel {
-    func updateMarkerMap(node: Node, entity: Entity) {
+    func updateMarker(marker: Entity, destination node: Node) {
         // find node where entity is
-        guard let previousNode = getNode(from: entity) else {
-            markerMap.update(node: node, entity: entity)
+        guard let currentNode = getNode(from: marker) else {
+            nodeMap.update(marker: marker, node: node)
             return
         }
-        markerMap.update(node: previousNode, entity: .empty)
-        markerMap.update(node: node, entity: entity)
+        nodeMap.setEmpty(node: currentNode)
+        nodeMap.update(marker: marker, node: node)
     }
     
-    func getNode(from entity: Entity) -> Node? {
-        markerMap.getNode(from: entity)
+    func getNode(from marker: Entity) -> Node? {
+        nodeMap.getNode(from: marker)
     }
 }
 
