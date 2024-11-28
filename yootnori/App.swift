@@ -25,5 +25,6 @@ struct yootnoriApp: App {
 
     init() {
         RealityKitContent.MarkerComponent.registerComponent()
+        MarkerRuntimeComponent.registerComponent()
     }
 }

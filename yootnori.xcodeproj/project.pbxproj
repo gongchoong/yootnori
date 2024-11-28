@@ -20,6 +20,9 @@
 		540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BC2C9F6F290056F03C /* BoardView.swift */; };
 		540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1C02C9F6F860056F03C /* AppModel.swift */; };
 		540EE1C32C9F74570056F03C /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1C22C9F74570056F03C /* TileView.swift */; };
+		542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */; };
+		5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702492CF83318003F017B /* AttachmentsProvider.swift */; };
+		5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5427024C2CF83466003F017B /* MarkerLevelView.swift */; };
 		5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */; };
 		5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D5112CA0CDC60065A4E3 /* TilePathView.swift */; };
 		544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544044462CE16A3A0023360C /* Entity+Extensions.swift */; };
@@ -52,6 +55,9 @@
 		540EE1BC2C9F6F290056F03C /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		540EE1C02C9F6F860056F03C /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		540EE1C22C9F74570056F03C /* TileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileView.swift; sourceTree = "<group>"; };
+		542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerRuntimeComponent.swift; sourceTree = "<group>"; };
+		542702492CF83318003F017B /* AttachmentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsProvider.swift; sourceTree = "<group>"; };
+		5427024C2CF83466003F017B /* MarkerLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerLevelView.swift; sourceTree = "<group>"; };
 		5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileView.swift; sourceTree = "<group>"; };
 		5436D5112CA0CDC60065A4E3 /* TilePathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilePathView.swift; sourceTree = "<group>"; };
 		544044462CE16A3A0023360C /* Entity+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entity+Extensions.swift"; sourceTree = "<group>"; };
@@ -100,6 +106,7 @@
 		540A18EC2C9F6CD500291CEF /* yootnori */ = {
 			isa = PBXGroup;
 			children = (
+				542702462CF832B4003F017B /* Components */,
 				544044452CE16A300023360C /* Extensions */,
 				5451CEC62CBB21AA00025081 /* Error */,
 				5457F5B12CA9F5C800C5EFB7 /* Board */,
@@ -137,6 +144,7 @@
 		540EE1BE2C9F6F740056F03C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				5427024B2CF8345E003F017B /* Marker */,
 				5436D50E2CA0C9B40065A4E3 /* Tile */,
 				540EE1BA2C9F6EC70056F03C /* GameView.swift */,
 				540EE1BC2C9F6F290056F03C /* BoardView.swift */,
@@ -151,6 +159,23 @@
 				540EE1C02C9F6F860056F03C /* AppModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		542702462CF832B4003F017B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */,
+				542702492CF83318003F017B /* AttachmentsProvider.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		5427024B2CF8345E003F017B /* Marker */ = {
+			isa = PBXGroup;
+			children = (
+				5427024C2CF83466003F017B /* MarkerLevelView.swift */,
+			);
+			path = Marker;
 			sourceTree = "<group>";
 		};
 		5436D50E2CA0C9B40065A4E3 /* Tile */ = {
@@ -277,6 +302,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */,
+				5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */,
 				54B21C592CDB29F10083CFD3 /* NodeMap.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
@@ -285,6 +312,7 @@
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,
 				540EE1C32C9F74570056F03C /* TileView.swift in Sources */,
 				544044492CE16F9B0023360C /* Action.swift in Sources */,
+				542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */,
 				540A18F42C9F6CD500291CEF /* ContentView.swift in Sources */,
 				5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */,
 				540A18F22C9F6CD500291CEF /* App.swift in Sources */,

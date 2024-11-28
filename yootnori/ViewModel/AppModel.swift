@@ -24,6 +24,8 @@ class AppModel: ObservableObject {
     @Published var selectedMarker: SelectedMarker = .none
     @Published var rollResult: [Yoot] = []
     @Published var targetNodes = Set<TargetNode>()
+    @Published var attachmentsProvider = AttachmentsProvider()
+    @Published var isLoading: Bool = false
 
     var canRollOnceMore: Bool = false
 
@@ -39,6 +41,10 @@ extension AppModel {
     
     var yootRollSteps: [String] {
         return rollResult.map { "\($0.steps)" }
+    }
+
+    var isMarkerMovable: Bool {
+        return hasRemainingRoll
     }
 }
 
@@ -204,44 +210,67 @@ extension AppModel {
 extension AppModel {
     func perform(action: Action) {
         switch action {
-        case .tapMarker(let entity):
+        case .tapMarker(let tapped):
             switch selectedMarker {
-            case .existing(let previous):
-                // if same marker is selected, unselect
-                if entity == previous {
-                    Task { @MainActor in
-                        await drop(entity: entity)
+            case .existing(let moving):
+                // If same marker is selected, unselect
+                if tapped == moving {
+                    withLoadingState {
+                        await self.drop(entity: tapped)
                     }
                     selectedMarker = .none
                     clearAllTargetNodes()
                 } else {
-                    // if different marker is selected, do nothing yet
+                    // If different marker is selected, piggy back
+                    guard let starting = getNode(from: moving) else { return }
+                    guard let destination = getNode(from: tapped) else { return }
+                    withLoadingState {
+                        // Move the marker, then piggy back
+                        guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
+                        self.discardRoll(for: targetNode)
+                        self.clearAllTargetNodes()
+                        await self.move(entity: moving, to: destination)
+                        await self.piggyBack(tapped: tapped, moving: moving)
+                        // Remove the moved marker, then update the marker map
+                        self.remove(at: starting)
+                        self.rootEntity.removeChild(moving)
+                        self.selectedMarker = .none
+                    }
                 }
-
-            case .new, .none:
-                // no previously selected marker -> set the new marker as selected
-                Task { @MainActor in
-                    await elevate(entity: entity)
+            case .new:
+                // Selected new marker, but another marker exists on the selected tile
+                // piggy back
+                guard let destination = getNode(from: tapped) else { return }
+                withLoadingState {
+                    // Move the marker, then piggy back
+                    guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
+                    self.discardRoll(for: targetNode)
+                    self.clearAllTargetNodes()
+                    await self.piggyBack(tapped: tapped)
+                    self.selectedMarker = .none
                 }
-                selectedMarker = .existing(entity)
-                guard let node = getNode(from: entity) else { return }
+            case .none:
+                // If no previously selected marker, then set the new marker as selected
+                withLoadingState {
+                    await self.elevate(entity: tapped)
+                }
+                selectedMarker = .existing(tapped)
+                guard let node = getNode(from: tapped) else { return }
                 updateTargetNodes(starting: node.name)
             }
         case .tapTile(let node):
             switch selectedMarker {
             case .new:
                 // Create a new marker.
-                Task { @MainActor in
-                    let entity = try await create(at: node)
-                    create(marker: entity, node: node)
-                    printMap()
+                withLoadingState {
+                    let entity = try await self.create(at: node)
+                    self.create(marker: entity, node: node)
                 }
             case .existing(let entity):
                 // Move selected marker to the selected tile.
-                Task { @MainActor in
-                    await move(entity: entity, to: node)
-                    update(marker: entity, destination: node)
-                    printMap()
+                withLoadingState {
+                    await self.move(entity: entity, to: node)
+                    self.update(marker: entity, destination: node)
                 }
             case .none:
                 break
@@ -292,6 +321,41 @@ extension AppModel {
             await step(entity: marker, to: routeNode)
         }
     }
+
+    private func piggyBack(tapped: Entity, moving: Entity? = nil) async {
+        guard let movingMarker = moving else {
+            incrementLevel(tapped: tapped)
+            printMap()
+            return
+        }
+        addLevel(tapped: tapped, moving: movingMarker)
+        printMap()
+    }
+
+    private func incrementLevel(tapped: Entity) {
+        guard var tappedMarkerComponent = tapped.components[MarkerComponent.self] else { return }
+        tappedMarkerComponent.level += 1
+        tapped.components[MarkerComponent.self] = tappedMarkerComponent
+        attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
+            guard let self = self else { return }
+            if self.isMarkerMovable {
+                self.perform(action: .tapMarker(tapped))
+            }
+        }, level: tappedMarkerComponent.level))
+    }
+
+    private func addLevel(tapped: Entity, moving: Entity) {
+        guard var tappedMarkerComponent = tapped.components[MarkerComponent.self] else { return }
+        guard let movingMarkerComponent = moving.components[MarkerComponent.self] else { return }
+        tappedMarkerComponent.level += movingMarkerComponent.level
+        tapped.components[MarkerComponent.self] = tappedMarkerComponent
+        attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
+            guard let self = self else { return }
+            if self.isMarkerMovable {
+                self.perform(action: .tapMarker(tapped))
+            }
+        }, level: tappedMarkerComponent.level))
+    }
 }
 
 // MARK: Marker animation
@@ -340,14 +404,17 @@ private extension AppModel {
 private extension AppModel {
     func create(marker: Entity, node: Node) {
         nodeMap.create(marker: marker, node: node)
+        printMap()
     }
 
     func update(marker: Entity, destination node: Node) {
         nodeMap.update(marker: marker, node: node)
+        printMap()
     }
 
     func remove(at node: Node) {
         nodeMap.remove(node: node)
+        printMap()
     }
 
     func getNode(from marker: Entity) -> Node? {
@@ -364,5 +431,19 @@ private extension AppModel {
 extension AppModel {
     func getNode(from nodeName: NodeName) -> Node? {
         nodeMap.getNode(from: nodeName)
+    }
+}
+
+private extension AppModel {
+    func withLoadingState(operation: @escaping () async throws -> Void) {
+        Task { @MainActor in
+            isLoading = true
+            do {
+                try await operation()
+            } catch {
+                print("error occured in withLoadingState")
+            }
+            isLoading = false
+        }
     }
 }

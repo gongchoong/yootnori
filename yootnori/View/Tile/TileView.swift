@@ -48,6 +48,7 @@ struct TileView: View {
                 model.perform(action: .tapTile(node))
             }
         }
+        .disabled(model.isLoading)
     }
     
     init(tile: Tile, node: Node) {
