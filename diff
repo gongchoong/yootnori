@@ -1,0 +1,580 @@
+diff --git a/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/SceneMetadataList.json b/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/SceneMetadataList.json
+index e278ff4..8bd455f 100644
+--- a/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/SceneMetadataList.json
++++ b/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/SceneMetadataList.json
+@@ -56,7 +56,8 @@
+     "objectMetadataList" : [
+       [
+         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+-        "Root"
++        "Root",
++        "Sphere"
+       ],
+       {
+         "isExpanded" : true,
+@@ -65,7 +66,7 @@
+       [
+         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+         "Root",
+-        "Cylinder"
++        "Cube"
+       ],
+       {
+         "isExpanded" : true,
+@@ -74,7 +75,7 @@
+       [
+         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+         "Root",
+-        "Sphere"
++        "Cylinder"
+       ],
+       {
+         "isExpanded" : true,
+@@ -82,8 +83,7 @@
+       },
+       [
+         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+-        "Root",
+-        "Cube"
++        "Root"
+       ],
+       {
+         "isExpanded" : true,
+@@ -95,20 +95,20 @@
+     "objectMetadataList" : [
+       [
+         "E74675DA-53C4-4741-AD1D-B9E2DF70F939",
+-        "Root",
+-        "Cube"
++        "Root"
+       ],
+       {
+         "isExpanded" : true,
+-        "isLocked" : true
++        "isLocked" : false
+       },
+       [
+         "E74675DA-53C4-4741-AD1D-B9E2DF70F939",
+-        "Root"
++        "Root",
++        "Cube"
+       ],
+       {
+         "isExpanded" : true,
+-        "isLocked" : false
++        "isLocked" : true
+       }
+     ]
+   }
+diff --git a/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/davidlee.rcuserdata b/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/davidlee.rcuserdata
+index c45673f..f0e90ea 100644
+--- a/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/davidlee.rcuserdata
++++ b/Packages/RealityKitContent/Package.realitycomposerpro/WorkspaceData/davidlee.rcuserdata
+@@ -34,6 +34,28 @@
+       }
+     ],
+     "D66134B1-3681-4A8E-AFE5-29F257229F3B" : [
++      {
++        "date" : 754433172.279667,
++        "title" : "Untitled",
++        "transform" : [
++          1,
++          0,
++          0,
++          0,
++          0,
++          0.8660253,
++          -0.5000001,
++          0,
++          0,
++          0.5000001,
++          0.8660253,
++          0,
++          -0.019333845,
++          0.07992439,
++          0.12039853,
++          1
++        ]
++      },
+       {
+         "date" : 752970939.044532,
+         "title" : "Untitled",
+diff --git a/yootnori.xcodeproj/project.pbxproj b/yootnori.xcodeproj/project.pbxproj
+index e17bc6a..7bcdacd 100644
+--- a/yootnori.xcodeproj/project.pbxproj
++++ b/yootnori.xcodeproj/project.pbxproj
+@@ -29,6 +29,9 @@
+ 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
+ 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
+ 		5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B42CA9F9B500C5EFB7 /* Board.swift */; };
++		545BF3D22CF7A7140015C46E /* MarkerLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 545BF3D12CF7A7140015C46E /* MarkerLevelView.swift */; };
++		545BF3D52CF7AD960015C46E /* MarkerRuntimeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 545BF3D42CF7AD960015C46E /* MarkerRuntimeComponent.swift */; };
++		545BF3D72CF7AFF90015C46E /* AttachmentsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 545BF3D62CF7AFF90015C46E /* AttachmentsProvider.swift */; };
+ 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
+ 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
+ 		54B21C592CDB29F10083CFD3 /* NodeMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B21C582CDB29F10083CFD3 /* NodeMap.swift */; };
+@@ -61,6 +64,9 @@
+ 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
+ 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
+ 		5457F5B42CA9F9B500C5EFB7 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
++		545BF3D12CF7A7140015C46E /* MarkerLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerLevelView.swift; sourceTree = "<group>"; };
++		545BF3D42CF7AD960015C46E /* MarkerRuntimeComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerRuntimeComponent.swift; sourceTree = "<group>"; };
++		545BF3D62CF7AFF90015C46E /* AttachmentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsProvider.swift; sourceTree = "<group>"; };
+ 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
+ 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
+ 		54B21C582CDB29F10083CFD3 /* NodeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMap.swift; sourceTree = "<group>"; };
+@@ -100,6 +106,7 @@
+ 		540A18EC2C9F6CD500291CEF /* yootnori */ = {
+ 			isa = PBXGroup;
+ 			children = (
++				545BF3D32CF7AD8B0015C46E /* Components */,
+ 				544044452CE16A300023360C /* Extensions */,
+ 				5451CEC62CBB21AA00025081 /* Error */,
+ 				5457F5B12CA9F5C800C5EFB7 /* Board */,
+@@ -137,6 +144,7 @@
+ 		540EE1BE2C9F6F740056F03C /* View */ = {
+ 			isa = PBXGroup;
+ 			children = (
++				545BF3CE2CF7A6F70015C46E /* Marker */,
+ 				5436D50E2CA0C9B40065A4E3 /* Tile */,
+ 				540EE1BA2C9F6EC70056F03C /* GameView.swift */,
+ 				540EE1BC2C9F6F290056F03C /* BoardView.swift */,
+@@ -203,6 +211,23 @@
+ 			path = Board;
+ 			sourceTree = "<group>";
+ 		};
++		545BF3CE2CF7A6F70015C46E /* Marker */ = {
++			isa = PBXGroup;
++			children = (
++				545BF3D12CF7A7140015C46E /* MarkerLevelView.swift */,
++			);
++			path = Marker;
++			sourceTree = "<group>";
++		};
++		545BF3D32CF7AD8B0015C46E /* Components */ = {
++			isa = PBXGroup;
++			children = (
++				545BF3D42CF7AD960015C46E /* MarkerRuntimeComponent.swift */,
++				545BF3D62CF7AFF90015C46E /* AttachmentsProvider.swift */,
++			);
++			path = Components;
++			sourceTree = "<group>";
++		};
+ /* End PBXGroup section */
+ 
+ /* Begin PBXNativeTarget section */
+@@ -289,6 +314,7 @@
+ 				5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */,
+ 				540A18F22C9F6CD500291CEF /* App.swift in Sources */,
+ 				5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */,
++				545BF3D52CF7AD960015C46E /* MarkerRuntimeComponent.swift in Sources */,
+ 				54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */,
+ 				540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */,
+ 				54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */,
+@@ -298,8 +324,10 @@
+ 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
+ 				5408E1B82CAB4BA800580E82 /* Dimensions.swift in Sources */,
+ 				5451CEC82CBB21B500025081 /* PositionError.swift in Sources */,
++				545BF3D22CF7A7140015C46E /* MarkerLevelView.swift in Sources */,
+ 				540EE1BB2C9F6EC70056F03C /* GameView.swift in Sources */,
+ 				544B33042CB1DBC100365A68 /* Index.swift in Sources */,
++				545BF3D72CF7AFF90015C46E /* AttachmentsProvider.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/yootnori/App.swift b/yootnori/App.swift
+index 1be127a..a63ea71 100644
+--- a/yootnori/App.swift
++++ b/yootnori/App.swift
+@@ -25,5 +25,6 @@ struct yootnoriApp: App {
+ 
+     init() {
+         RealityKitContent.MarkerComponent.registerComponent()
++        MarkerRuntimeComponent.registerComponent()
+     }
+ }
+diff --git a/yootnori/Board/NodeMap.swift b/yootnori/Board/NodeMap.swift
+index c02599c..518c11f 100644
+--- a/yootnori/Board/NodeMap.swift
++++ b/yootnori/Board/NodeMap.swift
+@@ -50,6 +50,15 @@ extension NodeMap {
+     func getPrevious(from nodeName: NodeName) -> [NodeName] {
+         return nodeSet.filter { $0.name == nodeName }.first?.prev ?? []
+     }
++    
++    func printMap() {
++        let map = markerMap.filter { $0.value != .empty }
++        print("Node map: ")
++        for item in map.keys {
++            print(item.name)
++            print(item.index)
++        }
++    }
+ }
+ 
+ // MARK: Marker Map
+@@ -71,15 +80,17 @@ extension NodeMap {
+                 setEmpty(node: node)
+             }
+         }
++        
++        print(markerMap.filter { $0.value != .empty }.count)
+     }
+ 
+     func setEmpty(node: Node) {
+         markerMap[node] = .empty
+     }
+ 
+-    func update(marker: Entity, node: Node) {
+-        markerMap[node] = marker
+-    }
++//    func update(marker: Entity, node: Node) {
++//        markerMap[node] = marker
++//    }
+ 
+     func getNode(from entity: Entity) -> Node? {
+         return markerMap.first(where: {
+diff --git a/yootnori/Components/AttachmentsProvider.swift b/yootnori/Components/AttachmentsProvider.swift
+index da0c732..9680969 100644
+--- a/yootnori/Components/AttachmentsProvider.swift
++++ b/yootnori/Components/AttachmentsProvider.swift
+@@ -5,4 +5,17 @@
+ //  Created by David Lee on 11/27/24.
+ //
+ 
+-import Foundation
++import SwiftUI
++import Observation
++
++@Observable
++final class AttachmentsProvider {
++
++    var attachments: [ObjectIdentifier: AnyView] = [:]
++
++    var sortedTagViewPairs: [(tag: ObjectIdentifier, view: AnyView)] {
++        attachments.map { key, value in
++            (tag: key, view: value)
++        }.sorted { $0.tag < $1.tag }
++    }
++}
+diff --git a/yootnori/Components/MarkerRuntimeComponent.swift b/yootnori/Components/MarkerRuntimeComponent.swift
+index fd2fcae..5e6f7d7 100644
+--- a/yootnori/Components/MarkerRuntimeComponent.swift
++++ b/yootnori/Components/MarkerRuntimeComponent.swift
+@@ -6,3 +6,8 @@
+ //
+ 
+ import Foundation
++import RealityKit
++
++public struct MarkerRuntimeComponent: Component {
++    public let attachmentTag: ObjectIdentifier
++}
+diff --git a/yootnori/View/GameView.swift b/yootnori/View/GameView.swift
+index 671a13a..3a64ebe 100644
+--- a/yootnori/View/GameView.swift
++++ b/yootnori/View/GameView.swift
+@@ -7,29 +7,54 @@
+ 
+ import SwiftUI
+ import RealityKit
++import RealityKitContent
+ 
+ struct GameView: View {
+     @EnvironmentObject var model: AppModel
+     @Environment(\.physicalMetrics) var physicalMetrics
++
++    static let runtimeQuery = EntityQuery(where: .has(MarkerRuntimeComponent.self))
++
++    @State private var subscriptions = [EventSubscription]()
+     
+     var body: some View {
+         RealityView { content, attachments in
+-            attachments.entity(for: "board")!.name = "board"
+-            self.model.rootEntity.addChild(attachments.entity(for: "board")!)
+-            content.add(self.model.rootEntity)
++            do {
++                attachments.entity(for: "board")!.name = "board"
++                self.model.rootEntity.addChild(attachments.entity(for: "board")!)
++                content.add(self.model.rootEntity)
++
++                subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
++                    createLevelView(for: event.entity)
++                }))
++            } catch {
++                fatalError("Error while creating in reality view")
++            }
++        } update: { content, attachments in
++            model.rootEntity.scene?.performQuery(Self.runtimeQuery).forEach { entity in
++                guard let component = entity.components[MarkerRuntimeComponent.self] else { return }
++                guard let attachmentEntity = attachments.entity(for: component.attachmentTag) else { return }
++
++                entity.addChild(attachmentEntity)
++                attachmentEntity.setPosition([0.0, 0.0, 0.01], relativeTo: entity)
++            }
+         } attachments: {
+             Attachment(id: "board") {
+                 BoardView()
+                     .environmentObject(model)
+             }
++
++            ForEach(model.attachmentsProvider.sortedTagViewPairs, id: \.tag) { pair in
++                Attachment(id: pair.tag) {
++                    pair.view
++                }
++            }
+         }
+         .gesture(
+             TapGesture()
+                 .targetedToAnyEntity()
+                 .onEnded {
+-                    if isMarkerMovable {
+-                        self.model.perform(action: .tapMarker($0.entity))
+-                    }
++                    handleMarkerTapGesture(marker: $0.entity)
+                 }
+         )
+         .frame(
+@@ -39,9 +64,33 @@ struct GameView: View {
+     }
+ }
+ 
+-extension GameView {
+-    var isMarkerMovable: Bool {
+-        model.hasRemainingRoll
++private extension GameView {
++    func createLevelView(for entity: Entity) {
++        guard entity.components[MarkerRuntimeComponent.self] == nil else { return }
++
++        guard let markerComponent = entity.components[MarkerComponent.self] else { return }
++        let tag: ObjectIdentifier = entity.id
++        let view = MarkerLevelView(tapAction: {
++            handleMarkerTapGesture(marker: entity)
++        }, level: markerComponent.level)
++            .tag(tag)
++
++        entity.components[MarkerRuntimeComponent.self] = MarkerRuntimeComponent(attachmentTag: entity.id)
++
++        model.attachmentsProvider.attachments[tag] = AnyView(view)
++    }
++
++    func handleMarkerTapGesture(marker: Entity) {
++        if model.isMarkerMovable {
++            model.perform(action: .tapMarker(marker))
++
++//            guard var markerComponent = marker.components[MarkerComponent.self] else { return }
++//            markerComponent.level += 1
++//            marker.components[MarkerComponent.self] = markerComponent
++//            attachmentsProvider.attachments[marker.id] = AnyView(MarkerLevelView(tapAction: {
++//                handleMarkerTapGesture(marker: marker)
++//            }, level: markerComponent.level))
++        }
+     }
+ }
+ 
+diff --git a/yootnori/View/Marker/MarkerLevelView.swift b/yootnori/View/Marker/MarkerLevelView.swift
+index d8954ef..f002a95 100644
+--- a/yootnori/View/Marker/MarkerLevelView.swift
++++ b/yootnori/View/Marker/MarkerLevelView.swift
+@@ -8,11 +8,18 @@
+ import SwiftUI
+ 
+ struct MarkerLevelView: View {
++    var tapAction: (() -> Void)
++
++    var level: Int = 0
+     var body: some View {
+-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
++        Text("x\(level)")
++            .gesture(TapGesture()
++                .onEnded {
++                    tapAction()
++                })
+     }
+ }
+ 
+ #Preview {
+-    MarkerLevelView()
++    MarkerLevelView(tapAction: {})
+ }
+diff --git a/yootnori/ViewModel/AppModel.swift b/yootnori/ViewModel/AppModel.swift
+index f99c82a..49a33aa 100644
+--- a/yootnori/ViewModel/AppModel.swift
++++ b/yootnori/ViewModel/AppModel.swift
+@@ -24,6 +24,7 @@ class AppModel: ObservableObject {
+     @Published var selectedMarker: SelectedMarker = .none
+     @Published var rollResult: [Yoot] = []
+     @Published var targetNodes = Set<TargetNode>()
++    @Published var attachmentsProvider = AttachmentsProvider()
+ 
+     var canRollOnceMore: Bool = false
+ 
+@@ -40,6 +41,10 @@ extension AppModel {
+     var yootRollSteps: [String] {
+         return rollResult.map { "\($0.steps)" }
+     }
++
++    var isMarkerMovable: Bool {
++        hasRemainingRoll
++    }
+ }
+ 
+ // MARK: Yoot roll
+@@ -204,52 +209,74 @@ extension AppModel {
+ extension AppModel {
+     func perform(action: Action) {
+         switch action {
+-        case .tapMarker(let entity):
++        case .tapMarker(let tappedMarker):
+             switch selectedMarker {
+             case .existing(let previous):
+                 // if same marker is selected, unselect
+-                if entity == previous {
++                if tappedMarker == previous {
+                     selectedMarker = .none
+                     clearAllTargetNodes()
+                     Task { @MainActor in
+-                        await drop(entity: entity)
++                        await drop(entity: tappedMarker)
+                     }
+                 } else {
+                     // if different marker is selected, do nothing yet
++                    guard let node = getNode(from: tappedMarker) else { return }
++                    // If existing node can travel to the tile where selected node is at, piggy back
++                    guard let targetNode = self.targetNodes.filter({ $0.name == node.name }).first else  {
++                        return
++                    }
++                    guard let previousNode = getNode(from: previous) else { return }
++                    
++//                    defer {
++//                        discardRoll(for: targetNode)
++//                        clearAllTargetNodes()
++//                        selectedMarker = .none
++//                        emptyNode(at: previousNode)
++//                        nodeMap.printMap()
++//                    }
++                    
++                    Task { @MainActor in
++                        await piggyBack(newMarker: previous, oldMarker:tappedMarker)
++                    }
++                    print("piggy back")
+                 }
+ 
+             case .new, .none:
+                 // no previously selected marker -> set the new marker as selected
+-                selectedMarker = .existing(entity)
+-                guard let node = getNode(from: entity) else { return }
++                selectedMarker = .existing(tappedMarker)
++                guard let node = getNode(from: tappedMarker) else { return }
+                 updateTargetNodes(starting: node.name)
+                 Task { @MainActor in
+-                    await elevate(entity: entity)
++                    await elevate(entity: tappedMarker)
+                 }
+             }
+         case .tapTile(let node):
+             guard let targetNode = getTargetNode(nodeName: node.name) else { return }
+-            defer {
+-                discardRoll(for: targetNode)
+-                clearAllTargetNodes()
+-                selectedMarker = .none
+-            }
+ 
+             switch selectedMarker {
+             case .new:
+                 // Create a new marker.
+                 Task { @MainActor in
+                     try await create(at: node)
++                    print(node)
+                 }
+             case .existing(let entity):
+                 // Move selected marker to the selected tile.
+                 Task { @MainActor in
+                     await move(entity: entity, to: node)
++                    // updateMarker(marker: entity, destination: node)
+                 }
+             case .none:
+                 break
+             }
++            
++            discardRoll(for: targetNode)
++            clearAllTargetNodes()
++            selectedMarker = .none
+         }
++        
++        nodeMap.printMap()
+     }
+ 
+     private func create(at node: Node) async throws {
+@@ -265,12 +292,32 @@ extension AppModel {
+                 MarkerComponent(level: 1)
+             ])
+             self.rootEntity.addChild(entity)
+-            updateMarker(marker: entity, destination: node)
++            // updateMarker(marker: entity, destination: node)
+         } catch {
+             fatalError("Failed to create a new marker at \(node.index)")
+         }
+     }
+     
++    private func piggyBack(newMarker new: Entity, oldMarker old: Entity) async {
++        guard let node = getNode(from: old) else { return }
++        await move(entity: new, to: node)
++        
++        increaseLevel(marker: old)
++        self.rootEntity.removeChild(new)
++    }
++    
++    private func increaseLevel(marker: Entity) {
++        guard var markerComponent = marker.components[MarkerComponent.self] else { return }
++        markerComponent.level += 1
++        marker.components[MarkerComponent.self] = markerComponent
++        attachmentsProvider.attachments[marker.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
++            guard let self = self else { return }
++            if self.isMarkerMovable {
++                self.perform(action: .tapMarker(marker))
++            }
++        }, level: markerComponent.level))
++    }
++    
+     private func move(entity marker: Entity, to node: Node) async {
+         func step(entity marker: Entity, to newNode: Node) async {
+             do {
+@@ -281,10 +328,6 @@ extension AppModel {
+             }
+         }
+ 
+-        defer {
+-            updateMarker(marker: marker, destination: node)
+-        }
+-
+         // get route from current node to the destination node
+         guard let currentNode = getNode(from: marker) else { return }
+         guard var route = findRoute(from: currentNode, to: node) else { return }
+@@ -337,14 +380,18 @@ extension AppModel {
+ 
+ // MARK: Marker Map
+ private extension AppModel {
+-    func updateMarker(marker: Entity, destination node: Node) {
+-        // find node where entity is
+-        guard let currentNode = getNode(from: marker) else {
+-            nodeMap.update(marker: marker, node: node)
+-            return
+-        }
+-        nodeMap.setEmpty(node: currentNode)
+-        nodeMap.update(marker: marker, node: node)
++//    func updateMarker(marker: Entity, destination node: Node) {
++//        // find node where entity is
++//        guard let currentNode = getNode(from: marker) else {
++//            nodeMap.update(marker: marker, node: node)
++//            return
++//        }
++//        nodeMap.setEmpty(node: currentNode)
++//        nodeMap.update(marker: marker, node: node)
++//    }
++    
++    func emptyNode(at node: Node) {
++        nodeMap.setEmpty(node: node)
+     }
+     
+     func getNode(from marker: Entity) -> Node? {

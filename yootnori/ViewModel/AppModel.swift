@@ -209,50 +209,51 @@ extension AppModel {
             case .existing(let previous):
                 // if same marker is selected, unselect
                 if entity == previous {
-                    selectedMarker = .none
-                    clearAllTargetNodes()
                     Task { @MainActor in
                         await drop(entity: entity)
                     }
+                    selectedMarker = .none
+                    clearAllTargetNodes()
                 } else {
                     // if different marker is selected, do nothing yet
                 }
 
             case .new, .none:
                 // no previously selected marker -> set the new marker as selected
-                selectedMarker = .existing(entity)
-                guard let node = getNode(from: entity) else { return }
-                updateTargetNodes(starting: node.name)
                 Task { @MainActor in
                     await elevate(entity: entity)
                 }
+                selectedMarker = .existing(entity)
+                guard let node = getNode(from: entity) else { return }
+                updateTargetNodes(starting: node.name)
             }
         case .tapTile(let node):
-            guard let targetNode = getTargetNode(nodeName: node.name) else { return }
-            defer {
-                discardRoll(for: targetNode)
-                clearAllTargetNodes()
-                selectedMarker = .none
-            }
-
             switch selectedMarker {
             case .new:
                 // Create a new marker.
                 Task { @MainActor in
-                    try await create(at: node)
+                    let entity = try await create(at: node)
+                    create(marker: entity, node: node)
+                    printMap()
                 }
             case .existing(let entity):
                 // Move selected marker to the selected tile.
                 Task { @MainActor in
                     await move(entity: entity, to: node)
+                    update(marker: entity, destination: node)
+                    printMap()
                 }
             case .none:
                 break
             }
+            guard let targetNode = getTargetNode(nodeName: node.name) else { return }
+            discardRoll(for: targetNode)
+            clearAllTargetNodes()
+            selectedMarker = .none
         }
     }
 
-    private func create(at node: Node) async throws {
+    private func create(at node: Node) async throws -> Entity {
         do {
             let position = try node.index.position()
             let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
@@ -265,7 +266,7 @@ extension AppModel {
                 MarkerComponent(level: 1)
             ])
             self.rootEntity.addChild(entity)
-            updateMarker(marker: entity, destination: node)
+            return entity
         } catch {
             fatalError("Failed to create a new marker at \(node.index)")
         }
@@ -281,10 +282,6 @@ extension AppModel {
             }
         }
 
-        defer {
-            updateMarker(marker: marker, destination: node)
-        }
-
         // get route from current node to the destination node
         guard let currentNode = getNode(from: marker) else { return }
         guard var route = findRoute(from: currentNode, to: node) else { return }
@@ -295,8 +292,12 @@ extension AppModel {
             await step(entity: marker, to: routeNode)
         }
     }
+}
 
-    private func advance(entity marker: Entity, to node: Node, duration: CGFloat = 0.5) async throws {
+// MARK: Marker animation
+
+private extension AppModel {
+    func advance(entity marker: Entity, to node: Node, duration: CGFloat = 0.5) async throws {
         let newPosition = try node.index.position()
         var translation = marker.position
         translation = newPosition
@@ -311,7 +312,7 @@ extension AppModel {
         try? await Task.sleep(for: .seconds(duration))
     }
 
-    private func elevate(entity marker: Entity, duration: CGFloat = 0.6) async {
+    func elevate(entity marker: Entity, duration: CGFloat = 0.6) async {
         do {
             var translation = marker.position
             translation.z = Dimensions.Marker.elevated
@@ -322,7 +323,7 @@ extension AppModel {
         }
     }
     
-    private func drop(entity marker: Entity, duration: CGFloat = 0.6) async {
+    func drop(entity marker: Entity, duration: CGFloat = 0.6) async {
         do {
             var translation = marker.position
             translation.z = Dimensions.Marker.dropped
@@ -337,18 +338,25 @@ extension AppModel {
 
 // MARK: Marker Map
 private extension AppModel {
-    func updateMarker(marker: Entity, destination node: Node) {
-        // find node where entity is
-        guard let currentNode = getNode(from: marker) else {
-            nodeMap.update(marker: marker, node: node)
-            return
-        }
-        nodeMap.setEmpty(node: currentNode)
+    func create(marker: Entity, node: Node) {
+        nodeMap.create(marker: marker, node: node)
+    }
+
+    func update(marker: Entity, destination node: Node) {
         nodeMap.update(marker: marker, node: node)
     }
-    
+
+    func remove(at node: Node) {
+        nodeMap.remove(node: node)
+    }
+
     func getNode(from marker: Entity) -> Node? {
         nodeMap.getNode(from: marker)
+    }
+
+    func printMap() {
+        print("printing nodemap..")
+        nodeMap.printMap()
     }
 }
 

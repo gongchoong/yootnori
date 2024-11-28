@@ -11,11 +11,10 @@ import RealityKitContent
 
 class NodeMap {
     private var nodeSet = Set<Node>()
-    private var markerMap: [Node: Entity] = [:]
+    private var markerMap: [Node: Entity?] = [:]
 
     init() {
         generateNodeSet()
-        initializeMarkerMap()
     }
 }
 
@@ -54,30 +53,17 @@ extension NodeMap {
 
 // MARK: Marker Map
 extension NodeMap {
-    private func initializeMarkerMap() {
-        for (rowIndex, row) in Board.innerTileLayout.enumerated() {
-            for (columnIndex, _) in row.enumerated() {
-                let innerTile = Board.innerTileLayout[rowIndex][columnIndex]
-                guard let node = getNode(from: innerTile.nodeName) else { return }
-                setEmpty(node: node)
-            }
-        }
-
-        for (rowIndex, row) in Board.edgeTileLayout.enumerated() {
-            for (columnIndex, _) in row.enumerated() {
-                // Outer blue tiles on the edges (first and last row/column)
-                let edgeTile = Board.edgeTileLayout[rowIndex][columnIndex]
-                guard let node = getNode(from: edgeTile.nodeName) else { return }
-                setEmpty(node: node)
-            }
-        }
+    func create(marker: Entity, node: Node) {
+        markerMap[node] = marker
     }
 
-    func setEmpty(node: Node) {
-        markerMap[node] = .empty
+    func remove(node: Node) {
+        markerMap[node] = nil
     }
 
     func update(marker: Entity, node: Node) {
+        guard let previousNode = markerMap.first(where: { $0.value == marker })?.key else { return }
+        markerMap[previousNode] = nil
         markerMap[node] = marker
     }
 
@@ -85,5 +71,12 @@ extension NodeMap {
         return markerMap.first(where: {
             $0.value == entity
         })?.key
+    }
+
+    func printMap() {
+        let map = markerMap.filter { $0.value != nil }
+        for item in map.keys {
+            print(item.name)
+        }
     }
 }
