@@ -21,8 +21,9 @@ enum Dimensions {
     }
     
     enum Marker {
-        static let elevated: Float = 0.05
+        static let elevated: Float = 0.04
         static let dropped: Float = 0.01
+        static let duration: CGFloat = 0.15
     }
 #if os(visionOS)
     enum Screen {

@@ -310,8 +310,8 @@ extension AppModel {
     private func move(entity marker: Entity, to node: Node, isNewEntity: Bool = false) async {
         func step(entity marker: Entity, to newNode: Node) async {
             do {
-                try await advance(entity: marker, to: newNode, duration: 0.2)
-                await drop(entity: marker, duration: 0.05)
+                try await advance(entity: marker, to: newNode, duration: Dimensions.Marker.duration)
+                await drop(entity: marker, duration: Dimensions.Marker.duration)
             } catch {
                 fatalError("Failed to move selected marker to \(newNode.index)")
             }
@@ -367,7 +367,7 @@ extension AppModel {
 // MARK: Marker animation
 
 private extension AppModel {
-    func advance(entity marker: Entity, to node: Node, duration: CGFloat = 0.5) async throws {
+    func advance(entity marker: Entity, to node: Node, duration: CGFloat) async throws {
         let newPosition = try node.index.position()
         var translation = marker.position
         translation = newPosition
@@ -397,7 +397,6 @@ private extension AppModel {
         do {
             var translation = marker.position
             translation.z = Dimensions.Marker.dropped
-            let duration: TimeInterval = 0.6
             marker.move(to: .init(translation: translation),
                                  relativeTo: self.rootEntity,
                                  duration: duration)
