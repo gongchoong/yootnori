@@ -19,7 +19,7 @@ import Foundation
 //  LN4    LBD2                     RBD2    RN1
 //   |   /                                \  |
 //  BLV --- BN1 --- BN2 --- BN3 --- BN4 --- BRV
-enum NodeName: Equatable, CaseIterable {
+enum NodeName: String, Equatable, CaseIterable {
     case bottomRightVertex
     case rightNode1
     case rightNode2
@@ -50,4 +50,38 @@ enum NodeName: Equatable, CaseIterable {
     case rightBottomDiagonal2
     case center
     case empty
+}
+
+extension NodeName {
+    var isStartNode: Bool {
+        return self == .bottomRightVertex
+    }
+
+    var isTopVertexNode: Bool {
+        return [.topLeftVertex, .topRightVertex].contains(self)
+    }
+
+    var isInnerNode: Bool {
+        return [.leftTopDiagonal1, .leftTopDiagonal2, .leftBottomDiagonal1, .leftBottomDiagonal2, .rightTopDiagonal1, .rightTopDiagonal2, .rightBottomDiagonal1, .rightBottomDiagonal2, .center].contains(self)
+    }
+
+    var isBottomRightDiagonalNode: Bool {
+        return [.rightBottomDiagonal1, .rightBottomDiagonal2].contains(self)
+    }
+
+    var isBottomLeftDiagonalNode: Bool {
+        return [.leftBottomDiagonal1, .leftBottomDiagonal2].contains(self)
+    }
+
+    var isTopRightDiagonalNode: Bool {
+        return [.rightTopDiagonal1, .rightTopDiagonal2].contains(self)
+    }
+
+    var isTopLeftDiagonalNode: Bool {
+        return [.leftTopDiagonal1, .leftTopDiagonal2].contains(self)
+    }
+
+    var isCenterNode: Bool {
+        return self == .center
+    }
 }

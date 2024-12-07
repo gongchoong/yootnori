@@ -13,13 +13,16 @@ def Xform "Root"
     def Cylinder "Cylinder" (
         active = true
         prepend apiSchemas = ["MaterialBindingAPI"]
+        customData = {
+            float3 rotationEulerHint = (1.5699999, -5.820767e-11, -1.7347237e-18)
+        }
     )
     {
         uniform token axis = "Y"
         double height = 0.1
         rel material:binding = </Root/Cylinder/DefaultMaterial>
         double radius = 0.1
-        quatf xformOp:orient = (1, 0, 0, 0)
+        quatf xformOp:orient = (0.7073883, 0.70682514, -2.058771e-11, 2.0571319e-11)
         float3 xformOp:scale = (0.15, 0.15, 0.15)
         float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]

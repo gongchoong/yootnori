@@ -19,4 +19,12 @@ struct Tile {
         self.paths = paths
         self.nodeName = nodeName
     }
+    
+    var isEdgeTile: Bool {
+        type == .edge
+    }
+    
+    var isInnerTile: Bool {
+        type == .inner
+    }
 }
