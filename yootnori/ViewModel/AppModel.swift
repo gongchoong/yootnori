@@ -222,8 +222,8 @@ extension AppModel {
                     clearAllTargetNodes()
                 } else {
                     // If different marker is selected, piggy back
-                    guard let starting = getNode(from: moving) else { return }
-                    guard let destination = getNode(from: tapped) else { return }
+                    guard let starting = getNodeFromMap(from: moving) else { return }
+                    guard let destination = getNodeFromMap(from: tapped) else { return }
                     withLoadingState {
                         // Move the marker, then piggy back
                         guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
@@ -232,22 +232,22 @@ extension AppModel {
                         await self.move(entity: moving, to: destination)
                         await self.piggyBack(tapped: tapped, moving: moving)
                         // Remove the moved marker, then update the marker map
-                        self.remove(at: starting)
-                        self.rootEntity.removeChild(moving)
+                        self.removeMarkerFromMap(at: starting)
+                        self.removeChildFromRoot(entity: moving)
                         self.selectedMarker = .none
                     }
                 }
             case .new:
                 // Selected new marker, but another marker exists on the selected tile
                 // piggy back
-                guard let destination = getNode(from: tapped) else { return }
+                guard let destination = getNodeFromMap(from: tapped) else { return }
                 withLoadingState {
                     // Move the marker, then piggy back
                     guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
-                    self.discardRoll(for: targetNode)
-                    self.clearAllTargetNodes()
                     await self.piggyBack(tapped: tapped)
                     self.selectedMarker = .none
+                    self.discardRoll(for: targetNode)
+                    self.clearAllTargetNodes()
                 }
             case .none:
                 // If no previously selected marker, then set the new marker as selected
@@ -255,7 +255,7 @@ extension AppModel {
                     await self.elevate(entity: tapped)
                 }
                 selectedMarker = .existing(tapped)
-                guard let node = getNode(from: tapped) else { return }
+                guard let node = getNodeFromMap(from: tapped) else { return }
                 updateTargetNodes(starting: node.name)
             }
         case .tapTile(let node):
@@ -263,16 +263,16 @@ extension AppModel {
             case .new:
                 // Create a new marker at start then move the marker to the selected tile.
                 withLoadingState {
-                    guard let start = self.getNode(from: .bottomRightVertex) else { return }
+                    guard let start = self.getNodeFromSet(from: .bottomRightVertex) else { return }
                     let entity = try await self.create(at: start)
                     await self.move(entity: entity, to: node, isNewEntity: true)
-                    self.create(marker: entity, node: node)
+                    self.addMarkerToMap(new: entity, node: node)
                 }
             case .existing(let entity):
                 // Move selected marker to the selected tile.
                 withLoadingState {
                     await self.move(entity: entity, to: node)
-                    self.update(marker: entity, destination: node)
+                    self.updateMarkerToMap(marker: entity, destination: node)
                 }
             case .none:
                 break
@@ -296,7 +296,7 @@ extension AppModel {
                 InputTargetComponent(),
                 MarkerComponent(level: 1)
             ])
-            self.rootEntity.addChild(entity)
+            addChildToRoot(entity: entity)
             return entity
         } catch {
             fatalError("Failed to create a new marker at \(node.index)")
@@ -314,7 +314,7 @@ extension AppModel {
         }
 
         // get route from current node to the destination node
-        guard let currentNode = isNewEntity ? getNode(from: .bottomRightVertex) : getNode(from: marker) else { return }
+        guard let currentNode = isNewEntity ? getNodeFromSet(from: .bottomRightVertex) : getNodeFromMap(from: marker) else { return }
         guard var route = findRoute(from: currentNode, to: node) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
@@ -404,22 +404,22 @@ private extension AppModel {
 
 // MARK: Marker Map
 private extension AppModel {
-    func create(marker: Entity, node: Node) {
+    func addMarkerToMap(new marker: Entity, node: Node) {
         nodeMap.create(marker: marker, node: node)
         printMap()
     }
 
-    func update(marker: Entity, destination node: Node) {
+    func updateMarkerToMap(marker: Entity, destination node: Node) {
         nodeMap.update(marker: marker, node: node)
         printMap()
     }
 
-    func remove(at node: Node) {
+    func removeMarkerFromMap(at node: Node) {
         nodeMap.remove(node: node)
         printMap()
     }
 
-    func getNode(from marker: Entity) -> Node? {
+    func getNodeFromMap(from marker: Entity) -> Node? {
         nodeMap.getNode(from: marker)
     }
 
@@ -431,8 +431,18 @@ private extension AppModel {
 
 // MARK: NodeMap
 extension AppModel {
-    func getNode(from nodeName: NodeName) -> Node? {
+    func getNodeFromSet(from nodeName: NodeName) -> Node? {
         nodeMap.getNode(from: nodeName)
+    }
+}
+
+private extension AppModel {
+    func addChildToRoot(entity: Entity) {
+        rootEntity.addChild(entity)
+    }
+
+    func removeChildFromRoot(entity: Entity) {
+        rootEntity.removeChild(entity)
     }
 }
 
