@@ -409,26 +409,18 @@ private extension AppModel {
 private extension AppModel {
     func addMarkerToMap(new marker: Entity, node: Node) {
         nodeMap.create(marker: marker, node: node)
-        printMap()
     }
 
     func updateMarkerToMap(marker: Entity, destination node: Node) {
         nodeMap.update(marker: marker, node: node)
-        printMap()
     }
 
     func removeMarkerFromMap(at node: Node) {
         nodeMap.remove(node: node)
-        printMap()
     }
 
     func getNodeFromMap(from marker: Entity) -> Node? {
         nodeMap.getNode(from: marker)
-    }
-
-    func printMap() {
-        print("printing nodemap..")
-        nodeMap.printMap()
     }
 }
 
