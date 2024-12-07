@@ -77,7 +77,7 @@ private extension GameView {
     }
 
     func handleMarkerTapGesture(marker: Entity) {
-        if model.isMarkerMovable {
+        if model.hasRemainingRoll {
             model.perform(action: .tapMarker(marker))
         }
     }
