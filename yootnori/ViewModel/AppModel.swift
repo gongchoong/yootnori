@@ -261,9 +261,11 @@ extension AppModel {
         case .tapTile(let node):
             switch selectedMarker {
             case .new:
-                // Create a new marker.
+                // Create a new marker at start then move the marker to the selected tile.
                 withLoadingState {
-                    let entity = try await self.create(at: node)
+                    guard let start = self.getNode(from: .bottomRightVertex) else { return }
+                    let entity = try await self.create(at: start)
+                    await self.move(entity: entity, to: node, isNewEntity: true)
                     self.create(marker: entity, node: node)
                 }
             case .existing(let entity):
@@ -301,7 +303,7 @@ extension AppModel {
         }
     }
     
-    private func move(entity marker: Entity, to node: Node) async {
+    private func move(entity marker: Entity, to node: Node, isNewEntity: Bool = false) async {
         func step(entity marker: Entity, to newNode: Node) async {
             do {
                 try await advance(entity: marker, to: newNode, duration: 0.2)
@@ -312,7 +314,7 @@ extension AppModel {
         }
 
         // get route from current node to the destination node
-        guard let currentNode = getNode(from: marker) else { return }
+        guard let currentNode = isNewEntity ? getNode(from: .bottomRightVertex) : getNode(from: marker) else { return }
         guard var route = findRoute(from: currentNode, to: node) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
