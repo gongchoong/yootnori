@@ -55,16 +55,19 @@ extension NodeMap {
 extension NodeMap {
     func create(marker: Entity, node: Node) {
         markerMap[node] = marker
+        printMap()
     }
 
     func remove(node: Node) {
         markerMap[node] = nil
+        printMap()
     }
 
     func update(marker: Entity, node: Node) {
         guard let previousNode = markerMap.first(where: { $0.value == marker })?.key else { return }
         markerMap[previousNode] = nil
         markerMap[node] = marker
+        printMap()
     }
 
     func getNode(from entity: Entity) -> Node? {
