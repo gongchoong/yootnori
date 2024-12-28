@@ -12,16 +12,17 @@ struct FullSpaceView: View {
     @Environment(\.physicalMetrics) var physicalMetrics
     @EnvironmentObject var model: AppModel
     var body: some View {
-        VStack(spacing: 12) {
+        GameView()
+            .frame(
+                width: Dimensions.Screen.totalSize(self.physicalMetrics),
+                height: Dimensions.Screen.totalSize(self.physicalMetrics)
+            )
+            .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
+        HStack {
             DebugMainView()
-                .frame(width: gameBoardSize, height: gameBoardSize * 0.5)
-            Spacer()
-            HStack {
-                GameView()
-            }
+                .frame(width: Dimensions.Screen.totalSize(self.physicalMetrics) * 1/2, height: Dimensions.Screen.totalSize(self.physicalMetrics) * 1/2)
+                .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
         }
-        .frame(width: self.gameBoardSize * 2, height: self.gameBoardSize)
-        .frame(depth: self.gameBoardSize)
     }
 }
 

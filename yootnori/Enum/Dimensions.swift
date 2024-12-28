@@ -10,8 +10,7 @@ import SwiftUI
 
 enum Dimensions {
     enum Board {
-        static let tileSize: Float = 0.07
-        static let padding: CGFloat = 0.04
+        static let tileSize: Float = 0.1
         static let tileCount: Int = 6
         static let stageTileCount: Int = 6
         static var board: CGFloat {
@@ -27,11 +26,12 @@ enum Dimensions {
     }
 #if os(visionOS)
     enum Screen {
-        static func padding(_ physicalMetrics: PhysicalMetricsConverter) -> CGFloat {
-            physicalMetrics.convert(Dimensions.Board.padding, from: .meters)
-        }
         static func totalSize(_ physicalMetrics: PhysicalMetricsConverter) -> CGFloat {
             physicalMetrics.convert(Dimensions.Board.board, from: .meters)
+        }
+
+        static func depth(_ physicalMetrics: PhysicalMetricsConverter) -> CGFloat {
+            physicalMetrics.convert(Dimensions.Board.board * 1.5, from: .meters)
         }
     }
 #endif
