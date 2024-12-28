@@ -34,7 +34,8 @@
 		5457F5B52CA9F9B500C5EFB7 /* Board.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B42CA9F9B500C5EFB7 /* Board.swift */; };
 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
-		54B21C592CDB29F10083CFD3 /* NodeMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B21C582CDB29F10083CFD3 /* NodeMap.swift */; };
+		54B21C592CDB29F10083CFD3 /* NodeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B21C582CDB29F10083CFD3 /* NodeManager.swift */; };
+		54BE3BD22D205DE5006DC7AF /* MarkerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE3BD12D205DE5006DC7AF /* MarkerManager.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
 /* End PBXBuildFile section */
@@ -69,7 +70,8 @@
 		5457F5B42CA9F9B500C5EFB7 /* Board.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Board.swift; sourceTree = "<group>"; };
 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
-		54B21C582CDB29F10083CFD3 /* NodeMap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeMap.swift; sourceTree = "<group>"; };
+		54B21C582CDB29F10083CFD3 /* NodeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeManager.swift; sourceTree = "<group>"; };
+		54BE3BD12D205DE5006DC7AF /* MarkerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerManager.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,6 +108,7 @@
 		540A18EC2C9F6CD500291CEF /* yootnori */ = {
 			isa = PBXGroup;
 			children = (
+				54BE3BD02D205D7E006DC7AF /* Manager */,
 				542702462CF832B4003F017B /* Components */,
 				544044452CE16A300023360C /* Extensions */,
 				5451CEC62CBB21AA00025081 /* Error */,
@@ -223,9 +226,17 @@
 				5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */,
 				5457F5B42CA9F9B500C5EFB7 /* Board.swift */,
 				54CEB39D2CD6A9A500E1F5C2 /* Node.swift */,
-				54B21C582CDB29F10083CFD3 /* NodeMap.swift */,
 			);
 			path = Board;
+			sourceTree = "<group>";
+		};
+		54BE3BD02D205D7E006DC7AF /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				54B21C582CDB29F10083CFD3 /* NodeManager.swift */,
+				54BE3BD12D205DE5006DC7AF /* MarkerManager.swift */,
+			);
+			path = Manager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -304,10 +315,11 @@
 			files = (
 				5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */,
 				5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */,
-				54B21C592CDB29F10083CFD3 /* NodeMap.swift in Sources */,
+				54B21C592CDB29F10083CFD3 /* NodeManager.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,
+				54BE3BD22D205DE5006DC7AF /* MarkerManager.swift in Sources */,
 				544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */,
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,
 				540EE1C32C9F74570056F03C /* TileView.swift in Sources */,

@@ -18,20 +18,17 @@ enum SelectedMarker: Equatable {
 @MainActor
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
-    private let nodeMap: NodeMap
+    private let nodeManager = NodeManager()
+    private let markerManager = MarkerManager()
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
-    @Published var rollResult: [Yoot] = []
+    @Published var rollResult = [Yoot]()
     @Published var targetNodes = Set<TargetNode>()
     @Published var attachmentsProvider = AttachmentsProvider()
     @Published var isLoading: Bool = false
 
     var canRollOnceMore: Bool = false
-
-    init() {
-        self.nodeMap = NodeMap()
-    }
 }
 
 extension AppModel {
@@ -112,7 +109,7 @@ extension AppModel {
                 destination.insert(TargetNode(name: to, yootRoll: yootRoll))
                 return
             }
-            var nextNodes = nodeMap.getNext(from: to)
+            var nextNodes = nodeManager.getNextNodes(from: to)
             filter(nextNodes: &nextNodes)
 
             guard !nextNodes.isEmpty else { return }
@@ -192,7 +189,7 @@ extension AppModel {
 
         // Recursively explore each next node
         for nextNodeName in start.next {
-            guard let nextNode = nodeMap.getNode(from: nextNodeName) else { break }
+            guard let nextNode = nodeManager.getNode(from: nextNodeName) else { break }
             if let path = findRoute(from: nextNode, to: destination, visited: newVisited) {
                 return [start] + path
             }
@@ -331,11 +328,9 @@ extension AppModel {
     private func piggyBack(tapped: Entity, moving: Entity? = nil) async {
         guard let movingMarker = moving else {
             incrementLevel(tapped: tapped)
-            printMap()
             return
         }
         addLevel(tapped: tapped, moving: movingMarker)
-        printMap()
     }
 
     private func incrementLevel(tapped: Entity) {
@@ -365,7 +360,6 @@ extension AppModel {
 }
 
 // MARK: Marker animation
-
 private extension AppModel {
     func advance(entity marker: Entity, to node: Node, duration: CGFloat) async throws {
         let newPosition = try node.index.position()
@@ -405,29 +399,29 @@ private extension AppModel {
     }
 }
 
-// MARK: Marker Map
-private extension AppModel {
-    func addMarkerToMap(new marker: Entity, node: Node) {
-        nodeMap.create(marker: marker, node: node)
-    }
-
-    func updateMarkerToMap(marker: Entity, destination node: Node) {
-        nodeMap.update(marker: marker, node: node)
-    }
-
-    func removeMarkerFromMap(at node: Node) {
-        nodeMap.remove(node: node)
-    }
-
-    func getNodeFromMap(from marker: Entity) -> Node? {
-        nodeMap.getNode(from: marker)
+// MARK: NodeManager
+extension AppModel {
+    func getNodeFromSet(from nodeName: NodeName) -> Node? {
+        nodeManager.getNode(from: nodeName)
     }
 }
 
-// MARK: NodeMap
-extension AppModel {
-    func getNodeFromSet(from nodeName: NodeName) -> Node? {
-        nodeMap.getNode(from: nodeName)
+// MARK: MarkerManager
+private extension AppModel {
+    func addMarkerToMap(new marker: Entity, node: Node) {
+        markerManager.create(marker: marker, node: node)
+    }
+
+    func updateMarkerToMap(marker: Entity, destination node: Node) {
+        markerManager.update(marker: marker, node: node)
+    }
+
+    func removeMarkerFromMap(at node: Node) {
+        markerManager.remove(node: node)
+    }
+
+    func getNodeFromMap(from marker: Entity) -> Node? {
+        markerManager.getNode(from: marker)
     }
 }
 

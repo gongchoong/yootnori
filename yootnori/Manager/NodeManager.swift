@@ -9,17 +9,15 @@ import Foundation
 import RealityKit
 import RealityKitContent
 
-class NodeMap {
+class NodeManager {
     private var nodeSet = Set<Node>()
-    private var markerMap: [Node: Entity?] = [:]
 
     init() {
         generateNodeSet()
     }
 }
 
-// MARK: Node Set
-extension NodeMap {
+extension NodeManager {
     private func generateNodeSet() {
         nodeSet = [
             // Outer nodes
@@ -38,7 +36,7 @@ extension NodeMap {
         ]
     }
 
-    func getNext(from nodeName: NodeName) -> [NodeName] {
+    func getNextNodes(from nodeName: NodeName) -> [NodeName] {
         return nodeSet.filter { $0.name == nodeName }.first?.next ?? []
     }
 
@@ -46,40 +44,7 @@ extension NodeMap {
         return nodeSet.filter { $0.name == nodeName }.first
     }
 
-    func getPrevious(from nodeName: NodeName) -> [NodeName] {
+    func getPreviousNodes(from nodeName: NodeName) -> [NodeName] {
         return nodeSet.filter { $0.name == nodeName }.first?.prev ?? []
-    }
-}
-
-// MARK: Marker Map
-extension NodeMap {
-    func create(marker: Entity, node: Node) {
-        markerMap[node] = marker
-        printMap()
-    }
-
-    func remove(node: Node) {
-        markerMap[node] = nil
-        printMap()
-    }
-
-    func update(marker: Entity, node: Node) {
-        guard let previousNode = markerMap.first(where: { $0.value == marker })?.key else { return }
-        markerMap[previousNode] = nil
-        markerMap[node] = marker
-        printMap()
-    }
-
-    func getNode(from entity: Entity) -> Node? {
-        return markerMap.first(where: {
-            $0.value == entity
-        })?.key
-    }
-
-    func printMap() {
-        let map = markerMap.filter { $0.value != nil }
-        for item in map.keys {
-            print(item.name)
-        }
     }
 }
