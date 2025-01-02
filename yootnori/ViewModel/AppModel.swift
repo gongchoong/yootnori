@@ -331,11 +331,9 @@ extension AppModel {
     private func piggyBack(tapped: Entity, moving: Entity? = nil) async {
         guard let movingMarker = moving else {
             incrementLevel(tapped: tapped)
-            printMap()
             return
         }
         addLevel(tapped: tapped, moving: movingMarker)
-        printMap()
     }
 
     private func incrementLevel(tapped: Entity) {

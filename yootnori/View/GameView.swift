@@ -53,10 +53,6 @@ struct GameView: View {
                 }
         )
         .disabled(model.isLoading)
-        .frame(
-            width: Dimensions.Screen.totalSize(self.physicalMetrics),
-            height: 0
-        )
     }
 }
 
