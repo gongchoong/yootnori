@@ -1,5 +1,5 @@
 //
-//  GameView.swift
+//  MainView.swift
 //  yootnori
 //
 //  Created by David Lee on 9/21/24.
@@ -9,7 +9,7 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
-struct GameView: View {
+struct MainView: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.physicalMetrics) var physicalMetrics
 
@@ -35,7 +35,8 @@ struct GameView: View {
             }
         } attachments: {
             Attachment(id: "board") {
-                BoardView()
+                let boardViewModel = BoardViewModel(rootEntity: model.rootEntity)
+                BoardView(viewModel: boardViewModel)
                     .environmentObject(model)
             }
 
@@ -56,7 +57,7 @@ struct GameView: View {
     }
 }
 
-private extension GameView {
+private extension MainView {
     func createLevelView(for entity: Entity) {
         guard entity.components[MarkerRuntimeComponent.self] == nil else { return }
 
@@ -80,5 +81,5 @@ private extension GameView {
 }
 
 #Preview {
-    GameView()
+    MainView()
 }
