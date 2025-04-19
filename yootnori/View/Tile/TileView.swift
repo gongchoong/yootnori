@@ -10,9 +10,9 @@ import SwiftUI
 struct TileView: View {
     @EnvironmentObject var model: AppModel
     private var viewModel: TileViewModel
-    private let didTapTile: ((Node) -> Void)
+    private let didTapTile: ((NodeName) -> Void)
     
-    init(tileViewModel: TileViewModel, didTapTile: @escaping ((Node) -> Void)) {
+    init(tileViewModel: TileViewModel, didTapTile: @escaping ((NodeName) -> Void)) {
         self.viewModel = tileViewModel
         self.didTapTile = didTapTile
     }
@@ -50,7 +50,7 @@ struct TileView: View {
         }
         .onTapGesture {
             if viewModel.isMarkerPlaceable {
-                didTapTile(viewModel.node)
+                didTapTile(viewModel.tile.nodeName)
             }
         }
         .disabled(model.isLoading)
@@ -68,6 +68,6 @@ struct TileView: View {
                 .bottomRight
             ],
             nodeName: .empty
-        ), node: .empty, targetNodes: Set<TargetNode>()), didTapTile: {_ in }
+        ), targetNodes: Set<TargetNode>()), didTapTile: {_ in }
     )
 }

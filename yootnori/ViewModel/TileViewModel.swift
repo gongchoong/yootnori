@@ -10,11 +10,9 @@ import SwiftUI
 class TileViewModel: ObservableObject {
     @Published var targetNodes = Set<TargetNode>()
     let tile: Tile
-    let node: Node
     
-    init(tile: Tile, node: Node, targetNodes: Set<TargetNode>) {
+    init(tile: Tile, targetNodes: Set<TargetNode>) {
         self.tile = tile
-        self.node = node
         self.targetNodes = targetNodes
     }
     
@@ -31,11 +29,11 @@ class TileViewModel: ObservableObject {
     }
 
     var isVisibleTile: Bool {
-        node.name != .empty
+        tile.nodeName != .empty
     }
 
     var isDestinationNode: Bool {
-        targetNodes.contains { $0.name == node.name }
+        targetNodes.contains { $0.name == tile.nodeName }
     }
 }
 
