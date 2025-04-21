@@ -9,6 +9,8 @@ import SwiftUI
 
 struct DebugMainView: View {
     @EnvironmentObject var model: AppModel
+    var rollButtonTapped: (() -> Void)
+    var markerButtonTapped: (() -> Void)
 
     var body: some View {
         ZStack {
@@ -16,9 +18,7 @@ struct DebugMainView: View {
                 .fill(.blue)
             VStack(spacing: 10) {
                 Button {
-                    Task { @MainActor in
-                        await model.pressedRollButton()
-                    }
+                    rollButtonTapped()
                 } label: {
                     Text("Roll!")
                         .font(.system(size: 40))
@@ -35,7 +35,7 @@ struct DebugMainView: View {
                     .frame(height: 40)
 
                 Button {
-                    model.pressedNewMarkerButton()
+                    markerButtonTapped()
                 } label: {
                     Text("\(model.markersToGo)x")
                         .font(.system(size: 40))
@@ -53,5 +53,5 @@ struct DebugMainView: View {
 }
 
 #Preview {
-    DebugMainView()
+    DebugMainView(rollButtonTapped: {}, markerButtonTapped: {})
 }

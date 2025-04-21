@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import Combine
 
 enum SelectedMarker: Equatable {
     case new
@@ -19,68 +20,46 @@ enum SelectedMarker: Equatable {
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private let nodeMap: NodeMap
+    private let rollViewModel: RollViewModel
+    private var cancellables = Set<AnyCancellable>()
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
-    @Published var rollResult: [Yoot] = []
     @Published var targetNodes = Set<TargetNode>()
     @Published var attachmentsProvider = AttachmentsProvider()
     @Published var isLoading: Bool = false
+    @Published private(set) var rollResult: [Yoot] = []
 
-    var canRollOnceMore: Bool = false
-
-    init() {
-        self.nodeMap = NodeMap()
-    }
-}
-
-extension AppModel {
     var hasRemainingRoll: Bool {
-        !rollResult.isEmpty && !canRollOnceMore
+        rollViewModel.hasRemainingRoll
     }
-    
+
     var yootRollSteps: [String] {
-        return rollResult.map { "\($0.steps)" }
+        rollViewModel.yootRollSteps
     }
-}
 
-// MARK: Yoot roll
-private extension AppModel {
-    func roll() async {
-        var result: Yoot
-        canRollOnceMore = false
-        switch Int.random(in: 1...5) {
-        case 1: result = .doe
-        case 2: result = .gae
-        case 3: result = .gull
-        case 4:
-            result = .yoot
-            canRollOnceMore = true
-        case 5:
-            result = .mo
-            canRollOnceMore = true
-        default:
-            result = .doe
-        }
-
-        rollResult.append(result)
+    init(rollViewModel: RollViewModel = RollViewModel()) {
+        self.rollViewModel = rollViewModel
+        self.nodeMap = NodeMap()
+        
+        subscribe()
     }
     
-    func discardRoll(for target: TargetNode) {
-        guard let index = rollResult.firstIndex(of: target.yootRoll) else {
-            return
-        }
-        rollResult.remove(at: index)
+    private func subscribe() {
+        rollViewModel.$rollResult
+            .receive(on: RunLoop.main)
+            .assign(to: \.rollResult, on: self)
+            .store(in: &cancellables)
     }
 }
 
 // MARK: Button tap
 extension AppModel {
-    func pressedRollButton() async {
-        await roll()
+    func roll() async {
+        await rollViewModel.roll()
     }
 
-    func pressedNewMarkerButton() {
+    func handleNewMarkerTap() {
         clearAllTargetNodes()
         switch selectedMarker {
         case .existing, .none:
@@ -94,6 +73,10 @@ extension AppModel {
         case .new:
             selectedMarker = .none
         }
+    }
+
+    func discardRoll(for targetNode: TargetNode) {
+        rollViewModel.discardRoll(for: targetNode)
     }
 }
 
