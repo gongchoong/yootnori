@@ -11,9 +11,11 @@ struct BoardView: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.physicalMetrics) var physicalMetrics
     @ObservedObject var boardViewModel: BoardViewModel
+    var boardAction: ((Action) -> Void)
 
-    init(viewModel: BoardViewModel) {
+    init(viewModel: BoardViewModel, action: @escaping ((Action) -> Void)) {
         self.boardViewModel = viewModel
+        self.boardAction = action
     }
 
     var body: some View {
@@ -23,9 +25,8 @@ struct BoardView: View {
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, tile in
                             let tileViewModel = TileViewModel(tile: tile, targetNodes: model.targetNodes)
-                            TileView(tileViewModel: tileViewModel) { nodeName in
-                                let node = boardViewModel.getNode(name: nodeName)
-                                model.perform(action: .tapTile(node))
+                            TileView(tileViewModel: tileViewModel) { tile in
+                                boardAction(.tapTile(tile))
                             }
                         }
                     }
@@ -39,9 +40,8 @@ struct BoardView: View {
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, tile in
                             let tileViewModel = TileViewModel(tile: tile, targetNodes: model.targetNodes)
-                            TileView(tileViewModel: tileViewModel) { nodeName in
-                                let node = boardViewModel.getNode(name: nodeName)
-                                model.perform(action: .tapTile(node))
+                            TileView(tileViewModel: tileViewModel) { tile in
+                                boardAction(.tapTile(tile))
                             }
                         }
                     }
@@ -55,6 +55,6 @@ struct BoardView: View {
 
 
 #Preview {
-    BoardView(viewModel: BoardViewModel(rootEntity: .empty))
+    BoardView(viewModel: BoardViewModel(), action: {_ in })
 }
 

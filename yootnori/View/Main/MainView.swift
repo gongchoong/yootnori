@@ -35,9 +35,11 @@ struct MainView: View {
             }
         } attachments: {
             Attachment(id: "board") {
-                let boardViewModel = BoardViewModel(rootEntity: model.rootEntity)
-                BoardView(viewModel: boardViewModel)
-                    .environmentObject(model)
+                let boardViewModel = BoardViewModel()
+                BoardView(viewModel: boardViewModel, action: { action in
+                    model.perform(action: action)
+                })
+                .environmentObject(model)
             }
 
             ForEach(model.attachmentsProvider.sortedTagViewPairs, id: \.tag) { pair in

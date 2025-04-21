@@ -203,6 +203,7 @@ extension AppModel {
     }
 }
 
+// Entity action
 extension AppModel {
     func perform(action: Action) {
         switch action {
@@ -262,7 +263,8 @@ extension AppModel {
                 guard let node = getNodeFromMap(from: tapped) else { return }
                 updateTargetNodes(starting: node.name)
             }
-        case .tapTile(let node):
+        case .tapTile(let tile):
+            guard let node = getNodeFromSet(from: tile.nodeName) else { return }
             switch selectedMarker {
             case .new:
                 // Create a new marker at start then move the marker to the selected tile.

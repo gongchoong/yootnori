@@ -34,7 +34,7 @@
 		5451CEC82CBB21B500025081 /* PositionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5451CEC72CBB21B500025081 /* PositionError.swift */; };
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
-		546745E42DB4223E0032C0A6 /* BoardConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E32DB4223E0032C0A6 /* BoardConfig.swift */; };
+		546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E32DB4223E0032C0A6 /* NodeConfig.swift */; };
 		546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E52DB4296F0032C0A6 /* TileConfig.swift */; };
 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
@@ -73,7 +73,7 @@
 		5451CEC72CBB21B500025081 /* PositionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionError.swift; sourceTree = "<group>"; };
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
-		546745E32DB4223E0032C0A6 /* BoardConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardConfig.swift; sourceTree = "<group>"; };
+		546745E32DB4223E0032C0A6 /* NodeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConfig.swift; sourceTree = "<group>"; };
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
@@ -153,10 +153,10 @@
 		540EE1BE2C9F6F740056F03C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				546745E72DB43A2A0032C0A6 /* Main */,
 				546745E12DB4207E0032C0A6 /* Board */,
 				5427024B2CF8345E003F017B /* Marker */,
 				5436D50E2CA0C9B40065A4E3 /* Tile */,
-				540EE1BA2C9F6EC70056F03C /* MainView.swift */,
 				548F23032CC5D64D00A50F3F /* DebugMainView.swift */,
 				541B8DC52DB21D8E004B9F38 /* RollView.swift */,
 			);
@@ -167,7 +167,6 @@
 			isa = PBXGroup;
 			children = (
 				540EE1C02C9F6F860056F03C /* AppModel.swift */,
-				541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -193,6 +192,7 @@
 			isa = PBXGroup;
 			children = (
 				540EE1C22C9F74570056F03C /* TileView.swift */,
+				541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */,
 				5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */,
 				5436D5112CA0CDC60065A4E3 /* TilePathView.swift */,
 			);
@@ -250,10 +250,18 @@
 		546745E22DB422340032C0A6 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				546745E32DB4223E0032C0A6 /* BoardConfig.swift */,
+				546745E32DB4223E0032C0A6 /* NodeConfig.swift */,
 				546745E52DB4296F0032C0A6 /* TileConfig.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		546745E72DB43A2A0032C0A6 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				540EE1BA2C9F6EC70056F03C /* MainView.swift */,
+			);
+			path = Main;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -346,7 +354,7 @@
 				540A18F42C9F6CD500291CEF /* ContentView.swift in Sources */,
 				546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */,
 				540A18F22C9F6CD500291CEF /* App.swift in Sources */,
-				546745E42DB4223E0032C0A6 /* BoardConfig.swift in Sources */,
+				546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */,
 				5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */,
 				54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */,
 				540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */,

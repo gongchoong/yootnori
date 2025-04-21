@@ -1,11 +1,11 @@
 //
-//  BoardConfig.swift
+//  NodeConfig.swift
 //  yootnori
 //
 //  Created by David Lee on 4/19/25.
 //
 
-struct BoardConfig {
+struct NodeConfig {
     static let nodeNames: [NodeName] = [
         // Outer nodes
         .topLeftVertex, .bottomLeftVertex, .topRightVertex, .bottomRightVertex,

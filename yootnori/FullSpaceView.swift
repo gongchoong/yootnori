@@ -11,6 +11,7 @@ struct FullSpaceView: View {
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
     @Environment(\.physicalMetrics) var physicalMetrics
     @EnvironmentObject var model: AppModel
+    
     var body: some View {
         MainView()
             .frame(
@@ -18,11 +19,13 @@ struct FullSpaceView: View {
                 height: Dimensions.Screen.totalSize(self.physicalMetrics)
             )
             .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
+            .environmentObject(model)
         HStack {
             DebugMainView()
                 .frame(width: Dimensions.Screen.totalSize(self.physicalMetrics) * 1/2,
                        height: Dimensions.Screen.totalSize(self.physicalMetrics) * 1/2)
                 .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
+                .environmentObject(model)
             RollView()
                 .frame(width: Dimensions.Screen.totalSize(self.physicalMetrics) * 1/2,
                        height: Dimensions.Screen.totalSize(self.physicalMetrics) * 1/2)

@@ -9,26 +9,11 @@ import Foundation
 import RealityKit
 
 class BoardViewModel: ObservableObject {
-    private var rootEntity: Entity
-    private var nodes = Set<Node>()
-    var edgeTiles: [[Tile]] = []
-    var innerTiles: [[Tile]] = []
+    private(set) var edgeTiles: [[Tile]] = []
+    private(set) var innerTiles: [[Tile]] = []
     
-    init(rootEntity: Entity) {
-        self.rootEntity = rootEntity
+    init() {
         generateTiles()
-        generateNodes()
-    }
-    
-    private func generateNodes() {
-        for name in BoardConfig.nodeNames {
-            guard let index = BoardConfig.nodeIndexMap[name], let relationships = BoardConfig.nodeRelationships[name] else {
-                continue
-            }
-            
-            let node = Node(name: name, index: index, next: relationships.next, prev: relationships.prev)
-            nodes.insert(node)
-        }
     }
     
     private func generateTiles() {
@@ -61,13 +46,4 @@ class BoardViewModel: ObservableObject {
         }
     }
 
-}
-
-extension BoardViewModel {
-    func getNode(name: NodeName) -> Node {
-        guard let node = nodes.filter({ $0.name == name }).first else {
-            return Node(name: .empty, index: .inner(column: 0, row: 0), next: [], prev: [])
-        }
-        return node
-    }
 }
