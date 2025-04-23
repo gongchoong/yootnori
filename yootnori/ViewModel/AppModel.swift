@@ -23,7 +23,7 @@ class AppModel: ObservableObject {
     private let rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
-    private var markers: [Node: Entity?] = [:]
+    private var markers: [Node: UInt64?] = [:]
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
@@ -171,8 +171,18 @@ extension AppModel {
     func clearAllTargetNodes() {
         self.targetNodes.removeAll()
     }
-    
-    private func findRoute(from start: Node, to destination: Node, visited: Set<Node> = []) -> [Node]? {
+
+    /// Recursively finds a path from the `start` node to the `destination` node,
+    /// considering visited nodes to prevent cycles and applying custom path rules
+    /// (e.g., directional constraints when passing through `.center`).
+    ///
+    /// - Parameters:
+    ///   - start: The current node being evaluated in the recursive search.
+    ///   - destination: The target node we want to reach.
+    ///   - startingPoint: The original starting node for determining conditional routes (e.g., center behavior).
+    ///   - visited: A set of nodes already visited to avoid infinite loops.
+    /// - Returns: An array representing the path from `start` to `destination`, or `nil` if no path is found.
+    private func findRoute(from start: Node, to destination: Node, startingPoint: Node, visited: Set<Node> = []) -> [Node]? {
         // Check if we've already visited this node to prevent infinite loops
         guard !visited.contains(start) else { return nil }
 
@@ -185,16 +195,42 @@ extension AppModel {
             return [start]
         }
 
+        // Get valid next steps
+        let nextSteps = validNextNodes(for: start, startingFrom: startingPoint)
+
         // Recursively explore each next node
-        for nextNodeName in start.next {
-            guard let nextNode = nodeMap.getNode(from: nextNodeName) else { break }
-            if let path = findRoute(from: nextNode, to: destination, visited: newVisited) {
+        for nextNodeName in nextSteps {
+            guard let nextNode = findNode(named: nextNodeName) else { break }
+            if let path = findRoute(from: nextNode, to: destination, startingPoint: startingPoint, visited: newVisited) {
                 return [start] + path
             }
         }
 
         // If no path is found, return nil.
         return nil
+    }
+
+    /// Determines the valid next nodes to traverse from a given node,
+    /// applying special routing logic when passing through the center node.
+    ///
+    /// - Parameters:
+    ///   - node: The current node being evaluated.
+    ///   - origin: The original starting node for the route.
+    /// - Returns: A filtered list of next node names.
+    ///   If the current node is `.center`, returns a single valid direction
+    ///   based on the origin:
+    ///     - From the top right path: only `.leftBottomDiagonal1`
+    ///     - From the top left path: only `.rightBottomDiagonal1`
+    private func validNextNodes(for node: Node, startingFrom origin: Node) -> [NodeName] {
+        if node.name == .center {
+            if [.topRightVertex, .rightTopDiagonal1, .rightTopDiagonal2].contains(origin.name) {
+                return [.leftBottomDiagonal1]
+            }
+            if [.topLeftVertex, .leftTopDiagonal1, .leftTopDiagonal2].contains(origin.name) {
+                return [.rightBottomDiagonal1]
+            }
+        }
+        return node.next
     }
 }
 
@@ -316,7 +352,7 @@ extension AppModel {
 
         // get route from current node to the destination node
         guard let currentNode = isNewEntity ? findNode(named: .bottomRightVertex) : findNode(for: marker) else { return }
-        guard var route = findRoute(from: currentNode, to: node) else { return }
+        guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
 
@@ -404,13 +440,13 @@ private extension AppModel {
 // Manage marker tracking across nodes.
 private extension AppModel {
     func register(marker: Entity, at node: Node) {
-        markers[node] = marker
+        markers[node] = marker.id
     }
 
     func reassignMarker(_ marker: Entity, to node: Node) {
-        guard let previous = markers.first(where: { $0.value == marker })?.key else { return }
+        guard let previous = markers.first(where: { $0.value == marker.id })?.key else { return }
         markers[previous] = nil
-        markers[node] = marker
+        markers[node] = marker.id
     }
 
     func removeMarker(from node: Node) {
@@ -419,7 +455,7 @@ private extension AppModel {
 
     func findNode(for marker: Entity) -> Node? {
         return markers.first(where: {
-            $0.value == marker
+            $0.value == marker.id
         })?.key
     }
 }
