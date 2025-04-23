@@ -22,6 +22,8 @@ class AppModel: ObservableObject {
     private let nodeMap: NodeMap
     private let rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
+    private var nodes = Set<Node>()
+    private var markers: [Node: Entity?] = [:]
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
@@ -42,7 +44,17 @@ class AppModel: ObservableObject {
         self.rollViewModel = rollViewModel
         self.nodeMap = NodeMap()
         
+        generateNodes()
         subscribe()
+    }
+
+    private func generateNodes() {
+        nodes = Set(NodeConfig.nodeNames.map { name in
+            guard let index = NodeConfig.nodeIndexMap[name], let relationShip = NodeConfig.nodeRelationships[name] else {
+                return Node(name: .empty, index: Index.outer(column: 0, row: 0), next: [], prev: [])
+            }
+            return Node(name: name, index: index, next: relationShip.next, prev: relationShip.prev)
+        })
     }
     
     private func subscribe() {
@@ -85,24 +97,24 @@ extension AppModel {
     // Retrieve the names of all possible nodes where a marker can be placed based on the outcome of each Yoot roll.
     func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
         func step(
-            from: NodeName,
-            to: NodeName,
+            starting: NodeName,
+            next: NodeName,
             yootRoll: Yoot,
             remainingSteps: Int,
             destination: inout Set<TargetNode>
         ) {
             guard remainingSteps > 0 else {
-                destination.insert(TargetNode(name: to, yootRoll: yootRoll))
+                destination.insert(TargetNode(name: next, yootRoll: yootRoll))
                 return
             }
-            var nextNodes = nodeMap.getNext(from: to)
+            var nextNodes = nextNodeNames(from: next)
             filter(nextNodes: &nextNodes)
 
             guard !nextNodes.isEmpty else { return }
             for nextNode in nextNodes {
                 step(
-                    from: starting,
-                    to: nextNode,
+                    starting: starting,
+                    next: nextNode,
                     yootRoll: yootRoll,
                     remainingSteps: remainingSteps - 1,
                     destination: &destination
@@ -142,8 +154,8 @@ extension AppModel {
         var targetNodes = Set<TargetNode>()
         for yootRoll in self.rollResult {
             step(
-                from: starting,
-                to: starting,
+                starting: starting,
+                next: starting,
                 yootRoll: yootRoll,
                 remainingSteps: yootRoll.steps,
                 destination: &targetNodes
@@ -202,8 +214,8 @@ extension AppModel {
                     clearAllTargetNodes()
                 } else {
                     // If different marker is selected, piggy back.
-                    guard let starting = getNodeFromMap(from: moving) else { return }
-                    guard let destination = getNodeFromMap(from: tapped) else { return }
+                    guard let starting = findNode(for: moving) else { return }
+                    guard let destination = findNode(for: tapped) else { return }
                     guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
                     self.discardRoll(for: targetNode)
                     self.clearAllTargetNodes()
@@ -213,14 +225,14 @@ extension AppModel {
                         await self.move(entity: moving, to: destination)
                         await self.piggyBack(tapped: tapped, moving: moving)
                         // Remove the moved marker, then update the marker map.
-                        self.removeMarkerFromMap(at: starting)
+                        self.removeMarker(from: starting)
                         self.removeChildFromRoot(entity: moving)
                         self.selectedMarker = .none
                     }
                 }
             case .new:
                 // Creating a new marker, but another marker exists on the selected tile.
-                guard let destination = getNodeFromMap(from: tapped) else { return }
+                guard let destination = findNode(for: tapped) else { return }
                 guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
                 self.discardRoll(for: targetNode)
                 self.clearAllTargetNodes()
@@ -229,7 +241,7 @@ extension AppModel {
                     // Create a new marker at the start tile, move the new marker to the selected tile,
                     // then piggy back.
                     // Creating an entity just for the animation.
-                    guard let startNode = self.getNodeFromSet(from: .bottomRightVertex) else { return }
+                    guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
                     let entity = try await self.create(at: startNode)
                     await self.move(entity: entity, to: destination, isNewEntity: true)
 
@@ -243,25 +255,25 @@ extension AppModel {
                     await self.elevate(entity: tapped)
                 }
                 selectedMarker = .existing(tapped)
-                guard let node = getNodeFromMap(from: tapped) else { return }
+                guard let node = findNode(for: tapped) else { return }
                 updateTargetNodes(starting: node.name)
             }
         case .tapTile(let tile):
-            guard let node = getNodeFromSet(from: tile.nodeName) else { return }
+            guard let node = findNode(named: tile.nodeName) else { return }
             switch selectedMarker {
             case .new:
                 // Create a new marker at start then move the marker to the selected tile.
                 withLoadingState {
-                    guard let start = self.getNodeFromSet(from: .bottomRightVertex) else { return }
+                    guard let start = self.findNode(named: .bottomRightVertex) else { return }
                     let entity = try await self.create(at: start)
                     await self.move(entity: entity, to: node, isNewEntity: true)
-                    self.addMarkerToMap(new: entity, node: node)
+                    self.register(marker: entity, at: node)
                 }
-            case .existing(let entity):
+            case .existing(let marker):
                 // Move selected marker to the selected tile.
                 withLoadingState {
-                    await self.move(entity: entity, to: node)
-                    self.updateMarkerToMap(marker: entity, destination: node)
+                    await self.move(entity: marker, to: node)
+                    self.reassignMarker(marker, to: node)
                 }
             case .none:
                 break
@@ -303,7 +315,7 @@ extension AppModel {
         }
 
         // get route from current node to the destination node
-        guard let currentNode = isNewEntity ? getNodeFromSet(from: .bottomRightVertex) : getNodeFromMap(from: marker) else { return }
+        guard let currentNode = isNewEntity ? findNode(named: .bottomRightVertex) : findNode(for: marker) else { return }
         guard var route = findRoute(from: currentNode, to: node) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
@@ -388,29 +400,42 @@ private extension AppModel {
     }
 }
 
-// MARK: Marker Map
+// MARK: - Marker Handling
+// Manage marker tracking across nodes.
 private extension AppModel {
-    func addMarkerToMap(new marker: Entity, node: Node) {
-        nodeMap.create(marker: marker, node: node)
+    func register(marker: Entity, at node: Node) {
+        markers[node] = marker
     }
 
-    func updateMarkerToMap(marker: Entity, destination node: Node) {
-        nodeMap.update(marker: marker, node: node)
+    func reassignMarker(_ marker: Entity, to node: Node) {
+        guard let previous = markers.first(where: { $0.value == marker })?.key else { return }
+        markers[previous] = nil
+        markers[node] = marker
     }
 
-    func removeMarkerFromMap(at node: Node) {
-        nodeMap.remove(node: node)
+    func removeMarker(from node: Node) {
+        markers[node] = nil
     }
 
-    func getNodeFromMap(from marker: Entity) -> Node? {
-        nodeMap.getNode(from: marker)
+    func findNode(for marker: Entity) -> Node? {
+        return markers.first(where: {
+            $0.value == marker
+        })?.key
     }
 }
 
 // MARK: NodeMap
 extension AppModel {
-    func getNodeFromSet(from nodeName: NodeName) -> Node? {
-        nodeMap.getNode(from: nodeName)
+    func findNode(named nodeName: NodeName) -> Node? {
+        nodes.filter { $0.name == nodeName }.first
+    }
+
+    func nextNodeNames(from nodeName: NodeName) -> [NodeName] {
+        nodes.filter { $0.name == nodeName }.first?.next ?? []
+    }
+
+    func previousNodeNames(from nodeName: NodeName) -> [NodeName] {
+        nodes.filter { $0.name == nodeName }.first?.prev ?? []
     }
 }
 
