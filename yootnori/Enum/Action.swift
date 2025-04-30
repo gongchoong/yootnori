@@ -10,5 +10,5 @@ import RealityKit
 
 enum Action {
     case tapMarker(Entity)
-    case tapTile(Node)
+    case tapTile(Tile)
 }

@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import Combine
 
 enum SelectedMarker: Equatable {
     case new
@@ -19,68 +20,58 @@ enum SelectedMarker: Equatable {
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private let nodeMap: NodeMap
+    private let rollViewModel: RollViewModel
+    private var cancellables = Set<AnyCancellable>()
+    private var nodes = Set<Node>()
+    private var markers: [Node: UInt64?] = [:]
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
-    @Published var rollResult: [Yoot] = []
     @Published var targetNodes = Set<TargetNode>()
     @Published var attachmentsProvider = AttachmentsProvider()
     @Published var isLoading: Bool = false
+    @Published private(set) var rollResult: [Yoot] = []
 
-    var canRollOnceMore: Bool = false
-
-    init() {
-        self.nodeMap = NodeMap()
-    }
-}
-
-extension AppModel {
     var hasRemainingRoll: Bool {
-        !rollResult.isEmpty && !canRollOnceMore
+        rollViewModel.hasRemainingRoll
     }
-    
+
     var yootRollSteps: [String] {
-        return rollResult.map { "\($0.steps)" }
+        rollViewModel.yootRollSteps
     }
-}
 
-// MARK: Yoot roll
-private extension AppModel {
-    func roll() async {
-        var result: Yoot
-        canRollOnceMore = false
-        switch Int.random(in: 1...5) {
-        case 1: result = .doe
-        case 2: result = .gae
-        case 3: result = .gull
-        case 4:
-            result = .yoot
-            canRollOnceMore = true
-        case 5:
-            result = .mo
-            canRollOnceMore = true
-        default:
-            result = .doe
-        }
+    init(rollViewModel: RollViewModel = RollViewModel()) {
+        self.rollViewModel = rollViewModel
+        self.nodeMap = NodeMap()
+        
+        generateNodes()
+        subscribe()
+    }
 
-        rollResult.append(result)
+    private func generateNodes() {
+        nodes = Set(NodeConfig.nodeNames.map { name in
+            guard let index = NodeConfig.nodeIndexMap[name], let relationShip = NodeConfig.nodeRelationships[name] else {
+                return Node(name: .empty, index: Index.outer(column: 0, row: 0), next: [], prev: [])
+            }
+            return Node(name: name, index: index, next: relationShip.next, prev: relationShip.prev)
+        })
     }
     
-    func discardRoll(for target: TargetNode) {
-        guard let index = rollResult.firstIndex(of: target.yootRoll) else {
-            return
-        }
-        rollResult.remove(at: index)
+    private func subscribe() {
+        rollViewModel.$rollResult
+            .receive(on: RunLoop.main)
+            .assign(to: \.rollResult, on: self)
+            .store(in: &cancellables)
     }
 }
 
 // MARK: Button tap
 extension AppModel {
-    func pressedRollButton() async {
-        await roll()
+    func roll() async {
+        await rollViewModel.roll()
     }
 
-    func pressedNewMarkerButton() {
+    func handleNewMarkerTap() {
         clearAllTargetNodes()
         switch selectedMarker {
         case .existing, .none:
@@ -95,6 +86,10 @@ extension AppModel {
             selectedMarker = .none
         }
     }
+
+    func discardRoll(for targetNode: TargetNode) {
+        rollViewModel.discardRoll(for: targetNode)
+    }
 }
 
 // MARK: Calculations
@@ -102,24 +97,24 @@ extension AppModel {
     // Retrieve the names of all possible nodes where a marker can be placed based on the outcome of each Yoot roll.
     func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
         func step(
-            from: NodeName,
-            to: NodeName,
+            starting: NodeName,
+            next: NodeName,
             yootRoll: Yoot,
             remainingSteps: Int,
             destination: inout Set<TargetNode>
         ) {
             guard remainingSteps > 0 else {
-                destination.insert(TargetNode(name: to, yootRoll: yootRoll))
+                destination.insert(TargetNode(name: next, yootRoll: yootRoll))
                 return
             }
-            var nextNodes = nodeMap.getNext(from: to)
+            var nextNodes = nextNodeNames(from: next)
             filter(nextNodes: &nextNodes)
 
             guard !nextNodes.isEmpty else { return }
             for nextNode in nextNodes {
                 step(
-                    from: starting,
-                    to: nextNode,
+                    starting: starting,
+                    next: nextNode,
                     yootRoll: yootRoll,
                     remainingSteps: remainingSteps - 1,
                     destination: &destination
@@ -159,8 +154,8 @@ extension AppModel {
         var targetNodes = Set<TargetNode>()
         for yootRoll in self.rollResult {
             step(
-                from: starting,
-                to: starting,
+                starting: starting,
+                next: starting,
                 yootRoll: yootRoll,
                 remainingSteps: yootRoll.steps,
                 destination: &targetNodes
@@ -176,8 +171,18 @@ extension AppModel {
     func clearAllTargetNodes() {
         self.targetNodes.removeAll()
     }
-    
-    private func findRoute(from start: Node, to destination: Node, visited: Set<Node> = []) -> [Node]? {
+
+    /// Recursively finds a path from the `start` node to the `destination` node,
+    /// considering visited nodes to prevent cycles and applying custom path rules
+    /// (e.g., directional constraints when passing through `.center`).
+    ///
+    /// - Parameters:
+    ///   - start: The current node being evaluated in the recursive search.
+    ///   - destination: The target node we want to reach.
+    ///   - startingPoint: The original starting node for determining conditional routes (e.g., center behavior).
+    ///   - visited: A set of nodes already visited to avoid infinite loops.
+    /// - Returns: An array representing the path from `start` to `destination`, or `nil` if no path is found.
+    private func findRoute(from start: Node, to destination: Node, startingPoint: Node, visited: Set<Node> = []) -> [Node]? {
         // Check if we've already visited this node to prevent infinite loops
         guard !visited.contains(start) else { return nil }
 
@@ -190,10 +195,13 @@ extension AppModel {
             return [start]
         }
 
+        // Get valid next steps
+        let nextSteps = validNextNodes(for: start, startingFrom: startingPoint)
+
         // Recursively explore each next node
-        for nextNodeName in start.next {
-            guard let nextNode = nodeMap.getNode(from: nextNodeName) else { break }
-            if let path = findRoute(from: nextNode, to: destination, visited: newVisited) {
+        for nextNodeName in nextSteps {
+            guard let nextNode = findNode(named: nextNodeName) else { break }
+            if let path = findRoute(from: nextNode, to: destination, startingPoint: startingPoint, visited: newVisited) {
                 return [start] + path
             }
         }
@@ -201,8 +209,32 @@ extension AppModel {
         // If no path is found, return nil.
         return nil
     }
+
+    /// Determines the valid next nodes to traverse from a given node,
+    /// applying special routing logic when passing through the center node.
+    ///
+    /// - Parameters:
+    ///   - node: The current node being evaluated.
+    ///   - origin: The original starting node for the route.
+    /// - Returns: A filtered list of next node names.
+    ///   If the current node is `.center`, returns a single valid direction
+    ///   based on the origin:
+    ///     - From the top right path: only `.leftBottomDiagonal1`
+    ///     - From the top left path: only `.rightBottomDiagonal1`
+    private func validNextNodes(for node: Node, startingFrom origin: Node) -> [NodeName] {
+        if node.name == .center {
+            if [.topRightVertex, .rightTopDiagonal1, .rightTopDiagonal2].contains(origin.name) {
+                return [.leftBottomDiagonal1]
+            }
+            if [.topLeftVertex, .leftTopDiagonal1, .leftTopDiagonal2].contains(origin.name) {
+                return [.rightBottomDiagonal1]
+            }
+        }
+        return node.next
+    }
 }
 
+// Entity action
 extension AppModel {
     func perform(action: Action) {
         switch action {
@@ -218,8 +250,8 @@ extension AppModel {
                     clearAllTargetNodes()
                 } else {
                     // If different marker is selected, piggy back.
-                    guard let starting = getNodeFromMap(from: moving) else { return }
-                    guard let destination = getNodeFromMap(from: tapped) else { return }
+                    guard let starting = findNode(for: moving) else { return }
+                    guard let destination = findNode(for: tapped) else { return }
                     guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
                     self.discardRoll(for: targetNode)
                     self.clearAllTargetNodes()
@@ -229,14 +261,14 @@ extension AppModel {
                         await self.move(entity: moving, to: destination)
                         await self.piggyBack(tapped: tapped, moving: moving)
                         // Remove the moved marker, then update the marker map.
-                        self.removeMarkerFromMap(at: starting)
+                        self.removeMarker(from: starting)
                         self.removeChildFromRoot(entity: moving)
                         self.selectedMarker = .none
                     }
                 }
             case .new:
                 // Creating a new marker, but another marker exists on the selected tile.
-                guard let destination = getNodeFromMap(from: tapped) else { return }
+                guard let destination = findNode(for: tapped) else { return }
                 guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
                 self.discardRoll(for: targetNode)
                 self.clearAllTargetNodes()
@@ -245,7 +277,7 @@ extension AppModel {
                     // Create a new marker at the start tile, move the new marker to the selected tile,
                     // then piggy back.
                     // Creating an entity just for the animation.
-                    guard let startNode = self.getNodeFromSet(from: .bottomRightVertex) else { return }
+                    guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
                     let entity = try await self.create(at: startNode)
                     await self.move(entity: entity, to: destination, isNewEntity: true)
 
@@ -259,24 +291,25 @@ extension AppModel {
                     await self.elevate(entity: tapped)
                 }
                 selectedMarker = .existing(tapped)
-                guard let node = getNodeFromMap(from: tapped) else { return }
+                guard let node = findNode(for: tapped) else { return }
                 updateTargetNodes(starting: node.name)
             }
-        case .tapTile(let node):
+        case .tapTile(let tile):
+            guard let node = findNode(named: tile.nodeName) else { return }
             switch selectedMarker {
             case .new:
                 // Create a new marker at start then move the marker to the selected tile.
                 withLoadingState {
-                    guard let start = self.getNodeFromSet(from: .bottomRightVertex) else { return }
+                    guard let start = self.findNode(named: .bottomRightVertex) else { return }
                     let entity = try await self.create(at: start)
                     await self.move(entity: entity, to: node, isNewEntity: true)
-                    self.addMarkerToMap(new: entity, node: node)
+                    self.register(marker: entity, at: node)
                 }
-            case .existing(let entity):
+            case .existing(let marker):
                 // Move selected marker to the selected tile.
                 withLoadingState {
-                    await self.move(entity: entity, to: node)
-                    self.updateMarkerToMap(marker: entity, destination: node)
+                    await self.move(entity: marker, to: node)
+                    self.reassignMarker(marker, to: node)
                 }
             case .none:
                 break
@@ -318,8 +351,8 @@ extension AppModel {
         }
 
         // get route from current node to the destination node
-        guard let currentNode = isNewEntity ? getNodeFromSet(from: .bottomRightVertex) : getNodeFromMap(from: marker) else { return }
-        guard var route = findRoute(from: currentNode, to: node) else { return }
+        guard let currentNode = isNewEntity ? findNode(named: .bottomRightVertex) : findNode(for: marker) else { return }
+        guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
 
@@ -403,29 +436,42 @@ private extension AppModel {
     }
 }
 
-// MARK: Marker Map
+// MARK: - Marker Handling
+// Manage marker tracking across nodes.
 private extension AppModel {
-    func addMarkerToMap(new marker: Entity, node: Node) {
-        nodeMap.create(marker: marker, node: node)
+    func register(marker: Entity, at node: Node) {
+        markers[node] = marker.id
     }
 
-    func updateMarkerToMap(marker: Entity, destination node: Node) {
-        nodeMap.update(marker: marker, node: node)
+    func reassignMarker(_ marker: Entity, to node: Node) {
+        guard let previous = markers.first(where: { $0.value == marker.id })?.key else { return }
+        markers[previous] = nil
+        markers[node] = marker.id
     }
 
-    func removeMarkerFromMap(at node: Node) {
-        nodeMap.remove(node: node)
+    func removeMarker(from node: Node) {
+        markers[node] = nil
     }
 
-    func getNodeFromMap(from marker: Entity) -> Node? {
-        nodeMap.getNode(from: marker)
+    func findNode(for marker: Entity) -> Node? {
+        return markers.first(where: {
+            $0.value == marker.id
+        })?.key
     }
 }
 
 // MARK: NodeMap
 extension AppModel {
-    func getNodeFromSet(from nodeName: NodeName) -> Node? {
-        nodeMap.getNode(from: nodeName)
+    func findNode(named nodeName: NodeName) -> Node? {
+        nodes.filter { $0.name == nodeName }.first
+    }
+
+    func nextNodeNames(from nodeName: NodeName) -> [NodeName] {
+        nodes.filter { $0.name == nodeName }.first?.next ?? []
+    }
+
+    func previousNodeNames(from nodeName: NodeName) -> [NodeName] {
+        nodes.filter { $0.name == nodeName }.first?.prev ?? []
     }
 }
 

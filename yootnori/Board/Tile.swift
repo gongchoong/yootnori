@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Tile {
+struct Tile: Hashable {
     let type: TileType
     let location: TileLocation?
     let paths: [TilePath]?
@@ -18,6 +18,18 @@ struct Tile {
         self.location = location
         self.paths = paths
         self.nodeName = nodeName
+    }
+    
+    // Conforming to Hashable
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        hasher.combine(location)
+        hasher.combine(paths)
+        hasher.combine(nodeName)
+    }
+    
+    static func == (lhs: Tile, rhs: Tile) -> Bool {
+        lhs.type == rhs.type && lhs.location == rhs.location && lhs.paths == rhs.paths && lhs.nodeName == rhs.nodeName
     }
     
     var isEdgeTile: Bool {
