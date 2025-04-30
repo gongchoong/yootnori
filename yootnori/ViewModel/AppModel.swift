@@ -67,8 +67,8 @@ class AppModel: ObservableObject {
 
 // MARK: Button tap
 extension AppModel {
-    func roll() async {
-        await rollViewModel.roll()
+    func roll(yoot: Yoot) async {
+        await rollViewModel.roll(yoot: yoot)
     }
 
     func handleNewMarkerTap() {

@@ -19,24 +19,16 @@ class RollViewModel: ObservableObject {
         return rollResult.map { "\($0.steps)" }
     }
 
-    func roll() async {
-        var result: Yoot
+    func roll(yoot: Yoot) async {
         canRollOnceMore = false
-        switch Int.random(in: 1...5) {
-        case 1: result = .doe
-        case 2: result = .gae
-        case 3: result = .gull
-        case 4:
-            result = .yoot
-            canRollOnceMore = true
-        case 5:
-            result = .mo
+        switch yoot {
+        case .yoot, .mo:
             canRollOnceMore = true
         default:
-            result = .doe
+            break
         }
 
-        rollResult.append(result)
+        rollResult.append(yoot)
     }
 
     func discardRoll(for target: TargetNode) {
