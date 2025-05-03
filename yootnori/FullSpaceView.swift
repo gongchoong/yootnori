@@ -21,9 +21,9 @@ struct FullSpaceView: View {
             .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
             .environmentObject(model)
         HStack {
-            DebugMainView(rollButtonTapped: {
+            DebugMainView(rollButtonTapped: { yoot in
                 Task {
-                    await model.roll()
+                    await model.roll(yoot: yoot)
                 }
             }, markerButtonTapped: {
                 model.handleNewMarkerTap()

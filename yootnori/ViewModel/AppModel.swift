@@ -23,7 +23,11 @@ class AppModel: ObservableObject {
     private let rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
-    private var markers: [Node: UInt64?] = [:]
+    private var markers: [Node: Entity] = [:] {
+        didSet {
+            print(self.markers.keys.map { $0.name })
+        }
+    }
 
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
@@ -67,8 +71,8 @@ class AppModel: ObservableObject {
 
 // MARK: Button tap
 extension AppModel {
-    func roll() async {
-        await rollViewModel.roll()
+    func roll(yoot: Yoot) async {
+        await rollViewModel.roll(yoot: yoot)
     }
 
     func handleNewMarkerTap() {
@@ -303,13 +307,34 @@ extension AppModel {
                     guard let start = self.findNode(named: .bottomRightVertex) else { return }
                     let entity = try await self.create(at: start)
                     await self.move(entity: entity, to: node, isNewEntity: true)
-                    self.register(marker: entity, at: node)
+
+                    // If there is a marker on the selected tile, piggy back.
+                    guard let existingMarker = self.markers[node] else {
+                        self.register(marker: entity, at: node)
+                        return
+                    }
+                    await self.piggyBack(tapped: existingMarker)
+                    self.removeChildFromRoot(entity: entity)
+                    self.selectedMarker = .none
                 }
             case .existing(let marker):
+                // Find node where your marker is
+                guard let startingNode = self.findNode(for: marker) else {
+                    return
+                }
                 // Move selected marker to the selected tile.
                 withLoadingState {
                     await self.move(entity: marker, to: node)
-                    self.reassignMarker(marker, to: node)
+                    
+                    // If there is a marker on the selected tile, piggy back
+                    guard let existingMarker = self.markers[node] else {
+                        self.reassignMarker(marker, to: node)
+                        return
+                    }
+                    await self.piggyBack(tapped: existingMarker, moving: marker)
+                    self.removeMarker(from: startingNode)
+                    self.removeChildFromRoot(entity: marker)
+                    self.selectedMarker = .none
                 }
             case .none:
                 break
@@ -437,16 +462,15 @@ private extension AppModel {
 }
 
 // MARK: - Marker Handling
-// Manage marker tracking across nodes.
 private extension AppModel {
     func register(marker: Entity, at node: Node) {
-        markers[node] = marker.id
+        markers[node] = marker
     }
 
     func reassignMarker(_ marker: Entity, to node: Node) {
-        guard let previous = markers.first(where: { $0.value == marker.id })?.key else { return }
+        guard let previous = markers.first(where: { $0.value == marker })?.key else { return }
         markers[previous] = nil
-        markers[node] = marker.id
+        markers[node] = marker
     }
 
     func removeMarker(from node: Node) {
@@ -455,7 +479,7 @@ private extension AppModel {
 
     func findNode(for marker: Entity) -> Node? {
         return markers.first(where: {
-            $0.value == marker.id
+            $0.value == marker
         })?.key
     }
 }

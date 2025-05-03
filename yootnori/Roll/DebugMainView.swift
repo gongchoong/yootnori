@@ -9,7 +9,7 @@ import SwiftUI
 
 struct DebugMainView: View {
     @EnvironmentObject var model: AppModel
-    var rollButtonTapped: (() -> Void)
+    var rollButtonTapped: ((Yoot) -> Void)
     var markerButtonTapped: (() -> Void)
 
     var body: some View {
@@ -17,13 +17,14 @@ struct DebugMainView: View {
             Rectangle()
                 .fill(.blue)
             VStack(spacing: 10) {
-                Button {
-                    rollButtonTapped()
-                } label: {
-                    Text("Roll!")
-                        .font(.system(size: 40))
-                        .fontWeight(.bold)
-                    
+                ForEach(Yoot.allCases, id: \.self) { roll in
+                    Button {
+                        rollButtonTapped(roll)
+                    } label: {
+                        Text("Roll \(roll.steps)")
+                            .font(.system(size: 40))
+                            .fontWeight(.bold)
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
@@ -53,5 +54,5 @@ struct DebugMainView: View {
 }
 
 #Preview {
-    DebugMainView(rollButtonTapped: {}, markerButtonTapped: {})
+    DebugMainView(rollButtonTapped: {_ in }, markerButtonTapped: {})
 }
