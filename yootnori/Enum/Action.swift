@@ -9,6 +9,6 @@ import Foundation
 import RealityKit
 
 enum Action {
-    case tapMarker(Entity)
-    case tapTile(Tile)
+    case tappedMarker(Entity)
+    case tappedTile(Tile)
 }

@@ -81,7 +81,7 @@ extension AppModel {
         case .existing, .none:
             if case .existing(let entity) = selectedMarker {
                 Task { @MainActor in
-                    await drop(entity: entity)
+                    await drop(entity)
                 }
             }
             selectedMarker = .new
@@ -242,37 +242,35 @@ extension AppModel {
 extension AppModel {
     func perform(action: Action) {
         switch action {
-        case .tapMarker(let tapped):
+        case .tappedMarker(let destinationMarker):
             switch selectedMarker {
-            case .existing(let moving):
-                // If same marker is selected, unselect.
-                if tapped == moving {
+            case .existing(let sourceMarker):
+                // If same marker is selected, unselect the marker.
+                if destinationMarker == sourceMarker {
                     withLoadingState {
-                        await self.drop(entity: tapped)
+                        await self.drop(destinationMarker)
                     }
-                    selectedMarker = .none
-                    clearAllTargetNodes()
                 } else {
                     // If different marker is selected, piggy back.
-                    guard let starting = findNode(for: moving) else { return }
-                    guard let destination = findNode(for: tapped) else { return }
+                    guard let source = findNode(for: sourceMarker) else { return }
+                    guard let destination = findNode(for: destinationMarker) else { return }
                     guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
                     self.discardRoll(for: targetNode)
                     self.clearAllTargetNodes()
 
                     withLoadingState {
                         // Move the marker to the destination, then piggy back.
-                        await self.move(entity: moving, to: destination)
-                        await self.piggyBack(tapped: tapped, moving: moving)
+                        await self.move(entity: sourceMarker, to: destination)
+                        await self.piggyBack(tapped: destinationMarker, moving: sourceMarker)
                         // Remove the moved marker, then update the marker map.
-                        self.removeMarker(from: starting)
-                        self.removeChildFromRoot(entity: moving)
+                        self.removeMarker(from: source)
+                        self.removeChildFromRoot(entity: sourceMarker)
                         self.selectedMarker = .none
                     }
                 }
             case .new:
                 // Creating a new marker, but another marker exists on the selected tile.
-                guard let destination = findNode(for: tapped) else { return }
+                guard let destination = findNode(for: destinationMarker) else { return }
                 guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
                 self.discardRoll(for: targetNode)
                 self.clearAllTargetNodes()
@@ -285,20 +283,20 @@ extension AppModel {
                     let entity = try await self.create(at: startNode)
                     await self.move(entity: entity, to: destination, isNewEntity: true)
 
-                    await self.piggyBack(tapped: tapped)
+                    await self.piggyBack(tapped: destinationMarker)
                     self.removeChildFromRoot(entity: entity)
                     self.selectedMarker = .none
                 }
             case .none:
                 // If no previously selected marker, then set the new marker as selected.
                 withLoadingState {
-                    await self.elevate(entity: tapped)
+                    await self.elevate(entity: destinationMarker)
                 }
-                selectedMarker = .existing(tapped)
-                guard let node = findNode(for: tapped) else { return }
+                selectedMarker = .existing(destinationMarker)
+                guard let node = findNode(for: destinationMarker) else { return }
                 updateTargetNodes(starting: node.name)
             }
-        case .tapTile(let tile):
+        case .tappedTile(let tile):
             guard let node = findNode(named: tile.nodeName) else { return }
             switch selectedMarker {
             case .new:
@@ -369,7 +367,7 @@ extension AppModel {
         func step(entity marker: Entity, to newNode: Node) async {
             do {
                 try await advance(entity: marker, to: newNode, duration: Dimensions.Marker.duration)
-                await drop(entity: marker, duration: Dimensions.Marker.duration)
+                await drop(marker, duration: Dimensions.Marker.duration)
             } catch {
                 fatalError("Failed to move selected marker to \(newNode.index)")
             }
@@ -401,7 +399,7 @@ extension AppModel {
         attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
             guard let self = self else { return }
             if self.hasRemainingRoll {
-                self.perform(action: .tapMarker(tapped))
+                self.perform(action: .tappedMarker(tapped))
             }
         }, level: tappedMarkerComponent.level))
     }
@@ -414,7 +412,7 @@ extension AppModel {
         attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
             guard let self = self else { return }
             if self.hasRemainingRoll {
-                self.perform(action: .tapMarker(tapped))
+                self.perform(action: .tappedMarker(tapped))
             }
         }, level: tappedMarkerComponent.level))
     }
@@ -449,7 +447,7 @@ private extension AppModel {
         }
     }
     
-    func drop(entity marker: Entity, duration: CGFloat = 0.6) async {
+    func drop(_ marker: Entity, duration: CGFloat = 0.6) async {
         do {
             var translation = marker.position
             translation.z = Dimensions.Marker.dropped
@@ -458,6 +456,8 @@ private extension AppModel {
                                  duration: duration)
             try? await Task.sleep(for: .seconds(duration))
         }
+        selectedMarker = .none
+        clearAllTargetNodes()
     }
 }
 
