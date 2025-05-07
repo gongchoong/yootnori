@@ -22,9 +22,9 @@ class AppModel: ObservableObject {
     private let rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
-    private var markers: [Node: Entity] = [:] {
+    private var trackedMarkers: [Node: Entity] = [:] {
         didSet {
-            print(self.markers.keys.map { $0.name })
+            print(self.trackedMarkers.keys.map { $0.name })
         }
     }
 
@@ -240,6 +240,7 @@ extension AppModel {
 extension AppModel {
     func perform(action: Action) {
         switch action {
+        // User tapped a marker on the board.
         case .tappedMarker(let destinationMarker):
             switch selectedMarker {
             case .existing(let sourceMarker):
@@ -250,8 +251,8 @@ extension AppModel {
                     }
                 } else {
                     // Tapped a different marker — time to piggyback.
-                    guard let sourceNode = findNode(for: sourceMarker) else { return }
-                    guard let destinationNode = findNode(for: destinationMarker) else { return }
+                    guard let sourceNode = lookupNode(containing: sourceMarker) else { return }
+                    guard let destinationNode = lookupNode(containing: destinationMarker) else { return }
                     // Ensure there's a valid target node for interaction resolution.
                     guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
 
@@ -265,12 +266,12 @@ extension AppModel {
 
                         // Ride on top of the tapped marker.
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                        self.removeMarker(from: sourceNode)
+                        self.detachMarker(from: sourceNode)
                     }
                 }
             case .new:
                 // Attempting to place a new marker, but tapped a marker that’s already on the board.
-                guard let destinationNode = findNode(for: destinationMarker) else { return }
+                guard let destinationNode = lookupNode(containing: destinationMarker) else { return }
                 guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
 
                 // Clear any lingering roll or target state before continuing.
@@ -294,9 +295,10 @@ extension AppModel {
                     self.selectedMarker = .existing(destinationMarker)
                 }
                 // Show valid target tiles based on this marker's position.
-                guard let node = findNode(for: destinationMarker) else { return }
+                guard let node = lookupNode(containing: destinationMarker) else { return }
                 updateTargetNodes(starting: node.name)
             }
+        // User tapped a tile.
         case .tappedTile(let tile):
             guard let destinationNode = findNode(named: tile.nodeName) else { return }
             switch selectedMarker {
@@ -309,15 +311,15 @@ extension AppModel {
 
                     // If a marker already exists on the selected tile, piggyback on it;
                     // otherwise, register the new marker at that location.
-                    if let destinationMarker = self.markers[destinationNode] {
+                    if let destinationMarker = self.trackedMarkers[destinationNode] {
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                     } else {
-                        self.register(marker: sourceMarker, at: destinationNode)
+                        self.assign(marker: sourceMarker, to: destinationNode)
                     }
                 }
             case .existing(let sourceMarker):
                 // Locate the current position of the selected marker.
-                guard let startingNode = self.findNode(for: sourceMarker) else {
+                guard let startingNode = self.lookupNode(containing: sourceMarker) else {
                     return
                 }
 
@@ -327,11 +329,11 @@ extension AppModel {
                     
                     // If another marker already occupies the tile, piggyback onto it;
                     // otherwise, reassign the marker to the new location.
-                    if let destinationMarker = self.markers[destinationNode] {
+                    if let destinationMarker = self.trackedMarkers[destinationNode] {
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                        self.removeMarker(from: startingNode)
+                        self.detachMarker(from: startingNode)
                     } else {
-                        self.reassignMarker(sourceMarker, to: destinationNode)
+                        self.reassign(sourceMarker, to: destinationNode)
                     }
                 }
             case .none:
@@ -376,7 +378,7 @@ extension AppModel {
         // Determine the starting position for the marker:
         // If it's an existing marker, use its current node;
         // if it's a new marker, default to the START node (bottomRightVertex).
-        let currentNode = findNode(for: marker) ?? .bottomRightVertex
+        let currentNode = lookupNode(containing: marker) ?? .bottomRightVertex
         guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
@@ -390,18 +392,6 @@ extension AppModel {
         addLevel(tapped: carrier, moving: rider)
         removeChildFromRoot(entity: rider)
         selectedMarker = .none
-    }
-
-    private func incrementLevel(tapped: Entity) {
-        guard var tappedMarkerComponent = tapped.components[MarkerComponent.self] else { return }
-        tappedMarkerComponent.level += 1
-        tapped.components[MarkerComponent.self] = tappedMarkerComponent
-        attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
-            guard let self = self else { return }
-            if self.hasRemainingRoll {
-                self.perform(action: .tappedMarker(tapped))
-            }
-        }, level: tappedMarkerComponent.level))
     }
 
     private func addLevel(tapped: Entity, moving: Entity) {
@@ -463,22 +453,22 @@ private extension AppModel {
 
 // MARK: - Marker Handling
 private extension AppModel {
-    func register(marker: Entity, at node: Node) {
-        markers[node] = marker
+    func assign(marker: Entity, to node: Node) {
+        trackedMarkers[node] = marker
     }
 
-    func reassignMarker(_ marker: Entity, to node: Node) {
-        guard let previous = markers.first(where: { $0.value == marker })?.key else { return }
-        markers[previous] = nil
-        markers[node] = marker
+    func reassign(_ marker: Entity, to node: Node) {
+        guard let previous = trackedMarkers.first(where: { $0.value == marker })?.key else { return }
+        trackedMarkers[previous] = nil
+        trackedMarkers[node] = marker
     }
 
-    func removeMarker(from node: Node) {
-        markers[node] = nil
+    func detachMarker(from node: Node) {
+        trackedMarkers[node] = nil
     }
 
-    func findNode(for marker: Entity) -> Node? {
-        return markers.first(where: {
+    func lookupNode(containing marker: Entity) -> Node? {
+        return trackedMarkers.first(where: {
             $0.value == marker
         })?.key
     }
