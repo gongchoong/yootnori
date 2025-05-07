@@ -19,13 +19,12 @@ enum SelectedMarker: Equatable {
 @MainActor
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
-    private let nodeMap: NodeMap
     private let rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
-    private var markers: [Node: Entity] = [:] {
+    private var trackedMarkers: [Node: Entity] = [:] {
         didSet {
-            print(self.markers.keys.map { $0.name })
+            print(self.trackedMarkers.keys.map { $0.name })
         }
     }
 
@@ -46,7 +45,6 @@ class AppModel: ObservableObject {
 
     init(rollViewModel: RollViewModel = RollViewModel()) {
         self.rollViewModel = rollViewModel
-        self.nodeMap = NodeMap()
         
         generateNodes()
         subscribe()
@@ -81,7 +79,7 @@ extension AppModel {
         case .existing, .none:
             if case .existing(let entity) = selectedMarker {
                 Task { @MainActor in
-                    await drop(entity: entity)
+                    await drop(entity)
                 }
             }
             selectedMarker = .new
@@ -242,104 +240,106 @@ extension AppModel {
 extension AppModel {
     func perform(action: Action) {
         switch action {
-        case .tapMarker(let tapped):
+        // User tapped a marker on the board.
+        case .tappedMarker(let destinationMarker):
             switch selectedMarker {
-            case .existing(let moving):
-                // If same marker is selected, unselect.
-                if tapped == moving {
+            case .existing(let sourceMarker):
+                // Tapped the same marker again — just drop it to unselect.
+                if destinationMarker == sourceMarker {
                     withLoadingState {
-                        await self.drop(entity: tapped)
+                        await self.drop(destinationMarker)
                     }
-                    selectedMarker = .none
-                    clearAllTargetNodes()
                 } else {
-                    // If different marker is selected, piggy back.
-                    guard let starting = findNode(for: moving) else { return }
-                    guard let destination = findNode(for: tapped) else { return }
-                    guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
+                    // Tapped a different marker — time to piggyback.
+                    guard let sourceNode = lookupNode(containing: sourceMarker) else { return }
+                    guard let destinationNode = lookupNode(containing: destinationMarker) else { return }
+                    // Ensure there's a valid target node for interaction resolution.
+                    guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
+
+                    // Clear out any previous state tied to rolls or targets.
                     self.discardRoll(for: targetNode)
                     self.clearAllTargetNodes()
 
                     withLoadingState {
-                        // Move the marker to the destination, then piggy back.
-                        await self.move(entity: moving, to: destination)
-                        await self.piggyBack(tapped: tapped, moving: moving)
-                        // Remove the moved marker, then update the marker map.
-                        self.removeMarker(from: starting)
-                        self.removeChildFromRoot(entity: moving)
-                        self.selectedMarker = .none
+                        // Move to the destination marker’s tile.
+                        await self.move(sourceMarker, to: destinationNode)
+
+                        // Ride on top of the tapped marker.
+                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        self.detachMarker(from: sourceNode)
                     }
                 }
             case .new:
-                // Creating a new marker, but another marker exists on the selected tile.
-                guard let destination = findNode(for: tapped) else { return }
-                guard let targetNode = self.getTargetNode(nodeName: destination.name) else { return }
+                // Attempting to place a new marker, but tapped a marker that’s already on the board.
+                guard let destinationNode = lookupNode(containing: destinationMarker) else { return }
+                guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
+
+                // Clear any lingering roll or target state before continuing.
                 self.discardRoll(for: targetNode)
                 self.clearAllTargetNodes()
 
                 withLoadingState {
-                    // Create a new marker at the start tile, move the new marker to the selected tile,
-                    // then piggy back.
-                    // Creating an entity just for the animation.
+                    // Create a temporary marker at the START node and move it to the tapped tile.
+                    // This is just for animation purposes.
                     guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
-                    let entity = try await self.create(at: startNode)
-                    await self.move(entity: entity, to: destination, isNewEntity: true)
+                    let sourceMarker = try await self.create(at: startNode)
+                    await self.move(sourceMarker, to: destinationNode)
 
-                    await self.piggyBack(tapped: tapped)
-                    self.removeChildFromRoot(entity: entity)
-                    self.selectedMarker = .none
+                    // Piggyback onto the existing marker.
+                    await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                 }
             case .none:
-                // If no previously selected marker, then set the new marker as selected.
+                // No marker was selected — now selecting the tapped existing marker on the board.
                 withLoadingState {
-                    await self.elevate(entity: tapped)
+                    await self.elevate(entity: destinationMarker)
+                    self.selectedMarker = .existing(destinationMarker)
                 }
-                selectedMarker = .existing(tapped)
-                guard let node = findNode(for: tapped) else { return }
+                // Show valid target tiles based on this marker's position.
+                guard let node = lookupNode(containing: destinationMarker) else { return }
                 updateTargetNodes(starting: node.name)
             }
-        case .tapTile(let tile):
-            guard let node = findNode(named: tile.nodeName) else { return }
+        // User tapped a tile.
+        case .tappedTile(let tile):
+            guard let destinationNode = findNode(named: tile.nodeName) else { return }
             switch selectedMarker {
             case .new:
-                // Create a new marker at start then move the marker to the selected tile.
+                // Create a new marker at the START node, then move it to the selected tile.
                 withLoadingState {
                     guard let start = self.findNode(named: .bottomRightVertex) else { return }
-                    let entity = try await self.create(at: start)
-                    await self.move(entity: entity, to: node, isNewEntity: true)
+                    let sourceMarker = try await self.create(at: start)
+                    await self.move(sourceMarker, to: destinationNode)
 
-                    // If there is a marker on the selected tile, piggy back.
-                    guard let existingMarker = self.markers[node] else {
-                        self.register(marker: entity, at: node)
-                        return
+                    // If a marker already exists on the selected tile, piggyback on it;
+                    // otherwise, register the new marker at that location.
+                    if let destinationMarker = self.trackedMarkers[destinationNode] {
+                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                    } else {
+                        self.assign(marker: sourceMarker, to: destinationNode)
                     }
-                    await self.piggyBack(tapped: existingMarker)
-                    self.removeChildFromRoot(entity: entity)
-                    self.selectedMarker = .none
                 }
-            case .existing(let marker):
-                // Find node where your marker is
-                guard let startingNode = self.findNode(for: marker) else {
+            case .existing(let sourceMarker):
+                // Locate the current position of the selected marker.
+                guard let startingNode = self.lookupNode(containing: sourceMarker) else {
                     return
                 }
-                // Move selected marker to the selected tile.
+
                 withLoadingState {
-                    await self.move(entity: marker, to: node)
+                    // Move the selected marker to the tapped tile.
+                    await self.move(sourceMarker, to: destinationNode)
                     
-                    // If there is a marker on the selected tile, piggy back
-                    guard let existingMarker = self.markers[node] else {
-                        self.reassignMarker(marker, to: node)
-                        return
+                    // If another marker already occupies the tile, piggyback onto it;
+                    // otherwise, reassign the marker to the new location.
+                    if let destinationMarker = self.trackedMarkers[destinationNode] {
+                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        self.detachMarker(from: startingNode)
+                    } else {
+                        self.reassign(sourceMarker, to: destinationNode)
                     }
-                    await self.piggyBack(tapped: existingMarker, moving: marker)
-                    self.removeMarker(from: startingNode)
-                    self.removeChildFromRoot(entity: marker)
-                    self.selectedMarker = .none
                 }
             case .none:
                 break
             }
-            guard let targetNode = getTargetNode(nodeName: node.name) else { return }
+            guard let targetNode = getTargetNode(nodeName: destinationNode.name) else { return }
             discardRoll(for: targetNode)
             clearAllTargetNodes()
             selectedMarker = .none
@@ -365,18 +365,20 @@ extension AppModel {
         }
     }
     
-    private func move(entity marker: Entity, to node: Node, isNewEntity: Bool = false) async {
+    private func move(_ marker: Entity, to node: Node) async {
         func step(entity marker: Entity, to newNode: Node) async {
             do {
                 try await advance(entity: marker, to: newNode, duration: Dimensions.Marker.duration)
-                await drop(entity: marker, duration: Dimensions.Marker.duration)
+                await drop(marker, duration: Dimensions.Marker.duration)
             } catch {
                 fatalError("Failed to move selected marker to \(newNode.index)")
             }
         }
 
-        // get route from current node to the destination node
-        guard let currentNode = isNewEntity ? findNode(named: .bottomRightVertex) : findNode(for: marker) else { return }
+        // Determine the starting position for the marker:
+        // If it's an existing marker, use its current node;
+        // if it's a new marker, default to the START node (bottomRightVertex).
+        let currentNode = lookupNode(containing: marker) ?? .bottomRightVertex
         guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
@@ -386,24 +388,10 @@ extension AppModel {
         }
     }
 
-    private func piggyBack(tapped: Entity, moving: Entity? = nil) async {
-        guard let movingMarker = moving else {
-            incrementLevel(tapped: tapped)
-            return
-        }
-        addLevel(tapped: tapped, moving: movingMarker)
-    }
-
-    private func incrementLevel(tapped: Entity) {
-        guard var tappedMarkerComponent = tapped.components[MarkerComponent.self] else { return }
-        tappedMarkerComponent.level += 1
-        tapped.components[MarkerComponent.self] = tappedMarkerComponent
-        attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
-            guard let self = self else { return }
-            if self.hasRemainingRoll {
-                self.perform(action: .tapMarker(tapped))
-            }
-        }, level: tappedMarkerComponent.level))
+    private func piggyBack(rider: Entity, carrier: Entity) async {
+        addLevel(tapped: carrier, moving: rider)
+        removeChildFromRoot(entity: rider)
+        selectedMarker = .none
     }
 
     private func addLevel(tapped: Entity, moving: Entity) {
@@ -414,7 +402,7 @@ extension AppModel {
         attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
             guard let self = self else { return }
             if self.hasRemainingRoll {
-                self.perform(action: .tapMarker(tapped))
+                self.perform(action: .tappedMarker(tapped))
             }
         }, level: tappedMarkerComponent.level))
     }
@@ -449,7 +437,7 @@ private extension AppModel {
         }
     }
     
-    func drop(entity marker: Entity, duration: CGFloat = 0.6) async {
+    func drop(_ marker: Entity, duration: CGFloat = 0.6) async {
         do {
             var translation = marker.position
             translation.z = Dimensions.Marker.dropped
@@ -458,33 +446,34 @@ private extension AppModel {
                                  duration: duration)
             try? await Task.sleep(for: .seconds(duration))
         }
+        selectedMarker = .none
+        clearAllTargetNodes()
     }
 }
 
 // MARK: - Marker Handling
 private extension AppModel {
-    func register(marker: Entity, at node: Node) {
-        markers[node] = marker
+    func assign(marker: Entity, to node: Node) {
+        trackedMarkers[node] = marker
     }
 
-    func reassignMarker(_ marker: Entity, to node: Node) {
-        guard let previous = markers.first(where: { $0.value == marker })?.key else { return }
-        markers[previous] = nil
-        markers[node] = marker
+    func reassign(_ marker: Entity, to node: Node) {
+        guard let previous = trackedMarkers.first(where: { $0.value == marker })?.key else { return }
+        trackedMarkers[previous] = nil
+        trackedMarkers[node] = marker
     }
 
-    func removeMarker(from node: Node) {
-        markers[node] = nil
+    func detachMarker(from node: Node) {
+        trackedMarkers[node] = nil
     }
 
-    func findNode(for marker: Entity) -> Node? {
-        return markers.first(where: {
+    func lookupNode(containing marker: Entity) -> Node? {
+        return trackedMarkers.first(where: {
             $0.value == marker
         })?.key
     }
 }
 
-// MARK: NodeMap
 extension AppModel {
     func findNode(named nodeName: NodeName) -> Node? {
         nodes.filter { $0.name == nodeName }.first

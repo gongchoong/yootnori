@@ -77,7 +77,7 @@ private extension MainView {
 
     func handleMarkerTapGesture(marker: Entity) {
         if model.hasRemainingRoll {
-            model.perform(action: .tapMarker(marker))
+            model.perform(action: .tappedMarker(marker))
         }
     }
 }
