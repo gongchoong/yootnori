@@ -35,14 +35,6 @@ class AppModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published private(set) var rollResult: [Yoot] = []
 
-    var hasRemainingRoll: Bool {
-        rollViewModel.hasRemainingRoll
-    }
-
-    var yootRollSteps: [String] {
-        rollViewModel.yootRollSteps
-    }
-
     init(rollViewModel: RollViewModel = RollViewModel()) {
         self.rollViewModel = rollViewModel
         
@@ -60,7 +52,7 @@ class AppModel: ObservableObject {
     }
     
     private func subscribe() {
-        rollViewModel.$rollResult
+        rollViewModel.$result
             .receive(on: RunLoop.main)
             .assign(to: \.rollResult, on: self)
             .store(in: &cancellables)
@@ -77,6 +69,7 @@ extension AppModel {
         clearAllTargetNodes()
         switch selectedMarker {
         case .existing, .none:
+            // If a marker was already picked up, drop that marker.
             if case .existing(let entity) = selectedMarker {
                 Task { @MainActor in
                     await drop(entity)
@@ -87,10 +80,6 @@ extension AppModel {
         case .new:
             selectedMarker = .none
         }
-    }
-
-    func discardRoll(for targetNode: TargetNode) {
-        rollViewModel.discardRoll(for: targetNode)
     }
 }
 
@@ -448,6 +437,21 @@ private extension AppModel {
         }
         selectedMarker = .none
         clearAllTargetNodes()
+    }
+}
+
+// MARK: - RollViewModel
+extension AppModel {
+    var hasRemainingRoll: Bool {
+        rollViewModel.hasRemainingRoll
+    }
+
+    var yootRollSteps: [String] {
+        rollResult.map { "\($0.steps)" }
+    }
+
+    func discardRoll(for targetNode: TargetNode) {
+        rollViewModel.discardRoll(for: targetNode)
     }
 }
 

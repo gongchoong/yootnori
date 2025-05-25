@@ -8,34 +8,30 @@
 import Foundation
 
 class RollViewModel: ObservableObject {
-    @Published var rollResult: [Yoot] = []
-    var canRollOnceMore: Bool = false
+    @Published var result: [Yoot] = []
+    var canRollAgain: Bool = false
 
     var hasRemainingRoll: Bool {
-        !rollResult.isEmpty && !canRollOnceMore
-    }
-
-    var yootRollSteps: [String] {
-        return rollResult.map { "\($0.steps)" }
+        !result.isEmpty && !canRollAgain
     }
 
     func roll(yoot: Yoot) async {
-        canRollOnceMore = false
+        canRollAgain = false
         switch yoot {
         case .yoot, .mo:
-            canRollOnceMore = true
+            canRollAgain = true
         default:
             break
         }
 
-        rollResult.append(yoot)
+        result.append(yoot)
     }
 
     func discardRoll(for target: TargetNode) {
-        guard let index = rollResult.firstIndex(of: target.yootRoll) else {
+        guard let index = result.firstIndex(of: target.yootRoll) else {
             return
         }
-        rollResult.remove(at: index)
+        result.remove(at: index)
     }
 
 }
