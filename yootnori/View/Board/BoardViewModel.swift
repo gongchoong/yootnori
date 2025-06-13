@@ -19,8 +19,7 @@ class BoardViewModel: ObservableObject {
     private func generateTiles() {
         edgeTiles = TileConfig.edgeTileLayoutNames.map { row in
             row.map { name in
-                guard
-                    let type = TileConfig.tileTypeMap[name],
+                guard let type = TileConfig.tileTypeMap[name],
                     let location = TileConfig.tileLocationMap[name],
                     let paths = TileConfig.tilePathMap[name]
                 else {
@@ -33,8 +32,7 @@ class BoardViewModel: ObservableObject {
 
         innerTiles = TileConfig.innerTileLayoutNames.map { row in
             row.map { name in
-                guard
-                    let type = TileConfig.tileTypeMap[name],
+                guard let type = TileConfig.tileTypeMap[name],
                     let location = TileConfig.tileLocationMap[name],
                     let paths = TileConfig.tilePathMap[name]
                 else {
