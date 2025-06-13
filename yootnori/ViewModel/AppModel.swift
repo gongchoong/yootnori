@@ -402,8 +402,7 @@ extension AppModel {
 private extension AppModel {
     func advance(entity marker: Entity, to node: Node, duration: CGFloat) async throws {
         let newPosition = try node.index.position()
-        var translation = marker.position
-        translation = newPosition
+        var translation = newPosition
         translation.z = Dimensions.Marker.elevated
         marker.move(
             to: .init(
