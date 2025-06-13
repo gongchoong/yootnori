@@ -1,7 +1,7 @@
 #usda 1.0
 (
     customLayerData = {
-        string creator = "Reality Composer Pro Version 1.0 (409.100.15)"
+        string creator = "Reality Composer Pro Version 2.0 (448.100.13)"
     }
     defaultPrim = "Root"
     metersPerUnit = 1
@@ -22,8 +22,10 @@ def Xform "Root"
         double height = 0.1
         rel material:binding = </Root/Cylinder/DefaultMaterial>
         double radius = 0.1
-        quatf xformOp:orient = (0.7073883, 0.70682514, -2.058771e-11, 2.0571319e-11)
-        float3 xformOp:scale = (0.15, 0.15, 0.15)
+        float2 ui:nodegraph:node:pos = (20, 20)
+        int ui:nodegraph:node:stackingOrder = 1
+        quatf xformOp:orient = (0.7073883, 0.7068252, -2.0587714e-11, 2.0571322e-11)
+        float3 xformOp:scale = (0.14999998, 0.14999998, 0.14999998)
         float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
@@ -31,7 +33,7 @@ def Xform "Root"
         {
             token outputs:mtlx:surface
             token outputs:realitykit:vertex
-            prepend token outputs:surface.connect = </Root/Cylinder/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+            token outputs:surface.connect = </Root/Cylinder/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
 
             def Shader "DefaultSurfaceShader"
             {

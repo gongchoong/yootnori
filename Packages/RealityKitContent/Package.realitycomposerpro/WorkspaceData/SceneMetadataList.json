@@ -57,7 +57,15 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Cylinder"
+        "Sphere"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -75,14 +83,18 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Sphere"
+        "Cylinder"
       ],
       {
         "isExpanded" : true,
         "isLocked" : false
-      },
+      }
+    ]
+  },
+  "DEA77A68-1489-412E-B7A8-DDEC7D4BF640" : {
+    "objectMetadataList" : [
       [
-        "D66134B1-3681-4A8E-AFE5-29F257229F3B",
+        "DEA77A68-1489-412E-B7A8-DDEC7D4BF640",
         "Root"
       ],
       {

@@ -338,7 +338,7 @@ extension AppModel {
     private func create(at node: Node) async throws -> Entity {
         do {
             let position = try node.index.position()
-            let entity = try await Entity(named: "Scene", in: RealityKitContent.realityKitContentBundle)
+            let entity = try await Entity(named: "Marker", in: RealityKitContent.realityKitContentBundle)
             entity.position = position
             entity.components.set([
                 CollisionComponent(shapes: [{
