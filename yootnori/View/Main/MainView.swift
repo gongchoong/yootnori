@@ -35,8 +35,7 @@ struct MainView: View {
             }
         } attachments: {
             Attachment(id: "board") {
-                let boardViewModel = BoardViewModel()
-                BoardView(viewModel: boardViewModel, action: { action in
+                BoardView(viewModel: BoardViewModel(), action: { action in
                     model.perform(action: action)
                 })
                 .environmentObject(model)
