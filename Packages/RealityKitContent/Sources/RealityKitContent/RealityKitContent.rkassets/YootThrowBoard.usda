@@ -21,7 +21,7 @@ def Xform "Root"
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
         float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (0.45, 0.7, 0)
+        float3 xformOp:translate = (0.45, 0.5, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -88,7 +88,7 @@ def Xform "Root"
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
         float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (0.15, 0.7, 0)
+        float3 xformOp:translate = (0.15, 0.5, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -155,7 +155,7 @@ def Xform "Root"
     {
         quatf xformOp:orient = (0.5, -0.50000006, 0.49999997, 0.5)
         float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (-0.15, 0.7, 0)
+        float3 xformOp:translate = (-0.15, 0.5, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -222,7 +222,7 @@ def Xform "Root"
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
         float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (-0.45, 0.7, 0)
+        float3 xformOp:translate = (-0.45, 0.5, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"

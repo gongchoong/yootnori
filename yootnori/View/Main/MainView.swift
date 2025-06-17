@@ -13,36 +13,39 @@ struct MainView: View {
     enum Constants {
         static var boardViewName: String = "Board"
         static var yootThrowBoardName: String = "YootThrowBoard"
-        static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
+        static var yootNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
     }
+
     @EnvironmentObject var model: AppModel
     @Environment(\.physicalMetrics) var physicalMetrics
+    @ObservedObject var throwViewModel: ThrowViewModel
+    @State private var sceneUpdateSubscription: EventSubscription?
 
     static let runtimeQuery = EntityQuery(where: .has(MarkerRuntimeComponent.self))
     @State private var subscriptions = [EventSubscription]()
     @State private var yootEntities: [Entity] = []
 
+    init() {
+        self.throwViewModel = ThrowViewModel()
+    }
+
     var body: some View {
         RealityView { content, attachments in
-            guard let board = attachments.entity(for: Constants.boardViewName) else { return }
-            self.model.rootEntity.addChild(board)
-            content.add(self.model.rootEntity)
-            self.model.rootEntity.position = [0, 0, -0.4]
-
-            guard let yootThrowBoardEntity = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
-            content.add(yootThrowBoardEntity)
-
-            yootThrowBoardEntity.position = [0, -0.5, 0]
-            yootThrowBoardEntity.scale = [0.3,0.3,0.3]
-            for name in Constants.yootEntityNames {
-                if let yoot = yootThrowBoardEntity.findEntity(named: name) {
-                    yootEntities.append(yoot)
-                }
-            }
+            await createBoard(content, attachments)
+            await createYootThrowBoard(content)
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
                 createLevelView(for: event.entity)
             }))
+
+            // Subscribe to scene update events
+            sceneUpdateSubscription = content.subscribe(to: SceneEvents.Update.self) { event in
+                // Only check during landing detection
+                guard throwViewModel.shouldStartCheckingForLanding else { return }
+                throwViewModel.checkForLanding {
+                    print("FINISHED!!")
+                }
+            }
         } update: { content, attachments in
             model.rootEntity.scene?.performQuery(Self.runtimeQuery).forEach { entity in
                 guard let component = entity.components[MarkerRuntimeComponent.self] else { return }
@@ -67,12 +70,48 @@ struct MainView: View {
         }
         .gesture(
             TapGesture()
-                .targetedToAnyEntity()
+                .targetedToEntity(where: .has(MarkerComponent.self))
                 .onEnded {
                     handleMarkerTapGesture(marker: $0.entity)
                 }
         )
+        .gesture(
+            TapGesture()
+                .targetedToEntity(where: .has(YootComponent.self))
+                .onEnded { _ in
+                    throwViewModel.roll()
+                }
+        )
+        .onDisappear {
+            sceneUpdateSubscription?.cancel()
+        }
         .disabled(model.isLoading)
+    }
+}
+
+@MainActor
+private extension MainView {
+    func createBoard(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
+        guard let board = attachments.entity(for: Constants.boardViewName) else { return }
+        model.rootEntity.addChild(board)
+        content.add(self.model.rootEntity)
+        model.rootEntity.position = [0, 0, -0.4]
+    }
+
+    func createYootThrowBoard(_ content: RealityViewContent) async {
+        guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
+        content.add(yootThrowBoard)
+        yootThrowBoard.position = [0, -0.5, 0]
+        yootThrowBoard.scale = [0.3,0.3,0.3]
+
+        let loadedEntities = await loadYootEntities(from: yootThrowBoard, named: Constants.yootNames)
+        throwViewModel.entities.append(contentsOf: loadedEntities)
+    }
+
+    func loadYootEntities(from parent: Entity, named names: [String]) async -> [Entity] {
+        await Task.yield() // Give RealityKit time to resolve the entity tree
+
+        return names.compactMap { parent.findEntity(named: $0) }
     }
 }
 
