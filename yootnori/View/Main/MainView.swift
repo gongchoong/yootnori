@@ -95,14 +95,14 @@ private extension MainView {
         guard let board = attachments.entity(for: Constants.boardViewName) else { return }
         model.rootEntity.addChild(board)
         content.add(self.model.rootEntity)
-        model.rootEntity.position = [0, 0, -0.4]
+        model.rootEntity.position = [0, 0, -0.2]
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
         guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
         content.add(yootThrowBoard)
         yootThrowBoard.position = [0, -0.5, 0]
-        yootThrowBoard.scale = [0.3,0.3,0.3]
+        yootThrowBoard.scale = [0.2,0.2,0.2]
 
         let loadedEntities = await loadYootEntities(from: yootThrowBoard, named: Constants.yootNames)
         throwViewModel.entities.append(contentsOf: loadedEntities)

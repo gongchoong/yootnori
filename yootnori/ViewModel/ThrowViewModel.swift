@@ -10,9 +10,9 @@ import RealityKit
 
 class ThrowViewModel: ObservableObject {
     enum Constants {
-        static var xOffset: Float = 0.00015
-        static var yOffset: Float = 0.0005
-        static var zOffset: Float = 0.00015
+        static var xOffset: Float = 0.00005
+        static var yOffset: Float = 0.0004
+        static var zOffset: Float = 0.00005
     }
 
     @Published var entities: [Entity] = []
@@ -32,12 +32,11 @@ class ThrowViewModel: ObservableObject {
     func roll() {
         for entity in entities {
             if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
-                // Generate a small random X and Z offset
+                // Generate a small random X offset
                 let randomX = Float.random(in: -Constants.xOffset...Constants.xOffset)
-                let randomZ = Float.random(in: -Constants.zOffset...Constants.zOffset)
 
                 // Apply impulse with random lateral component
-                let impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
+                let impulse = SIMD3<Float>(randomX, Constants.yOffset, 0)
                 physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
             }
         }
