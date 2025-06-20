@@ -13,6 +13,7 @@ struct MainView: View {
     enum Constants {
         static var boardViewName: String = "Board"
         static var yootThrowBoardName: String = "YootThrowBoard"
+        static var debugViewName: String = "DebugView"
         static var yootNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
     }
 
@@ -32,6 +33,7 @@ struct MainView: View {
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
+            await createDebugView(content, attachments)
             await createYootThrowBoard(content)
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
@@ -59,6 +61,19 @@ struct MainView: View {
                 BoardView(viewModel: BoardViewModel(), action: { action in
                     model.perform(action: action)
                 })
+                .environmentObject(model)
+            }
+
+            Attachment(id: Constants.debugViewName) {
+                DebugMainView(rollButtonTapped: { yoot in
+                    Task {
+                        await model.roll(yoot: yoot)
+                    }
+                }, markerButtonTapped: {
+                    model.handleNewMarkerTap()
+                })
+                .frame(width: Dimensions.Screen.totalSize(physicalMetrics) * 1/3,
+                       height: Dimensions.Screen.totalSize(physicalMetrics))
                 .environmentObject(model)
             }
 
@@ -95,23 +110,29 @@ private extension MainView {
         guard let board = attachments.entity(for: Constants.boardViewName) else { return }
         model.rootEntity.addChild(board)
         content.add(self.model.rootEntity)
-        model.rootEntity.position = [0, 0, -0.2]
+        model.rootEntity.position = [-0.1, 0, -0.15]
+    }
+
+    func createDebugView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
+        guard let debugView = attachments.entity(for: Constants.debugViewName) else { return }
+        content.add(debugView)
+        debugView.position = [0.3, 0, -0.15] // Position it to the right and back
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
         guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
         content.add(yootThrowBoard)
-        yootThrowBoard.position = [0, -0.5, 0]
-        yootThrowBoard.scale = [0.2,0.2,0.2]
+        yootThrowBoard.position = [0, -0.5, 0.2]
+        yootThrowBoard.scale = [0.15,0.15,0.15]
 
-        let loadedEntities = await loadYootEntities(from: yootThrowBoard, named: Constants.yootNames)
-        throwViewModel.entities.append(contentsOf: loadedEntities)
+        addYootPieces(entity: yootThrowBoard)
     }
 
-    func loadYootEntities(from parent: Entity, named names: [String]) async -> [Entity] {
-        await Task.yield() // Give RealityKit time to resolve the entity tree
-
-        return names.compactMap { parent.findEntity(named: $0) }
+    func addYootPieces(entity: Entity) {
+        for yoot in Constants.yootNames {
+            let yootEntity = entity.findEntity(named: yoot)!
+            throwViewModel.entities.append(yootEntity)
+        }
     }
 }
 

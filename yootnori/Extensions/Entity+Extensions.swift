@@ -14,7 +14,7 @@ extension Entity {
     }
 
     func isMoving() -> Bool {
-        let velocityThreshold: Float = 0.07
+        let velocityThreshold: Float = 0.05
 
         if let motionComponent = components[PhysicsMotionComponent.self] {
             let velocity = motionComponent.linearVelocity
