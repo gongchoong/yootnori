@@ -15,6 +15,10 @@ struct MainView: View {
         static var yootThrowBoardName: String = "YootThrowBoard"
         static var debugViewName: String = "DebugView"
         static var yootNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
+        static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.3]
+        static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.3]
+        static var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.2]
+        static var throwBoardScale: SIMD3<Float> = [0.15,0.15,0.15]
     }
 
     @EnvironmentObject var model: AppModel
@@ -110,27 +114,28 @@ private extension MainView {
         guard let board = attachments.entity(for: Constants.boardViewName) else { return }
         model.rootEntity.addChild(board)
         content.add(self.model.rootEntity)
-        model.rootEntity.position = [-0.1, 0, -0.15]
+        model.rootEntity.position = Constants.boardPosition
     }
 
     func createDebugView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
         guard let debugView = attachments.entity(for: Constants.debugViewName) else { return }
         content.add(debugView)
-        debugView.position = [0.3, 0, -0.15] // Position it to the right and back
+        debugView.position = Constants.debugViewPosition
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
         guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
+        defer { addYootPieces(entity: yootThrowBoard) }
         content.add(yootThrowBoard)
-        yootThrowBoard.position = [0, -0.5, 0.2]
-        yootThrowBoard.scale = [0.15,0.15,0.15]
-
-        addYootPieces(entity: yootThrowBoard)
+        yootThrowBoard.position = Constants.throwBoardPosition
+        yootThrowBoard.scale = Constants.throwBoardScale
     }
 
     func addYootPieces(entity: Entity) {
         for yoot in Constants.yootNames {
-            let yootEntity = entity.findEntity(named: yoot)!
+            guard let yootEntity = entity.findEntity(named: yoot) else {
+                fatalError("Failed to find entity named \(yoot)")
+            }
             throwViewModel.entities.append(yootEntity)
         }
     }
