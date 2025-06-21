@@ -28,11 +28,13 @@ enum Dimensions {
 #if os(visionOS)
     enum Screen {
         static func totalSize(_ physicalMetrics: PhysicalMetricsConverter) -> CGFloat {
-            physicalMetrics.convert(Dimensions.Board.board, from: .meters)
+            let size = physicalMetrics.convert(Dimensions.Board.board, from: .meters)
+            return size
         }
 
         static func depth(_ physicalMetrics: PhysicalMetricsConverter) -> CGFloat {
-            physicalMetrics.convert(Dimensions.Board.board * Dimensions.Board.depthConstant, from: .meters)
+            let depth = physicalMetrics.convert(Dimensions.Board.board * Dimensions.Board.depthConstant, from: .meters)
+            return depth
         }
     }
 #endif

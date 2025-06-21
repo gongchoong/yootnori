@@ -1,0 +1,350 @@
+#usda 1.0
+(
+    customLayerData = {
+        string creator = "Reality Composer Pro Version 2.0 (448.100.13)"
+    }
+    defaultPrim = "Root"
+    metersPerUnit = 1
+    upAxis = "Y"
+)
+
+def Xform "Root"
+{
+    reorder nameChildren = ["yoot_1", "yoot_2", "yoot_3", "yoot_4", "floor"]
+    def "yoot_1" (
+        active = true
+        customData = {
+            float3 rotationEulerHint = (-1.5707964, 1.5707963, 0)
+        }
+        references = @yoot.usdz@
+    )
+    {
+        quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
+        float3 xformOp:scale = (0.1, 0.1, 0.1)
+        float3 xformOp:translate = (0.45, 0.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitCustomComponent "RealityKitContent_YootComponent"
+        {
+            uniform token info:id = "RealityKitContent.YootComponent"
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (11.999999, 2.1, 0.6)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                    float3 position = (0, 0, -0.04898113)
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            uniform token info:id = "RealityKit.RigidBody"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 0.2
+                double staticFriction = 1
+            }
+        }
+
+        def RealityKitComponent "InputTarget"
+        {
+            uniform token info:id = "RealityKit.InputTarget"
+        }
+
+        def RealityKitComponent "MotionState"
+        {
+            uniform token info:id = "RealityKit.MotionState"
+        }
+    }
+
+    def "yoot_2" (
+        active = true
+        customData = {
+            float3 rotationEulerHint = (-1.5707964, 1.5707963, 0)
+        }
+        references = @yoot.usdz@
+    )
+    {
+        quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
+        float3 xformOp:scale = (0.1, 0.1, 0.1)
+        float3 xformOp:translate = (0.15, 0.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitCustomComponent "RealityKitContent_YootComponent"
+        {
+            uniform token info:id = "RealityKitContent.YootComponent"
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (11.999999, 2.1, 0.6)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                    float3 position = (0, 0, -0.04898113)
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            uniform token info:id = "RealityKit.RigidBody"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 0.2
+                double staticFriction = 1
+            }
+        }
+
+        def RealityKitComponent "InputTarget"
+        {
+            uniform token info:id = "RealityKit.InputTarget"
+        }
+
+        def RealityKitComponent "MotionState"
+        {
+            uniform token info:id = "RealityKit.MotionState"
+        }
+    }
+
+    def "yoot_3" (
+        active = true
+        customData = {
+            float3 rotationEulerHint = (-1.5707964, 1.5707963, 0)
+        }
+        references = @yoot.usdz@
+    )
+    {
+        quatf xformOp:orient = (0.5, -0.50000006, 0.49999997, 0.5)
+        float3 xformOp:scale = (0.1, 0.1, 0.1)
+        float3 xformOp:translate = (-0.15, 0.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitCustomComponent "RealityKitContent_YootComponent"
+        {
+            uniform token info:id = "RealityKitContent.YootComponent"
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (11.999999, 2.1, 0.6)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                    float3 position = (0, 0, -0.04898113)
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            uniform token info:id = "RealityKit.RigidBody"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 0.2
+                double staticFriction = 1
+            }
+        }
+
+        def RealityKitComponent "InputTarget"
+        {
+            uniform token info:id = "RealityKit.InputTarget"
+        }
+
+        def RealityKitComponent "MotionState"
+        {
+            uniform token info:id = "RealityKit.MotionState"
+        }
+    }
+
+    def "yoot_4" (
+        active = true
+        customData = {
+            float3 rotationEulerHint = (-1.5707964, 1.5707963, 0)
+        }
+        references = @yoot_back.usdz@
+    )
+    {
+        quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
+        float3 xformOp:scale = (0.1, 0.1, 0.1)
+        float3 xformOp:translate = (-0.45, 0.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def RealityKitCustomComponent "RealityKitContent_YootComponent"
+        {
+            uniform token info:id = "RealityKitContent.YootComponent"
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (11.999999, 2.1, 0.6)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                    float3 position = (0, 0, -0.05343321)
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            uniform token info:id = "RealityKit.RigidBody"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 0.2
+                double staticFriction = 1
+            }
+        }
+
+        def RealityKitComponent "InputTarget"
+        {
+            uniform token info:id = "RealityKit.InputTarget"
+        }
+
+        def RealityKitComponent "MotionState"
+        {
+            uniform token info:id = "RealityKit.MotionState"
+        }
+    }
+
+    def Cube "floor" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Root/floor/DefaultMaterial>
+        double size = 10
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 0.08, 1)
+        float3 xformOp:translate = (0, 0, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:mtlx:surface
+            token outputs:realitykit:vertex
+            token outputs:surface.connect = </Root/floor/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                float inputs:clearcoatRoughness = 0
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:opacity = 0.6
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (10, 10, 10)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            bool gravityEnabled = 0
+            uniform token info:id = "RealityKit.RigidBody"
+            token motionType = "Static"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double staticFriction = 1
+            }
+        }
+    }
+}
+

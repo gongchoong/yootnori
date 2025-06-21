@@ -39,6 +39,7 @@
 		546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E52DB4296F0032C0A6 /* TileConfig.swift */; };
 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
+		54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* ThrowViewModel.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
 /* End PBXBuildFile section */
@@ -78,6 +79,7 @@
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
+		54BE95532E01E360004D66EE /* ThrowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrowViewModel.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -166,6 +168,7 @@
 		540EE1BF2C9F6F7E0056F03C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				54BE95532E01E360004D66EE /* ThrowViewModel.swift */,
 				540EE1C02C9F6F860056F03C /* AppModel.swift */,
 			);
 			path = ViewModel;
@@ -366,6 +369,7 @@
 				5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */,
 				54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */,
 				540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */,
+				54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */,
 				54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */,
 				54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */,
 				5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */,
