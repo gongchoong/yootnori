@@ -50,6 +50,7 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
 
             def RealityKitStruct "massFrame"
@@ -62,7 +63,7 @@ def Xform "Root"
             def RealityKitStruct "material"
             {
                 double dynamicFriction = 1
-                double restitution = 0.2
+                double restitution = 0.1
                 double staticFriction = 1
             }
         }
@@ -117,6 +118,7 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
 
             def RealityKitStruct "massFrame"
@@ -129,7 +131,7 @@ def Xform "Root"
             def RealityKitStruct "material"
             {
                 double dynamicFriction = 1
-                double restitution = 0.2
+                double restitution = 0.1
                 double staticFriction = 1
             }
         }
@@ -184,6 +186,7 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
 
             def RealityKitStruct "massFrame"
@@ -196,7 +199,7 @@ def Xform "Root"
             def RealityKitStruct "material"
             {
                 double dynamicFriction = 1
-                double restitution = 0.2
+                double restitution = 0.1
                 double staticFriction = 1
             }
         }
@@ -251,6 +254,7 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
 
             def RealityKitStruct "massFrame"
@@ -263,7 +267,7 @@ def Xform "Root"
             def RealityKitStruct "material"
             {
                 double dynamicFriction = 1
-                double restitution = 0.2
+                double restitution = 0.1
                 double staticFriction = 1
             }
         }
@@ -328,6 +332,7 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 0.05
             bool gravityEnabled = 0
             uniform token info:id = "RealityKit.RigidBody"
             token motionType = "Static"
