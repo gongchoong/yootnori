@@ -10,18 +10,25 @@ import RealityKit
 
 class ThrowViewModel: ObservableObject {
     enum Constants {
+        static var yoots: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00005
         static var yOffset: Float = 0.0004
         static var zOffset: Float = 0.00005
     }
 
-    @Published var entities: [Entity] = []
+    enum YootError: Error {
+        case yootBoardNotFound
+        case yootEntityNotFound
+    }
+
     @Published var wasMoving = false
     @Published var started = false
     @Published var landed = false
+    var yootThrowBoard: Entity?
+    var yootEntities: [Entity] = []
 
     var allEntitiesMoving: Bool {
-        entities.allSatisfy({ $0.isMoving() })
+        yootEntities.allSatisfy({ $0.isMoving() })
     }
 
     var shouldStartCheckingForLanding: Bool {
@@ -30,25 +37,36 @@ class ThrowViewModel: ObservableObject {
     }
 
     func roll() {
-        for entity in entities {
-            if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
-                // Generate a small random X offset
-                let randomX = Float.random(in: -Constants.xOffset...Constants.xOffset)
-
-                // Apply impulse with random lateral component
-                let impulse = SIMD3<Float>(randomX, Constants.yOffset, 0)
-                physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
+        do {
+            defer {
+                landed = false
+                started = true
             }
+            // Find yoot entities from the YootThrowBoard entity
+            if yootEntities.isEmpty {
+                try loadYootEntities()
+            }
+
+            for entity in yootEntities {
+                if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
+                    // Generate a small random X offset
+                    let randomX = Float.random(in: -Constants.xOffset...Constants.xOffset)
+
+                    // Apply impulse with random lateral component
+                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, 0)
+                    physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
+                }
+            }
+        } catch let error {
+            fatalError("\(error)")
         }
-        landed = false
-        started = true
     }
 
     func checkForLanding(completion: @escaping() -> ()) {
         var currentlyMoving = false
 
-        for entity in entities {
-            if entity.isMoving() {
+        for yoot in yootEntities {
+            if yoot.isMoving() {
                 currentlyMoving = true
                 break
             }
@@ -59,17 +77,29 @@ class ThrowViewModel: ObservableObject {
             landed = true
             print("🎯 Yoots have just landed!")
 
-            for entity in entities {
-                if isEntityUpsideDown(entity) {
-                    print("🚫 \(entity.name) is upside down!")
+            for yoot in yootEntities {
+                if isEntityUpsideDown(yoot) {
+                    print("🚫 \(yoot.name) is upside down!")
                 } else {
-                    print("✅ \(entity.name) landed upright.")
+                    print("✅ \(yoot.name) landed upright.")
                 }
             }
             completion()
         }
 
         wasMoving = currentlyMoving
+    }
+
+    private func loadYootEntities() throws {
+        guard let yootThrowBoard else {
+            throw YootError.yootBoardNotFound
+        }
+        for yoot in Constants.yoots {
+            guard let yootEntity = yootThrowBoard.findEntity(named: yoot) else {
+                throw YootError.yootEntityNotFound
+            }
+            yootEntities.append(yootEntity)
+        }
     }
 
     private func isEntityUpsideDown(_ entity: Entity) -> Bool {
