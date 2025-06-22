@@ -7,6 +7,7 @@
 
 import Foundation
 import RealityKit
+import SwiftUI
 
 class ThrowViewModel: ObservableObject {
     enum Constants {
@@ -38,10 +39,10 @@ class ThrowViewModel: ObservableObject {
 
     func roll() {
         do {
-            defer {
-                landed = false
+            withAnimation {
                 started = true
             }
+            landed = false
             // Find yoot entities from the YootThrowBoard entity
             if yootEntities.isEmpty {
                 try loadYootEntities()
@@ -89,8 +90,10 @@ class ThrowViewModel: ObservableObject {
 
         wasMoving = currentlyMoving
     }
+}
 
-    private func loadYootEntities() throws {
+private extension ThrowViewModel {
+    func loadYootEntities() throws {
         guard let yootThrowBoard else {
             throw YootError.yootBoardNotFound
         }
@@ -102,7 +105,7 @@ class ThrowViewModel: ObservableObject {
         }
     }
 
-    private func isEntityUpsideDown(_ entity: Entity) -> Bool {
+    func isEntityUpsideDown(_ entity: Entity) -> Bool {
         // Get the world transform of the entity
         let worldTransform = entity.transformMatrix(relativeTo: nil)
 

@@ -23,12 +23,6 @@ struct FullSpaceView: View {
     }
 }
 
-private extension FullSpaceView {
-    private var gameBoardSize: CGFloat {
-        return Dimensions.Screen.totalSize(self.physicalMetrics)
-    }
-}
-
 #Preview {
     FullSpaceView()
 }

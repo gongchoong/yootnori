@@ -42,6 +42,7 @@
 		54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* ThrowViewModel.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
+		54D4B1B82E089972009CB19D /* RollButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D4B1B72E08996C009CB19D /* RollButton.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,6 +83,7 @@
 		54BE95532E01E360004D66EE /* ThrowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrowViewModel.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		54D4B1B72E08996C009CB19D /* RollButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -270,6 +272,7 @@
 		546745E72DB43A2A0032C0A6 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				54D4B1B72E08996C009CB19D /* RollButton.swift */,
 				540EE1BA2C9F6EC70056F03C /* MainView.swift */,
 			);
 			path = Main;
@@ -349,6 +352,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54D4B1B82E089972009CB19D /* RollButton.swift in Sources */,
 				5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */,
 				541B8DCA2DB21DAA004B9F38 /* TileViewModel.swift in Sources */,
 				5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */,
