@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum Yoot: CustomStringConvertible, CaseIterable {
-    case doe
-    case gae
-    case gull
-    case yoot
-    case mo
+enum Yoot: Int, CustomStringConvertible, CaseIterable {
+    case doe = 1   // 1 upside down
+    case gae = 2   // 2 upside down
+    case gull = 3  // 3 upside down
+    case yoot = 0  // 0 upside down
+    case mo = 4    // 4 upside down
 
     var description: String {
         switch self {

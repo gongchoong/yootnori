@@ -39,10 +39,10 @@ class ThrowViewModel: ObservableObject {
 
     func roll() {
         do {
+            landed = false
             withAnimation {
                 started = true
             }
-            landed = false
             // Find yoot entities from the YootThrowBoard entity
             if yootEntities.isEmpty {
                 try loadYootEntities()
@@ -63,7 +63,7 @@ class ThrowViewModel: ObservableObject {
         }
     }
 
-    func checkForLanding(completion: @escaping() -> ()) {
+    func checkForLanding(completion: @escaping(Yoot) -> ()) {
         var currentlyMoving = false
 
         for yoot in yootEntities {
@@ -76,16 +76,14 @@ class ThrowViewModel: ObservableObject {
         // Detect landing (transition from moving to stopped)
         if wasMoving && !currentlyMoving && !landed {
             landed = true
-            print("🎯 Yoots have just landed!")
+            let upsideDownCount = yootEntities.filter { isEntityUpsideDown($0) }.count
 
-            for yoot in yootEntities {
-                if isEntityUpsideDown(yoot) {
-                    print("🚫 \(yoot.name) is upside down!")
-                } else {
-                    print("✅ \(yoot.name) landed upright.")
-                }
+            // Use the rawValue initializer for mapping
+            guard let yootResult = Yoot(rawValue: upsideDownCount) else {
+                return completion(.doe)
             }
-            completion()
+
+            completion(yootResult)
         }
 
         wasMoving = currentlyMoving
@@ -129,8 +127,10 @@ private extension ThrowViewModel {
 
         // Tolerance threshold — adjust if needed
         if dotProduct < -0.7 {
+            print("🚫 \(entity.name) is upside down!")
             return true // upside down
         } else {
+            print("✅ \(entity.name) landed upright.")
             return false // upright or sideways
         }
     }

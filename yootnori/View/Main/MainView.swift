@@ -49,10 +49,11 @@
                 sceneUpdateSubscription = content.subscribe(to: SceneEvents.Update.self) { event in
                     // Only check during landing detection
                     guard throwViewModel.shouldStartCheckingForLanding else { return }
-                    throwViewModel.checkForLanding {
+                    throwViewModel.checkForLanding { result in
                         withAnimation {
                             throwViewModel.started = false
                         }
+                        print("Yoot result = \(result)")
                     }
                 }
             } update: { content, attachments in
