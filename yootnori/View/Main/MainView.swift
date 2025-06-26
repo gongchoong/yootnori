@@ -16,7 +16,7 @@
             static var debugViewName: String = "DebugView"
             static var rollButtonName: String = "RollButton"
             static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.1]
-            static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.3]
+            static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
             static var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.2]
             static var throwBoardScale: SIMD3<Float> = [0.15,0.15,0.15]
         }

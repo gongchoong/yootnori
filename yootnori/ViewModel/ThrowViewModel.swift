@@ -26,8 +26,8 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
         static var yoots: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00005
-        static var yOffset: Float = 0.00038
-        static var zOffset: Float = 0.00005
+        static var yOffset: Float = 0.00039
+        static var zOffset: Float = 0.00004
     }
 
     enum YootError: Error {
@@ -77,9 +77,10 @@ class ThrowViewModel: RollViewModel, ObservableObject {
                 if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
                     // Generate a small random X offset
                     let randomX = Float.random(in: -Constants.xOffset...Constants.xOffset)
+                    let randomZ = Float.random(in: -Constants.zOffset...Constants.zOffset)
 
                     // Apply impulse with random lateral component
-                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, 0)
+                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
                     physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
                 }
             }

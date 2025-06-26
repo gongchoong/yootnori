@@ -55,6 +55,8 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -123,6 +125,8 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -191,6 +195,8 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -259,6 +265,8 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
                 }
