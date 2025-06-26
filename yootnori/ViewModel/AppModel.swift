@@ -46,6 +46,7 @@ class AppModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published private(set) var rollResult: [Yoot] = []
     @Published var isAnimating: Bool = false
+    @Published var hasRemainingRoll: Bool = false
 
     init(rollViewModel: RollViewModel = ThrowViewModel()) {
         self.rollViewModel = rollViewModel
@@ -72,6 +73,11 @@ class AppModel: ObservableObject {
         rollViewModel.isAnimatingPublisher
             .receive(on: RunLoop.main)
             .assign(to: \.isAnimating, on: self)
+            .store(in: &cancellables)
+        
+        rollViewModel.hasRemainingRollPublisher
+            .receive(on: RunLoop.main)
+            .assign(to: \.hasRemainingRoll, on: self)
             .store(in: &cancellables)
     }
 }
@@ -458,10 +464,6 @@ private extension AppModel {
 
 // MARK: - DebugRollViewModel
 extension AppModel {
-    var hasRemainingRoll: Bool {
-        rollViewModel.hasRemainingRoll
-    }
-
     var yootRollSteps: [String] {
         rollResult.map { "\($0.steps)" }
     }

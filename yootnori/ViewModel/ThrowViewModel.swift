@@ -17,7 +17,7 @@ protocol RollViewModel {
     func checkForLanding()
     var resultPublisher: Published<[Yoot]>.Publisher { get }
     var isAnimatingPublisher: Published<Bool>.Publisher { get }
-    var hasRemainingRoll: Bool { get }
+    var hasRemainingRollPublisher: AnyPublisher<Bool, Never> { get }
     var shouldStartCheckingForLanding: Bool { get }
     var yootThrowBoard: Entity? { get set }
 }
@@ -26,7 +26,7 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
         static var yoots: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00005
-        static var yOffset: Float = 0.0004
+        static var yOffset: Float = 0.00038
         static var zOffset: Float = 0.00005
     }
 
@@ -35,19 +35,22 @@ class ThrowViewModel: RollViewModel, ObservableObject {
         case yootEntityNotFound
     }
 
-    @Published var wasMoving = false
-    @Published var isAnimating = false
-    var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
-    @Published var landed = false
-    @Published var result: [Yoot] = []
-    var resultPublisher: Published<[Yoot]>.Publisher { $result }
-
     var yootThrowBoard: Entity?
     var yootEntities: [Entity] = []
-    var canRollAgain: Bool = false
+    private var originalTransforms: [String: Transform] = [:]
 
-    var hasRemainingRoll: Bool {
-        !result.isEmpty && !canRollAgain
+    @Published var wasMoving = false
+    @Published var landed = false
+
+    @Published var isAnimating = false
+    var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
+    @Published var result: [Yoot] = []
+    var resultPublisher: Published<[Yoot]>.Publisher { $result }
+    @Published var canRollAgain: Bool = false
+    var hasRemainingRollPublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest($result, $canRollAgain)
+            .map { !$0.0.isEmpty && !$0.1 }
+            .eraseToAnyPublisher()
     }
 
     var allEntitiesMoving: Bool {
@@ -67,6 +70,8 @@ class ThrowViewModel: RollViewModel, ObservableObject {
             if yootEntities.isEmpty {
                 try loadYootEntities()
             }
+            // Reposition the yoots to the middle before throwing
+            resetYootsToOriginalPosition()
 
             for entity in yootEntities {
                 if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
@@ -111,6 +116,13 @@ class ThrowViewModel: RollViewModel, ObservableObject {
                 return
             }
 
+            switch yootResult {
+            case .yoot, .mo:
+                canRollAgain = true
+            case .doe, .gae, .gull:
+                canRollAgain = false
+            }
+
             result.append(yootResult)
             isAnimating = false
         }
@@ -130,6 +142,8 @@ private extension ThrowViewModel {
                 throw YootError.yootEntityNotFound
             }
             yootEntities.append(yootEntity)
+            // Store the original transform
+            originalTransforms[yoot] = yootEntity.transform
         }
     }
 
@@ -164,4 +178,18 @@ private extension ThrowViewModel {
             return false // upright or sideways
         }
     }
+
+    func resetYootsToOriginalPosition() {
+        for yoot in yootEntities {
+            if let original = originalTransforms[yoot.name] {
+                yoot.transform = original
+                // Also reset velocities if you’re using physics
+                if let physics = yoot as? (Entity & HasPhysicsBody & HasPhysicsMotion) {
+                    physics.physicsMotion?.linearVelocity = .zero
+                    physics.physicsMotion?.angularVelocity = .zero
+                }
+            }
+        }
+    }
+
 }

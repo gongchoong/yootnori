@@ -15,7 +15,7 @@
             static var yootThrowBoardName: String = "YootThrowBoard"
             static var debugViewName: String = "DebugView"
             static var rollButtonName: String = "RollButton"
-            static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.3]
+            static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.1]
             static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.3]
             static var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.2]
             static var throwBoardScale: SIMD3<Float> = [0.15,0.15,0.15]
@@ -62,18 +62,18 @@
                     .environmentObject(model)
                 }
 
-//                Attachment(id: Constants.debugViewName) {
-//                    DebugMainView(rollButtonTapped: { yoot in
-//                        Task {
-//                            await model.roll()
-//                        }
-//                    }, markerButtonTapped: {
-//                        model.handleNewMarkerTap()
-//                    })
-//                    .frame(width: Dimensions.Screen.totalSize(physicalMetrics) * 1/3,
-//                           height: Dimensions.Screen.totalSize(physicalMetrics))
-//                    .environmentObject(model)
-//                }
+                Attachment(id: Constants.debugViewName) {
+                    DebugMainView(rollButtonTapped: { yoot in
+                        Task {
+                            model.roll()
+                        }
+                    }, markerButtonTapped: {
+                        model.handleNewMarkerTap()
+                    })
+                    .frame(width: Dimensions.Screen.totalSize(physicalMetrics) * 1/3,
+                           height: Dimensions.Screen.totalSize(physicalMetrics))
+                    .environmentObject(model)
+                }
 
                 Attachment(id: Constants.rollButtonName) {
                     RollButton {
