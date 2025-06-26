@@ -7,9 +7,22 @@
 
 import Foundation
 import RealityKit
+import RealityKitContent
 import SwiftUI
+import Combine
 
-class ThrowViewModel: ObservableObject {
+protocol RollViewModel {
+    func roll()
+    func discardRoll(for target: TargetNode)
+    func checkForLanding()
+    var resultPublisher: Published<[Yoot]>.Publisher { get }
+    var isAnimatingPublisher: Published<Bool>.Publisher { get }
+    var hasRemainingRoll: Bool { get }
+    var shouldStartCheckingForLanding: Bool { get }
+    var yootThrowBoard: Entity? { get set }
+}
+
+class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
         static var yoots: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00005
@@ -23,26 +36,33 @@ class ThrowViewModel: ObservableObject {
     }
 
     @Published var wasMoving = false
-    @Published var started = false
+    @Published var isAnimating = false
+    var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
     @Published var landed = false
+    @Published var result: [Yoot] = []
+    var resultPublisher: Published<[Yoot]>.Publisher { $result }
+
     var yootThrowBoard: Entity?
     var yootEntities: [Entity] = []
+    var canRollAgain: Bool = false
+
+    var hasRemainingRoll: Bool {
+        !result.isEmpty && !canRollAgain
+    }
 
     var allEntitiesMoving: Bool {
         yootEntities.allSatisfy({ $0.isMoving() })
     }
 
     var shouldStartCheckingForLanding: Bool {
-        guard started, !landed, wasMoving || allEntitiesMoving else { return false }
+        guard isAnimating, !landed, wasMoving || allEntitiesMoving else { return false }
         return true
     }
 
     func roll() {
         do {
             landed = false
-            withAnimation {
-                started = true
-            }
+            isAnimating = true
             // Find yoot entities from the YootThrowBoard entity
             if yootEntities.isEmpty {
                 try loadYootEntities()
@@ -63,7 +83,14 @@ class ThrowViewModel: ObservableObject {
         }
     }
 
-    func checkForLanding(completion: @escaping(Yoot) -> ()) {
+    func discardRoll(for target: TargetNode) {
+        guard let index = result.firstIndex(of: target.yootRoll) else {
+            return
+        }
+        result.remove(at: index)
+    }
+
+    func checkForLanding() {
         var currentlyMoving = false
 
         for yoot in yootEntities {
@@ -80,10 +107,12 @@ class ThrowViewModel: ObservableObject {
 
             // Use the rawValue initializer for mapping
             guard let yootResult = Yoot(rawValue: upsideDownCount) else {
-                return completion(.doe)
+                result.append(.doe)
+                return
             }
 
-            completion(yootResult)
+            result.append(yootResult)
+            isAnimating = false
         }
 
         wasMoving = currentlyMoving
@@ -95,6 +124,7 @@ private extension ThrowViewModel {
         guard let yootThrowBoard else {
             throw YootError.yootBoardNotFound
         }
+
         for yoot in Constants.yoots {
             guard let yootEntity = yootThrowBoard.findEntity(named: yoot) else {
                 throw YootError.yootEntityNotFound

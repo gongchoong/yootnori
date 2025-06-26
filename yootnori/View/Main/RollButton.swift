@@ -8,15 +8,12 @@
 import SwiftUI
 
 struct RollButton: View {
-    @ObservedObject var throwViewModel: ThrowViewModel
+    @EnvironmentObject var model: AppModel
 
-    init(throwViewModel: ThrowViewModel) {
-        self.throwViewModel = throwViewModel
-    }
-
+    var didTapButton: () -> Void
     var body: some View {
         Button(action: {
-            throwViewModel.roll()
+            didTapButton()
         }) {
             Text("ROLL")
                 .font(.system(size: 50, weight: .bold, design: .rounded))
@@ -29,6 +26,7 @@ struct RollButton: View {
                 )
         }
         .hoverEffect(.lift)
-        .opacity(throwViewModel.started ? 0 : 1)
+        .opacity(model.isAnimating ? 0 : 1)
+        .animation(.easeInOut(duration: 0.2), value: model.isAnimating)
     }
 }

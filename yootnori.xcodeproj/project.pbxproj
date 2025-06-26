@@ -23,7 +23,7 @@
 		541B8DC62DB21D8E004B9F38 /* RollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC52DB21D8E004B9F38 /* RollView.swift */; };
 		541B8DC82DB21D9B004B9F38 /* BoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC72DB21D9B004B9F38 /* BoardViewModel.swift */; };
 		541B8DCA2DB21DAA004B9F38 /* TileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */; };
-		541DF8092DB6057000BF89D2 /* RollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541DF8082DB6057000BF89D2 /* RollViewModel.swift */; };
+		541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */; };
 		542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */; };
 		5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702492CF83318003F017B /* AttachmentsProvider.swift */; };
 		5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5427024C2CF83466003F017B /* MarkerLevelView.swift */; };
@@ -64,7 +64,7 @@
 		541B8DC52DB21D8E004B9F38 /* RollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollView.swift; sourceTree = "<group>"; };
 		541B8DC72DB21D9B004B9F38 /* BoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardViewModel.swift; sourceTree = "<group>"; };
 		541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileViewModel.swift; sourceTree = "<group>"; };
-		541DF8082DB6057000BF89D2 /* RollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollViewModel.swift; sourceTree = "<group>"; };
+		541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugRollViewModel.swift; sourceTree = "<group>"; };
 		542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerRuntimeComponent.swift; sourceTree = "<group>"; };
 		542702492CF83318003F017B /* AttachmentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsProvider.swift; sourceTree = "<group>"; };
 		5427024C2CF83466003F017B /* MarkerLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerLevelView.swift; sourceTree = "<group>"; };
@@ -180,7 +180,7 @@
 			isa = PBXGroup;
 			children = (
 				548F23032CC5D64D00A50F3F /* DebugMainView.swift */,
-				541DF8082DB6057000BF89D2 /* RollViewModel.swift */,
+				541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */,
 			);
 			path = Roll;
 			sourceTree = "<group>";
@@ -356,7 +356,7 @@
 				5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */,
 				541B8DCA2DB21DAA004B9F38 /* TileViewModel.swift in Sources */,
 				5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */,
-				541DF8092DB6057000BF89D2 /* RollViewModel.swift in Sources */,
+				541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,

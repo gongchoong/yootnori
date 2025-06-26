@@ -23,16 +23,11 @@
 
         @EnvironmentObject var model: AppModel
         @Environment(\.physicalMetrics) var physicalMetrics
-        var throwViewModel: ThrowViewModel
         @State private var sceneUpdateSubscription: EventSubscription?
 
         static let runtimeQuery = EntityQuery(where: .has(MarkerRuntimeComponent.self))
         @State private var subscriptions = [EventSubscription]()
         @State private var yootEntities: [Entity] = []
-
-        init() {
-            self.throwViewModel = ThrowViewModel()
-        }
 
         var body: some View {
             RealityView { content, attachments in
@@ -48,13 +43,8 @@
                 // Subscribe to scene update events
                 sceneUpdateSubscription = content.subscribe(to: SceneEvents.Update.self) { event in
                     // Only check during landing detection
-                    guard throwViewModel.shouldStartCheckingForLanding else { return }
-                    throwViewModel.checkForLanding { result in
-                        withAnimation {
-                            throwViewModel.started = false
-                        }
-                        print("Yoot result = \(result)")
-                    }
+                    guard model.shouldStartCheckingForLanding else { return }
+                    model.checkForLanding()
                 }
             } update: { content, attachments in
                 model.rootEntity.scene?.performQuery(Self.runtimeQuery).forEach { entity in
@@ -72,21 +62,24 @@
                     .environmentObject(model)
                 }
 
-                Attachment(id: Constants.debugViewName) {
-                    DebugMainView(rollButtonTapped: { yoot in
-                        Task {
-                            await model.roll(yoot: yoot)
-                        }
-                    }, markerButtonTapped: {
-                        model.handleNewMarkerTap()
-                    })
-                    .frame(width: Dimensions.Screen.totalSize(physicalMetrics) * 1/3,
-                           height: Dimensions.Screen.totalSize(physicalMetrics))
-                    .environmentObject(model)
-                }
+//                Attachment(id: Constants.debugViewName) {
+//                    DebugMainView(rollButtonTapped: { yoot in
+//                        Task {
+//                            await model.roll()
+//                        }
+//                    }, markerButtonTapped: {
+//                        model.handleNewMarkerTap()
+//                    })
+//                    .frame(width: Dimensions.Screen.totalSize(physicalMetrics) * 1/3,
+//                           height: Dimensions.Screen.totalSize(physicalMetrics))
+//                    .environmentObject(model)
+//                }
 
                 Attachment(id: Constants.rollButtonName) {
-                    RollButton(throwViewModel: throwViewModel)
+                    RollButton {
+                        model.roll()
+                    }
+                    .environmentObject(model)
                 }
 
                 ForEach(model.attachmentsProvider.sortedTagViewPairs, id: \.tag) { pair in
@@ -126,7 +119,7 @@
 
         func createYootThrowBoard(_ content: RealityViewContent) async {
             guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
-            throwViewModel.yootThrowBoard = yootThrowBoard
+            model.yootThrowBoard = yootThrowBoard
             content.add(yootThrowBoard)
             yootThrowBoard.position = Constants.throwBoardPosition
             yootThrowBoard.scale = Constants.throwBoardScale

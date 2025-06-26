@@ -19,13 +19,24 @@ enum SelectedMarker: Equatable {
 @MainActor
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
-    private let rollViewModel: RollViewModel
+    var yootThrowBoard: Entity? {
+        set {
+            rollViewModel.yootThrowBoard = newValue
+        }
+        get {
+            rollViewModel.yootThrowBoard
+        }
+    }
+    private var rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
     private var trackedMarkers: [Node: Entity] = [:] {
         didSet {
             print(self.trackedMarkers.keys.map { $0.name })
         }
+    }
+    var shouldStartCheckingForLanding: Bool {
+        rollViewModel.shouldStartCheckingForLanding
     }
 
     @State var markersToGo: Int = 4
@@ -34,8 +45,9 @@ class AppModel: ObservableObject {
     @Published var attachmentsProvider = AttachmentsProvider()
     @Published var isLoading: Bool = false
     @Published private(set) var rollResult: [Yoot] = []
+    @Published var isAnimating: Bool = false
 
-    init(rollViewModel: RollViewModel = RollViewModel()) {
+    init(rollViewModel: RollViewModel = ThrowViewModel()) {
         self.rollViewModel = rollViewModel
         
         generateNodes()
@@ -52,17 +64,22 @@ class AppModel: ObservableObject {
     }
     
     private func subscribe() {
-        rollViewModel.$result
+        rollViewModel.resultPublisher
             .receive(on: RunLoop.main)
             .assign(to: \.rollResult, on: self)
+            .store(in: &cancellables)
+
+        rollViewModel.isAnimatingPublisher
+            .receive(on: RunLoop.main)
+            .assign(to: \.isAnimating, on: self)
             .store(in: &cancellables)
     }
 }
 
 // MARK: Button tap
 extension AppModel {
-    func roll(yoot: Yoot) async {
-        await rollViewModel.roll(yoot: yoot)
+    func roll() {
+        rollViewModel.roll()
     }
 
     func handleNewMarkerTap() {
@@ -439,7 +456,7 @@ private extension AppModel {
     }
 }
 
-// MARK: - RollViewModel
+// MARK: - DebugRollViewModel
 extension AppModel {
     var hasRemainingRoll: Bool {
         rollViewModel.hasRemainingRoll
@@ -512,5 +529,11 @@ private extension AppModel {
             }
             isLoading = false
         }
+    }
+}
+
+extension AppModel {
+    func checkForLanding() {
+        rollViewModel.checkForLanding()
     }
 }
