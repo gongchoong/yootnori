@@ -14,11 +14,6 @@ struct FullSpaceView: View {
     
     var body: some View {
         MainView()
-            .frame(
-                width: Dimensions.Screen.totalSize(self.physicalMetrics),
-                height: Dimensions.Screen.totalSize(self.physicalMetrics)
-            )
-            .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
             .environmentObject(model)
     }
 }
