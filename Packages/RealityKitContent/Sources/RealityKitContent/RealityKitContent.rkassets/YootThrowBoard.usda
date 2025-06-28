@@ -59,7 +59,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.007, 0)
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -130,7 +130,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.007, 0)
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -201,7 +201,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.007, 0)
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -272,7 +272,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.007, 0)
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -359,6 +359,7 @@ def Xform "Root"
             def RealityKitStruct "material"
             {
                 double dynamicFriction = 1
+                double restitution = 1
                 double staticFriction = 1
             }
         }
