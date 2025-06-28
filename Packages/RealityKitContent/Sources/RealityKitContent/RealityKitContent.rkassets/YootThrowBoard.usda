@@ -59,6 +59,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.007, 0)
                 }
             }
 
@@ -129,6 +130,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.007, 0)
                 }
             }
 
@@ -199,6 +201,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.007, 0)
                 }
             }
 
@@ -269,6 +272,7 @@ def Xform "Root"
 
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.007, 0)
                 }
             }
 

@@ -24,10 +24,10 @@ protocol RollViewModel {
 
 class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
-        static var yoots: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
+        static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00005
         static var yOffset: Float = 0.00039
-        static var zOffset: Float = 0.00004
+        static var zOffset: Float = 0.00003
     }
 
     enum YootError: Error {
@@ -46,9 +46,9 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
     @Published var result: [Yoot] = []
     var resultPublisher: Published<[Yoot]>.Publisher { $result }
-    @Published var canRollAgain: Bool = false
+    @Published var canThrowAgain: Bool = false
     var hasRemainingRollPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest($result, $canRollAgain)
+        Publishers.CombineLatest($result, $canThrowAgain)
             .map { !$0.0.isEmpty && !$0.1 }
             .eraseToAnyPublisher()
     }
@@ -70,8 +70,8 @@ class ThrowViewModel: RollViewModel, ObservableObject {
             if yootEntities.isEmpty {
                 try loadYootEntities()
             }
-            // Reposition the yoots to the middle before throwing
-            resetYootsToOriginalPosition()
+            // Center all the yoots before starting the throw animation
+            resetToOriginalPosition()
 
             for entity in yootEntities {
                 if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
@@ -117,14 +117,8 @@ class ThrowViewModel: RollViewModel, ObservableObject {
                 return
             }
 
-            switch yootResult {
-            case .yoot, .mo:
-                canRollAgain = true
-            case .doe, .gae, .gull:
-                canRollAgain = false
-            }
-
             result.append(yootResult)
+            canThrowAgain = yootResult.canThrowAgain
             isAnimating = false
         }
 
@@ -138,7 +132,7 @@ private extension ThrowViewModel {
             throw YootError.yootBoardNotFound
         }
 
-        for yoot in Constants.yoots {
+        for yoot in Constants.yootEntityNames {
             guard let yootEntity = yootThrowBoard.findEntity(named: yoot) else {
                 throw YootError.yootEntityNotFound
             }
@@ -180,7 +174,7 @@ private extension ThrowViewModel {
         }
     }
 
-    func resetYootsToOriginalPosition() {
+    func resetToOriginalPosition() {
         for yoot in yootEntities {
             if let original = originalTransforms[yoot.name] {
                 yoot.transform = original
