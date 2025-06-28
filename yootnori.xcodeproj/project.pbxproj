@@ -39,6 +39,7 @@
 		546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E52DB4296F0032C0A6 /* TileConfig.swift */; };
 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
+		549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549615B62E109B06000E7C60 /* IntroductoryView.swift */; };
 		54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* ThrowViewModel.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
@@ -80,6 +81,7 @@
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
+		549615B62E109B06000E7C60 /* IntroductoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroductoryView.swift; sourceTree = "<group>"; };
 		54BE95532E01E360004D66EE /* ThrowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrowViewModel.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 		540EE1BE2C9F6F740056F03C /* View */ = {
 			isa = PBXGroup;
 			children = (
+				549615B52E109B01000E7C60 /* Intro */,
 				546745E72DB43A2A0032C0A6 /* Main */,
 				546745E12DB4207E0032C0A6 /* Board */,
 				5427024B2CF8345E003F017B /* Marker */,
@@ -278,6 +281,14 @@
 			path = Main;
 			sourceTree = "<group>";
 		};
+		549615B52E109B01000E7C60 /* Intro */ = {
+			isa = PBXGroup;
+			children = (
+				549615B62E109B06000E7C60 /* IntroductoryView.swift */,
+			);
+			path = Intro;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -359,6 +370,7 @@
 				541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
+				549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */,
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,
 				541B8DC62DB21D8E004B9F38 /* RollView.swift in Sources */,
 				544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */,
