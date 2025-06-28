@@ -19,13 +19,24 @@ enum SelectedMarker: Equatable {
 @MainActor
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
-    private let rollViewModel: RollViewModel
+    var yootThrowBoard: Entity? {
+        set {
+            rollViewModel.yootThrowBoard = newValue
+        }
+        get {
+            rollViewModel.yootThrowBoard
+        }
+    }
+    private var rollViewModel: RollViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
     private var trackedMarkers: [Node: Entity] = [:] {
         didSet {
             print(self.trackedMarkers.keys.map { $0.name })
         }
+    }
+    var shouldStartCheckingForLanding: Bool {
+        rollViewModel.shouldStartCheckingForLanding
     }
 
     @State var markersToGo: Int = 4
@@ -34,8 +45,10 @@ class AppModel: ObservableObject {
     @Published var attachmentsProvider = AttachmentsProvider()
     @Published var isLoading: Bool = false
     @Published private(set) var rollResult: [Yoot] = []
+    @Published var isAnimating: Bool = false
+    @Published var hasRemainingRoll: Bool = false
 
-    init(rollViewModel: RollViewModel = RollViewModel()) {
+    init(rollViewModel: RollViewModel = ThrowViewModel()) {
         self.rollViewModel = rollViewModel
         
         generateNodes()
@@ -52,17 +65,27 @@ class AppModel: ObservableObject {
     }
     
     private func subscribe() {
-        rollViewModel.$result
+        rollViewModel.resultPublisher
             .receive(on: RunLoop.main)
             .assign(to: \.rollResult, on: self)
+            .store(in: &cancellables)
+
+        rollViewModel.isAnimatingPublisher
+            .receive(on: RunLoop.main)
+            .assign(to: \.isAnimating, on: self)
+            .store(in: &cancellables)
+        
+        rollViewModel.hasRemainingRollPublisher
+            .receive(on: RunLoop.main)
+            .assign(to: \.hasRemainingRoll, on: self)
             .store(in: &cancellables)
     }
 }
 
 // MARK: Button tap
 extension AppModel {
-    func roll(yoot: Yoot) async {
-        await rollViewModel.roll(yoot: yoot)
+    func roll() {
+        rollViewModel.roll()
     }
 
     func handleNewMarkerTap() {
@@ -240,8 +263,8 @@ extension AppModel {
                     }
                 } else {
                     // Tapped a different marker — time to piggyback.
-                    guard let sourceNode = lookupNode(containing: sourceMarker) else { return }
-                    guard let destinationNode = lookupNode(containing: destinationMarker) else { return }
+                    guard let sourceNode = findNode(for: sourceMarker) else { return }
+                    guard let destinationNode = findNode(for: destinationMarker) else { return }
                     // Ensure there's a valid target node for interaction resolution.
                     guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
 
@@ -260,7 +283,7 @@ extension AppModel {
                 }
             case .new:
                 // Attempting to place a new marker, but tapped a marker that’s already on the board.
-                guard let destinationNode = lookupNode(containing: destinationMarker) else { return }
+                guard let destinationNode = findNode(for: destinationMarker) else { return }
                 guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
 
                 // Clear any lingering roll or target state before continuing.
@@ -284,7 +307,7 @@ extension AppModel {
                     self.selectedMarker = .existing(destinationMarker)
                 }
                 // Show valid target tiles based on this marker's position.
-                guard let node = lookupNode(containing: destinationMarker) else { return }
+                guard let node = findNode(for: destinationMarker) else { return }
                 updateTargetNodes(starting: node.name)
             }
         // User tapped a tile.
@@ -308,7 +331,7 @@ extension AppModel {
                 }
             case .existing(let sourceMarker):
                 // Locate the current position of the selected marker.
-                guard let startingNode = self.lookupNode(containing: sourceMarker) else {
+                guard let startingNode = self.findNode(for: sourceMarker) else {
                     return
                 }
 
@@ -367,7 +390,7 @@ extension AppModel {
         // Determine the starting position for the marker:
         // If it's an existing marker, use its current node;
         // if it's a new marker, default to the START node (bottomRightVertex).
-        let currentNode = lookupNode(containing: marker) ?? .bottomRightVertex
+        let currentNode = findNode(for: marker) ?? .bottomRightVertex
         guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else { return }
         // exclute the starting node
         route = route.filter { $0.name != currentNode.name }
@@ -439,12 +462,8 @@ private extension AppModel {
     }
 }
 
-// MARK: - RollViewModel
+// MARK: - DebugRollViewModel
 extension AppModel {
-    var hasRemainingRoll: Bool {
-        rollViewModel.hasRemainingRoll
-    }
-
     var yootRollSteps: [String] {
         rollResult.map { "\($0.steps)" }
     }
@@ -470,7 +489,7 @@ private extension AppModel {
         trackedMarkers[node] = nil
     }
 
-    func lookupNode(containing marker: Entity) -> Node? {
+    func findNode(for marker: Entity) -> Node? {
         return trackedMarkers.first(where: {
             $0.value == marker
         })?.key
@@ -512,5 +531,11 @@ private extension AppModel {
             }
             isLoading = false
         }
+    }
+}
+
+extension AppModel {
+    func checkForLanding() {
+        rollViewModel.checkForLanding()
     }
 }

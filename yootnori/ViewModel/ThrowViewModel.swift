@@ -7,12 +7,26 @@
 
 import Foundation
 import RealityKit
+import RealityKitContent
+import SwiftUI
+import Combine
 
-class ThrowViewModel: ObservableObject {
+protocol RollViewModel {
+    func roll()
+    func discardRoll(for target: TargetNode)
+    func checkForLanding()
+    var resultPublisher: Published<[Yoot]>.Publisher { get }
+    var isAnimatingPublisher: Published<Bool>.Publisher { get }
+    var hasRemainingRollPublisher: AnyPublisher<Bool, Never> { get }
+    var shouldStartCheckingForLanding: Bool { get }
+    var yootThrowBoard: Entity? { get set }
+}
+
+class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
-        static var yoots: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
+        static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00005
-        static var yOffset: Float = 0.0004
+        static var yOffset: Float = 0.00045
         static var zOffset: Float = 0.00005
     }
 
@@ -21,39 +35,52 @@ class ThrowViewModel: ObservableObject {
         case yootEntityNotFound
     }
 
-    @Published var wasMoving = false
-    @Published var started = false
-    @Published var landed = false
     var yootThrowBoard: Entity?
     var yootEntities: [Entity] = []
+    private var originalTransforms: [String: Transform] = [:]
+
+    @Published var wasMoving = false
+    @Published var landed = false
+
+    @Published var isAnimating = false
+    var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
+    @Published var result: [Yoot] = []
+    var resultPublisher: Published<[Yoot]>.Publisher { $result }
+    @Published var canThrowAgain: Bool = false
+    var hasRemainingRollPublisher: AnyPublisher<Bool, Never> {
+        Publishers.CombineLatest($result, $canThrowAgain)
+            .map { !$0.0.isEmpty && !$0.1 }
+            .eraseToAnyPublisher()
+    }
 
     var allEntitiesMoving: Bool {
         yootEntities.allSatisfy({ $0.isMoving() })
     }
 
     var shouldStartCheckingForLanding: Bool {
-        guard started, !landed, wasMoving || allEntitiesMoving else { return false }
+        guard isAnimating, !landed, wasMoving || allEntitiesMoving else { return false }
         return true
     }
 
     func roll() {
         do {
-            defer {
-                landed = false
-                started = true
-            }
+            landed = false
+            isAnimating = true
             // Find yoot entities from the YootThrowBoard entity
             if yootEntities.isEmpty {
                 try loadYootEntities()
             }
+            // Center all the yoots before starting the throw animation
+            resetToOriginalPosition()
 
             for entity in yootEntities {
                 if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
                     // Generate a small random X offset
                     let randomX = Float.random(in: -Constants.xOffset...Constants.xOffset)
+                    let randomZ = Float.random(in: -Constants.zOffset...Constants.zOffset)
 
                     // Apply impulse with random lateral component
-                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, 0)
+                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
                     physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
                 }
             }
@@ -62,7 +89,14 @@ class ThrowViewModel: ObservableObject {
         }
     }
 
-    func checkForLanding(completion: @escaping() -> ()) {
+    func discardRoll(for target: TargetNode) {
+        guard let index = result.firstIndex(of: target.yootRoll) else {
+            return
+        }
+        result.remove(at: index)
+    }
+
+    func checkForLanding() {
         var currentlyMoving = false
 
         for yoot in yootEntities {
@@ -75,34 +109,40 @@ class ThrowViewModel: ObservableObject {
         // Detect landing (transition from moving to stopped)
         if wasMoving && !currentlyMoving && !landed {
             landed = true
-            print("🎯 Yoots have just landed!")
+            let upsideDownCount = yootEntities.filter { isEntityUpsideDown($0) }.count
 
-            for yoot in yootEntities {
-                if isEntityUpsideDown(yoot) {
-                    print("🚫 \(yoot.name) is upside down!")
-                } else {
-                    print("✅ \(yoot.name) landed upright.")
-                }
+            // Use the rawValue initializer for mapping
+            guard let yootResult = Yoot(rawValue: upsideDownCount) else {
+                result.append(.doe)
+                return
             }
-            completion()
+
+            result.append(yootResult)
+            canThrowAgain = yootResult.canThrowAgain
+            isAnimating = false
         }
 
         wasMoving = currentlyMoving
     }
+}
 
-    private func loadYootEntities() throws {
+private extension ThrowViewModel {
+    func loadYootEntities() throws {
         guard let yootThrowBoard else {
             throw YootError.yootBoardNotFound
         }
-        for yoot in Constants.yoots {
+
+        for yoot in Constants.yootEntityNames {
             guard let yootEntity = yootThrowBoard.findEntity(named: yoot) else {
                 throw YootError.yootEntityNotFound
             }
             yootEntities.append(yootEntity)
+            // Store the original transform
+            originalTransforms[yoot] = yootEntity.transform
         }
     }
 
-    private func isEntityUpsideDown(_ entity: Entity) -> Bool {
+    func isEntityUpsideDown(_ entity: Entity) -> Bool {
         // Get the world transform of the entity
         let worldTransform = entity.transformMatrix(relativeTo: nil)
 
@@ -126,9 +166,25 @@ class ThrowViewModel: ObservableObject {
 
         // Tolerance threshold — adjust if needed
         if dotProduct < -0.7 {
+            print("🚫 \(entity.name) is upside down!")
             return true // upside down
         } else {
+            print("✅ \(entity.name) landed upright.")
             return false // upright or sideways
         }
     }
+
+    func resetToOriginalPosition() {
+        for yoot in yootEntities {
+            if let original = originalTransforms[yoot.name] {
+                yoot.transform = original
+                // Also reset velocities if you’re using physics
+                if let physics = yoot as? (Entity & HasPhysicsBody & HasPhysicsMotion) {
+                    physics.physicsMotion?.linearVelocity = .zero
+                    physics.physicsMotion?.angularVelocity = .zero
+                }
+            }
+        }
+    }
+
 }

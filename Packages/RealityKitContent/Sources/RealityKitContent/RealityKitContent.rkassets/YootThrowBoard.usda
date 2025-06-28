@@ -55,8 +55,11 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -123,8 +126,11 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -191,8 +197,11 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -259,8 +268,11 @@ def Xform "Root"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0.6
+
                 def RealityKitStruct "m_pose"
                 {
+                    float3 position = (0, -0.005, 0)
                 }
             }
 
@@ -347,6 +359,7 @@ def Xform "Root"
             def RealityKitStruct "material"
             {
                 double dynamicFriction = 1
+                double restitution = 1
                 double staticFriction = 1
             }
         }

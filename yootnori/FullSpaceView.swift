@@ -14,18 +14,7 @@ struct FullSpaceView: View {
     
     var body: some View {
         MainView()
-            .frame(
-                width: Dimensions.Screen.totalSize(self.physicalMetrics),
-                height: Dimensions.Screen.totalSize(self.physicalMetrics)
-            )
-            .frame(depth: Dimensions.Screen.depth(self.physicalMetrics))
             .environmentObject(model)
-    }
-}
-
-private extension FullSpaceView {
-    private var gameBoardSize: CGFloat {
-        return Dimensions.Screen.totalSize(self.physicalMetrics)
     }
 }
 

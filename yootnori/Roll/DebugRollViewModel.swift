@@ -1,5 +1,5 @@
 //
-//  RollViewModel.swift
+//  DebugRollViewModel.swift
 //  yootnori
 //
 //  Created by David Lee on 4/20/25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class RollViewModel: ObservableObject {
+class DebugRollViewModel: ObservableObject {
     @Published var result: [Yoot] = []
     var canRollAgain: Bool = false
 
