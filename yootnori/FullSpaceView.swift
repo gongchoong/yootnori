@@ -15,15 +15,28 @@ struct FullSpaceView: View {
     
     var body: some View {
         ZStack {
+            // Main game view is always present
+            MainView()
+                .environmentObject(model)
+                .blur(radius: showIntroduction ? 10 : 0)
+                .scaleEffect(showIntroduction ? 0.95 : 1.0)
+                .animation(.easeInOut(duration: 0.5), value: showIntroduction)
+
+            // Popup overlay
             if showIntroduction {
                 IntroductoryView(showIntro: $showIntroduction)
-            } else {
-                MainView()
-                    .environmentObject(model)
-                    .transition(.opacity.combined(with: .scale))
+                    .frame(maxWidth: 1100, maxHeight: 1200)
+                    .glassBackgroundEffect()
+                    .cornerRadius(20)
+                    .scaleEffect(showIntroduction ? 1.0 : 0.8)
+                    .opacity(showIntroduction ? 1.0 : 0.0)
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
             }
         }
-        .animation(.easeInOut(duration: 0.5), value: showIntroduction)
+        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showIntroduction)
     }
 }
 
