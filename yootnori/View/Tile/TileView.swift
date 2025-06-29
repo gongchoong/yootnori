@@ -32,7 +32,6 @@ struct TileView: View {
                 case .inner:
                     Rectangle()
                         .fill(viewModel.isMarkerPlaceable ? .white : .blue)
-                        .border(.black, width: 1)
                 case .stage:
                     Rectangle()
                         .fill(.blue)
