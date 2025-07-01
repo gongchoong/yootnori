@@ -22,10 +22,6 @@ struct IntroductoryView: View {
                 Text("YOOTNORI")
                     .font(.system(size: 56, weight: .bold))
                     .foregroundColor(.primary)
-
-                Text("Traditional Korean Board Game")
-                    .font(.system(size: 36))
-                    .foregroundColor(.secondary)
             }
 
             // Instructions
@@ -95,8 +91,7 @@ struct IntroductoryView: View {
             }
             .buttonStyle(.plain)
         }
-        .padding(.vertical, 40)
-        .padding(.horizontal, 80)
+        .padding(.all, 80)
     }
     
     @ViewBuilder
