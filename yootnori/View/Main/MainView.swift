@@ -14,9 +14,11 @@
             static var boardViewName: String = "Board"
             static var yootThrowBoardName: String = "YootThrowBoard"
             static var debugViewName: String = "DebugView"
+            static var gameStatusViewName: String = "GameStatusView"
             static var rollButtonName: String = "RollButton"
             static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.1]
             static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
+            static var gameStatusViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
             static var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.2]
             static var throwBoardScale: SIMD3<Float> = [0.15,0.15,0.15]
         }
@@ -32,7 +34,7 @@
         var body: some View {
             RealityView { content, attachments in
                 await createBoard(content, attachments)
-                await createDebugView(content, attachments)
+                await createGameStatusView(content, attachments)
                 await createYootThrowBoard(content)
                 await createRollButton(content, attachments)
 
@@ -62,16 +64,10 @@
                     .environmentObject(model)
                 }
 
-                Attachment(id: Constants.debugViewName) {
-                    DebugMainView(rollButtonTapped: { yoot in
-                        Task {
-                            model.roll()
-                        }
-                    }, markerButtonTapped: {
+                Attachment(id: Constants.gameStatusViewName) {
+                    GameStatusView {
                         model.handleNewMarkerTap()
-                    })
-                    .frame(width: Dimensions.Screen.totalSize(physicalMetrics) * 1/3,
-                           height: Dimensions.Screen.totalSize(physicalMetrics))
+                    }
                     .environmentObject(model)
                 }
 
@@ -115,6 +111,12 @@
             guard let debugView = attachments.entity(for: Constants.debugViewName) else { return }
             content.add(debugView)
             debugView.position = Constants.debugViewPosition
+        }
+
+        func createGameStatusView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
+            guard let gameStatusView = attachments.entity(for: Constants.gameStatusViewName) else { return }
+            content.add(gameStatusView)
+            gameStatusView.position = Constants.gameStatusViewPosition
         }
 
         func createYootThrowBoard(_ content: RealityViewContent) async {
