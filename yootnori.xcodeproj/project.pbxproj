@@ -162,11 +162,8 @@
 		540EE1BE2C9F6F740056F03C /* View */ = {
 			isa = PBXGroup;
 			children = (
-<<<<<<< HEAD
 				549615B52E109B01000E7C60 /* Intro */,
-=======
 				542972CD2E1088220028EFF8 /* GameStatus */,
->>>>>>> 07a3a50 (created gamestatusview)
 				546745E72DB43A2A0032C0A6 /* Main */,
 				546745E12DB4207E0032C0A6 /* Board */,
 				5427024B2CF8345E003F017B /* Marker */,
