@@ -26,7 +26,8 @@ struct RollButton: View {
                 )
         }
         .hoverEffect(.lift)
-        .opacity(model.isAnimating ? 0 : 1)
         .animation(.easeInOut(duration: 0.2), value: model.isAnimating)
+        .opacity(model.isAnimating ? 0 : 1)
+        .disabled(model.isAnimating ? true : false)
     }
 }

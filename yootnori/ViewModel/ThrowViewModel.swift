@@ -162,14 +162,10 @@ private extension ThrowViewModel {
         // Compute dot product to get angle alignment
         let dotProduct = simd_dot(normalizedUp, worldUp)
 
-        print("\(entity.name) dot product: \(dotProduct)")
-
         // Tolerance threshold — adjust if needed
         if dotProduct < -0.7 {
-            print("🚫 \(entity.name) is upside down!")
             return true // upside down
         } else {
-            print("✅ \(entity.name) landed upright.")
             return false // upright or sideways
         }
     }

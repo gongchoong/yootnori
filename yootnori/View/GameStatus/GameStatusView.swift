@@ -7,19 +7,22 @@
 import SwiftUI
 
 struct GameStatusView: View {
+    var players: [Player]
     @EnvironmentObject var model: AppModel
     var markerButtonTapped: (() -> Void)
 
     var body: some View {
         VStack(alignment: .center, spacing: 50) {
-            PlayerStatusView(
-                playerName: "Player A",
-                rollResult: model.rollResult,
-                hasRemainingRoll: model.hasRemainingRoll,
-                isLoading: model.isLoading
-                )
-            {
-                markerButtonTapped()
+            ForEach(players, id: \.self) { player in
+                PlayerStatusView(
+                    playerName: player.name,
+                    rollResult: model.rollResult,
+                    hasRemainingRoll: model.hasRemainingRoll,
+                    isLoading: model.isLoading
+                    )
+                {
+                    markerButtonTapped()
+                }
             }
         }
         .padding(.horizontal, 20)

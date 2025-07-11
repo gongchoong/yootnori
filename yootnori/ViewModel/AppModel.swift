@@ -79,11 +79,22 @@ class AppModel: ObservableObject {
             .receive(on: RunLoop.main)
             .assign(to: \.hasRemainingRoll, on: self)
             .store(in: &cancellables)
+
+        Task {
+            for await turn in PlayerTurnMonitor.turns {
+                print("New turn: \(turn.name)")
+            }
+        }
     }
 }
 
 // MARK: Button tap
 extension AppModel {
+    func startGame() {
+        print("Starting a new game...")
+        PlayerTurnMonitor.detectTurn(player: .playerA)
+    }
+
     func roll() {
         rollViewModel.roll()
     }
@@ -279,6 +290,9 @@ extension AppModel {
                         // Ride on top of the tapped marker.
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.detachMarker(from: sourceNode)
+                        if !self.hasRemainingRoll {
+                            PlayerTurnMonitor.switchTurn()
+                        }
                     }
                 }
             case .new:
@@ -299,6 +313,9 @@ extension AppModel {
 
                     // Piggyback onto the existing marker.
                     await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                    if !self.hasRemainingRoll {
+                        PlayerTurnMonitor.switchTurn()
+                    }
                 }
             case .none:
                 // No marker was selected — now selecting the tapped existing marker on the board.
@@ -328,6 +345,10 @@ extension AppModel {
                     } else {
                         self.assign(marker: sourceMarker, to: destinationNode)
                     }
+
+                    if !self.hasRemainingRoll {
+                        PlayerTurnMonitor.switchTurn()
+                    }
                 }
             case .existing(let sourceMarker):
                 // Locate the current position of the selected marker.
@@ -346,6 +367,10 @@ extension AppModel {
                         self.detachMarker(from: startingNode)
                     } else {
                         self.reassign(sourceMarker, to: destinationNode)
+                    }
+
+                    if !self.hasRemainingRoll {
+                        PlayerTurnMonitor.switchTurn()
                     }
                 }
             case .none:

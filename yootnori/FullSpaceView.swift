@@ -24,16 +24,18 @@ struct FullSpaceView: View {
 
             // Popup overlay
             if showIntroduction {
-                IntroductoryView(showIntro: $showIntroduction)
-                    .frame(maxWidth: 1100, maxHeight: 1200)
-                    .glassBackgroundEffect()
-                    .cornerRadius(20)
-                    .scaleEffect(showIntroduction ? 1.0 : 0.8)
-                    .opacity(showIntroduction ? 1.0 : 0.0)
-                    .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
-                        removal: .scale.combined(with: .opacity)
-                    ))
+                IntroductoryView(showIntro: $showIntroduction) {
+                    model.startGame()
+                }
+                .frame(maxWidth: 1100, maxHeight: 1200)
+                .glassBackgroundEffect()
+                .cornerRadius(20)
+                .scaleEffect(showIntroduction ? 1.0 : 0.8)
+                .opacity(showIntroduction ? 1.0 : 0.0)
+                .transition(.asymmetric(
+                    insertion: .scale.combined(with: .opacity),
+                    removal: .scale.combined(with: .opacity)
+                ))
             }
         }
         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showIntroduction)
