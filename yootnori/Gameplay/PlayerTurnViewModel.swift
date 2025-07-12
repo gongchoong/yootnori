@@ -27,8 +27,8 @@ class PlayerTurnViewModel: ObservableObject {
         task?.cancel()
     }
 
-    func detectTurn(_ player: Player) {
-        PlayerTurnMonitor.detectTurn(player: player)
+    func updateTurn(_ player: Player) {
+        PlayerTurnMonitor.updateTurn(player: player)
     }
 
     func switchTurn() {

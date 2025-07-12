@@ -16,9 +16,9 @@ class Player: Equatable, Hashable {
         self.team = team
     }
 
-    static let none = Player(name: "", team: .none)
-    static let playerA = Player(name: "Player A", team: .a)
-    static let playerB = Player(name: "Player B", team: .b)
+    static let none = Player(name: "", team: .black)
+    static let playerA = Player(name: "Player A", team: .black)
+    static let playerB = Player(name: "Player B", team: .white)
 
     static func == (lhs: Player, rhs: Player) -> Bool {
         lhs.team == rhs.team
@@ -40,21 +40,29 @@ extension Player {
             return .none
         }
     }
+
+    var markerName: String {
+        switch self {
+        case .playerA:
+            return "Marker_black"
+        case .playerB:
+            return "Marker_white"
+        default:
+            return ""
+        }
+    }
 }
 
-enum Team: String {
-    case a
-    case b
-    case none
+enum Team: Int {
+    case black
+    case white
 
     var color: Color {
         switch self {
-        case .a:
+        case .black:
             return .white
-        case .b:
+        case .white:
             return .black
-        case .none:
-            return .red
         }
     }
 }

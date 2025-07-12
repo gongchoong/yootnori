@@ -5,8 +5,10 @@ import RealityKit
 
 public struct MarkerComponent: Component, Codable {
     public var level: Int = 1
+    public var team: Int = 0
 
-    public init(level: Int) {
+    public init(level: Int, team: Int) {
         self.level = level
+        self.team = team
     }
 }

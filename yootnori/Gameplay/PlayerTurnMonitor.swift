@@ -22,7 +22,7 @@ class PlayerTurnDetectionService {
         }
     }
 
-    func detectTurn(player: Player) {
+    func updateTurn(player: Player) {
         currentTurn = player
         continuation?.yield(player)
     }
@@ -50,12 +50,12 @@ class PlayerTurnMonitor {
         return currentTurn != .none
     }
 
-    static func detectTurn(player: Player) {
-        service.detectTurn(player: player)
+    static func updateTurn(player: Player) {
+        service.updateTurn(player: player)
     }
 
     static func switchTurn() {
-        service.detectTurn(player: currentTurn.opponent)
+        service.updateTurn(player: currentTurn.opponent)
     }
 
     static func stopMonitoring() {

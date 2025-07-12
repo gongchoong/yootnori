@@ -54,7 +54,7 @@ struct MainView: View {
                 guard let attachmentEntity = attachments.entity(for: component.attachmentTag) else { return }
 
                 entity.addChild(attachmentEntity)
-                attachmentEntity.setPosition([0.0, 0.0, 0.01], relativeTo: entity)
+                attachmentEntity.setPosition([0.0, 0.0, 0.02], relativeTo: entity)
             }
         } attachments: {
             Attachment(id: Constants.boardViewName) {
@@ -140,7 +140,7 @@ private extension MainView {
         let tag: ObjectIdentifier = entity.id
         let view = MarkerLevelView(tapAction: {
             handleMarkerTapGesture(marker: entity)
-        }, level: markerComponent.level)
+        }, level: markerComponent.level, team: Team(rawValue: markerComponent.team) ?? .black)
             .tag(tag)
 
         entity.components[MarkerRuntimeComponent.self] = MarkerRuntimeComponent(attachmentTag: entity.id)

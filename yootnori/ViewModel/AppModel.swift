@@ -23,11 +23,19 @@ class AppModel: ObservableObject {
     private var playerTurnViewModel: PlayerTurnViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
-    private var trackedMarkers: [Node: Entity] = [:] {
-        didSet {
-            print(self.trackedMarkers.keys.map { $0.name })
+    private var trackedMarkers: [Player: [Node: Entity]] = [:]
+    var currentPlayerMarkers: [Node: Entity] {
+        get { trackedMarkers[currentTurn, default: [:]] }
+        set {
+            trackedMarkers[currentTurn] = newValue
+            let _ = trackedMarkers.map { (key, value) in
+                value.map { (valueKey, valueValue) in
+                    print("\(key.name): \(valueKey.name): \(valueValue.name)")
+                }
+            }
         }
     }
+
     var shouldStartCheckingForLanding: Bool {
         rollViewModel.shouldStartCheckingForLanding
     }
@@ -105,7 +113,7 @@ class AppModel: ObservableObject {
 extension AppModel {
     func startGame() {
         print("Starting a new game...")
-        playerTurnViewModel.detectTurn(.playerA)
+        playerTurnViewModel.updateTurn(.playerA)
     }
 
     func roll() {
@@ -331,14 +339,18 @@ extension AppModel {
                     }
                 }
             case .none:
-                // No marker was selected — now selecting the tapped existing marker on the board.
-                withLoadingState {
-                    await self.elevate(entity: destinationMarker)
-                    self.selectedMarker = .existing(destinationMarker)
+                guard let markerComponent = destinationMarker.components[MarkerComponent.self] else { return }
+                // Only allow selecting markers that belong to the current player's team; ignore taps on opponent markers
+                if currentTurn.team == Team(rawValue: markerComponent.team) {
+                    // No marker was selected — now selecting the tapped existing marker on the board.
+                    withLoadingState {
+                        await self.elevate(entity: destinationMarker)
+                        self.selectedMarker = .existing(destinationMarker)
+                    }
+                    // Show valid target tiles based on this marker's position.
+                    guard let node = findNode(for: destinationMarker) else { return }
+                    updateTargetNodes(starting: node.name)
                 }
-                // Show valid target tiles based on this marker's position.
-                guard let node = findNode(for: destinationMarker) else { return }
-                updateTargetNodes(starting: node.name)
             }
         // User tapped a tile.
         case .tappedTile(let tile):
@@ -353,7 +365,7 @@ extension AppModel {
 
                     // If a marker already exists on the selected tile, piggyback on it;
                     // otherwise, register the new marker at that location.
-                    if let destinationMarker = self.trackedMarkers[destinationNode] {
+                    if let destinationMarker = self.currentPlayerMarkers[destinationNode] {
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                     } else {
                         self.assign(marker: sourceMarker, to: destinationNode)
@@ -375,7 +387,7 @@ extension AppModel {
                     
                     // If another marker already occupies the tile, piggyback onto it;
                     // otherwise, reassign the marker to the new location.
-                    if let destinationMarker = self.trackedMarkers[destinationNode] {
+                    if let destinationMarker = self.currentPlayerMarkers[destinationNode] {
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.detachMarker(from: startingNode)
                     } else {
@@ -399,14 +411,14 @@ extension AppModel {
     private func create(at node: Node) async throws -> Entity {
         do {
             let position = try node.index.position()
-            let entity = try await Entity(named: "Marker", in: RealityKitContent.realityKitContentBundle)
+            let entity = try await Entity(named: currentTurn.markerName, in: RealityKitContent.realityKitContentBundle)
             entity.position = position
             entity.components.set([
                 CollisionComponent(shapes: [{
                     .generateBox(size: entity.visualBounds(relativeTo: nil).extents)
                 }()]),
                 InputTargetComponent(),
-                MarkerComponent(level: 1)
+                MarkerComponent(level: 1, team: currentTurn.team.rawValue)
             ])
             addChildToRoot(entity: entity)
             return entity
@@ -454,7 +466,7 @@ extension AppModel {
             if self.isOutOfThrows {
                 self.perform(action: .tappedMarker(tapped))
             }
-        }, level: tappedMarkerComponent.level))
+        }, level: tappedMarkerComponent.level, team: Team(rawValue: tappedMarkerComponent.team) ?? .black))
     }
 }
 
@@ -514,21 +526,21 @@ extension AppModel {
 // MARK: - Marker Handling
 private extension AppModel {
     func assign(marker: Entity, to node: Node) {
-        trackedMarkers[node] = marker
+        currentPlayerMarkers[node] = marker
     }
 
     func reassign(_ marker: Entity, to node: Node) {
-        guard let previous = trackedMarkers.first(where: { $0.value == marker })?.key else { return }
-        trackedMarkers[previous] = nil
-        trackedMarkers[node] = marker
+        guard let previous = currentPlayerMarkers.first(where: { $0.value == marker })?.key else { return }
+        currentPlayerMarkers[previous] = nil
+        currentPlayerMarkers[node] = marker
     }
 
     func detachMarker(from node: Node) {
-        trackedMarkers[node] = nil
+        currentPlayerMarkers[node] = nil
     }
 
     func findNode(for marker: Entity) -> Node? {
-        return trackedMarkers.first(where: {
+        return currentPlayerMarkers.first(where: {
             $0.value == marker
         })?.key
     }
@@ -575,5 +587,13 @@ private extension AppModel {
 extension AppModel {
     func checkForLanding() {
         rollViewModel.checkForLanding()
+    }
+}
+
+// MARK: - trackedMarkers
+extension AppModel {
+    subscript(player: Player) -> [Node: Entity] {
+        get { trackedMarkers[player, default: [:]] }
+        set { trackedMarkers[player] = newValue }
     }
 }
