@@ -28,7 +28,7 @@ struct DebugMainView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
-                .disabled(model.hasRemainingRoll || model.isLoading)
+                .disabled(model.isOutOfThrows || model.isLoading)
 
                 Text(String(describing: model.yootRollSteps))
                     .font(.system(size: 40))
@@ -47,7 +47,7 @@ struct DebugMainView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 40)
                 .animation(.easeInOut, value: model.selectedMarker == .new)
-                .disabled(!model.hasRemainingRoll || model.isLoading)
+                .disabled(model.isOutOfThrows || model.isLoading)
             }
         }
     }

@@ -19,15 +19,8 @@ enum SelectedMarker: Equatable {
 @MainActor
 class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
-    var yootThrowBoard: Entity? {
-        set {
-            rollViewModel.yootThrowBoard = newValue
-        }
-        get {
-            rollViewModel.yootThrowBoard
-        }
-    }
     private var rollViewModel: RollViewModel
+    private var playerTurnViewModel: PlayerTurnViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
     private var trackedMarkers: [Node: Entity] = [:] {
@@ -39,6 +32,15 @@ class AppModel: ObservableObject {
         rollViewModel.shouldStartCheckingForLanding
     }
 
+    var yootThrowBoard: Entity? {
+        set {
+            rollViewModel.yootThrowBoard = newValue
+        }
+        get {
+            rollViewModel.yootThrowBoard
+        }
+    }
+
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
     @Published var targetNodes = Set<TargetNode>()
@@ -46,10 +48,17 @@ class AppModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published private(set) var rollResult: [Yoot] = []
     @Published var isAnimating: Bool = false
-    @Published var hasRemainingRoll: Bool = false
+    @Published var isOutOfThrows: Bool = false
+    @Published var canPlayerThrow: Bool = false
+    @Published var currentTurn: Player = .none {
+        didSet {
+            canPlayerThrow = true
+        }
+    }
 
-    init(rollViewModel: RollViewModel = ThrowViewModel()) {
+    init(rollViewModel: RollViewModel, playerTurnViewModel: PlayerTurnViewModel) {
         self.rollViewModel = rollViewModel
+        self.playerTurnViewModel = playerTurnViewModel
         
         generateNodes()
         subscribe()
@@ -75,16 +84,20 @@ class AppModel: ObservableObject {
             .assign(to: \.isAnimating, on: self)
             .store(in: &cancellables)
         
-        rollViewModel.hasRemainingRollPublisher
+        rollViewModel.isOutOfThrowsPublisher
             .receive(on: RunLoop.main)
-            .assign(to: \.hasRemainingRoll, on: self)
+            .assign(to: \.isOutOfThrows, on: self)
             .store(in: &cancellables)
 
-        Task {
-            for await turn in PlayerTurnMonitor.turns {
-                print("New turn: \(turn.name)")
-            }
-        }
+        rollViewModel.canPlayerThrowPublisher
+            .receive(on: RunLoop.main)
+            .assign(to: \.canPlayerThrow, on: self)
+            .store(in: &cancellables)
+
+        playerTurnViewModel.currentTurnPublisher
+            .receive(on: RunLoop.main)
+            .assign(to: \.currentTurn, on: self)
+            .store(in: &cancellables)
     }
 }
 
@@ -92,7 +105,7 @@ class AppModel: ObservableObject {
 extension AppModel {
     func startGame() {
         print("Starting a new game...")
-        PlayerTurnMonitor.detectTurn(player: .playerA)
+        playerTurnViewModel.detectTurn(.playerA)
     }
 
     func roll() {
@@ -290,8 +303,8 @@ extension AppModel {
                         // Ride on top of the tapped marker.
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.detachMarker(from: sourceNode)
-                        if !self.hasRemainingRoll {
-                            PlayerTurnMonitor.switchTurn()
+                        if self.isOutOfThrows {
+                            self.playerTurnViewModel.switchTurn()
                         }
                     }
                 }
@@ -313,8 +326,8 @@ extension AppModel {
 
                     // Piggyback onto the existing marker.
                     await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                    if !self.hasRemainingRoll {
-                        PlayerTurnMonitor.switchTurn()
+                    if self.isOutOfThrows {
+                        self.playerTurnViewModel.switchTurn()
                     }
                 }
             case .none:
@@ -346,8 +359,8 @@ extension AppModel {
                         self.assign(marker: sourceMarker, to: destinationNode)
                     }
 
-                    if !self.hasRemainingRoll {
-                        PlayerTurnMonitor.switchTurn()
+                    if self.isOutOfThrows {
+                        self.playerTurnViewModel.switchTurn()
                     }
                 }
             case .existing(let sourceMarker):
@@ -369,8 +382,8 @@ extension AppModel {
                         self.reassign(sourceMarker, to: destinationNode)
                     }
 
-                    if !self.hasRemainingRoll {
-                        PlayerTurnMonitor.switchTurn()
+                    if self.isOutOfThrows {
+                        self.playerTurnViewModel.switchTurn()
                     }
                 }
             case .none:
@@ -438,7 +451,7 @@ extension AppModel {
         tapped.components[MarkerComponent.self] = tappedMarkerComponent
         attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
             guard let self = self else { return }
-            if self.hasRemainingRoll {
+            if self.isOutOfThrows {
                 self.perform(action: .tappedMarker(tapped))
             }
         }, level: tappedMarkerComponent.level))

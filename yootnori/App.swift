@@ -10,7 +10,7 @@ import RealityKitContent
 
 @main
 struct yootnoriApp: App {
-    @StateObject private var model = AppModel()
+    @StateObject private var model = AppModel(rollViewModel: ThrowViewModel(), playerTurnViewModel: PlayerTurnViewModel())
     var body: some Scene {
         WindowGroup {
             FullSpaceView()

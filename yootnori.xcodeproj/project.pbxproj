@@ -47,6 +47,7 @@
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
 		54D4B1B82E089972009CB19D /* RollButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D4B1B72E08996C009CB19D /* RollButton.swift */; };
+		54DC1F1B2E21C8EC00D8F77C /* PlayerTurnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DC1F1A2E21C8E800D8F77C /* PlayerTurnViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +93,7 @@
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		54D4B1B72E08996C009CB19D /* RollButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollButton.swift; sourceTree = "<group>"; };
+		54DC1F1A2E21C8E800D8F77C /* PlayerTurnViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTurnViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -308,6 +310,7 @@
 		54B6DA2B2E1BA34100F32A93 /* Gameplay */ = {
 			isa = PBXGroup;
 			children = (
+				54DC1F1A2E21C8E800D8F77C /* PlayerTurnViewModel.swift */,
 				54B6DA2E2E1BA51500F32A93 /* PlayerTurnMonitor.swift */,
 				54B6DA2C2E1BA34A00F32A93 /* Player.swift */,
 			);
@@ -399,6 +402,7 @@
 				549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */,
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,
 				541B8DC62DB21D8E004B9F38 /* RollView.swift in Sources */,
+				54DC1F1B2E21C8EC00D8F77C /* PlayerTurnViewModel.swift in Sources */,
 				544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */,
 				54B6DA2F2E1BA52E00F32A93 /* PlayerTurnMonitor.swift in Sources */,
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,

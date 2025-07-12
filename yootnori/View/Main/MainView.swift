@@ -149,7 +149,7 @@ private extension MainView {
     }
 
     func handleMarkerTapGesture(marker: Entity) {
-        if model.hasRemainingRoll {
+        if !model.isOutOfThrows {
             model.perform(action: .tappedMarker(marker))
         }
     }

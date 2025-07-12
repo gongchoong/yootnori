@@ -17,7 +17,8 @@ protocol RollViewModel {
     func checkForLanding()
     var resultPublisher: Published<[Yoot]>.Publisher { get }
     var isAnimatingPublisher: Published<Bool>.Publisher { get }
-    var hasRemainingRollPublisher: AnyPublisher<Bool, Never> { get }
+    var canPlayerThrowPublisher: Published<Bool>.Publisher { get }
+    var isOutOfThrowsPublisher: AnyPublisher<Bool, Never> { get }
     var shouldStartCheckingForLanding: Bool { get }
     var yootThrowBoard: Entity? { get set }
 }
@@ -46,10 +47,11 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
     @Published var result: [Yoot] = []
     var resultPublisher: Published<[Yoot]>.Publisher { $result }
-    @Published var canThrowAgain: Bool = false
-    var hasRemainingRollPublisher: AnyPublisher<Bool, Never> {
-        Publishers.CombineLatest($result, $canThrowAgain)
-            .map { !$0.0.isEmpty && !$0.1 }
+    @Published var canPlayerThrow: Bool = false
+    var canPlayerThrowPublisher: Published<Bool>.Publisher { $canPlayerThrow }
+    var isOutOfThrowsPublisher: AnyPublisher<Bool, Never> {
+        $result
+            .map { $0.isEmpty }
             .eraseToAnyPublisher()
     }
 
@@ -118,7 +120,7 @@ class ThrowViewModel: RollViewModel, ObservableObject {
             }
 
             result.append(yootResult)
-            canThrowAgain = yootResult.canThrowAgain
+            canPlayerThrow = yootResult.canThrowAgain
             isAnimating = false
         }
 
