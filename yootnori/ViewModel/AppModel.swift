@@ -292,7 +292,7 @@ extension AppModel {
                         await self.drop(destinationMarker)
                     }
                 } else {
-                    // Tapped a different marker — time to piggyback.
+                    guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else { return }
                     guard let sourceNode = findNode(for: sourceMarker) else { return }
                     guard let destinationNode = findNode(for: destinationMarker) else { return }
                     // Ensure there's a valid target node for interaction resolution.
@@ -301,18 +301,32 @@ extension AppModel {
                     // Clear out any previous state tied to rolls or targets.
                     self.discardRoll(for: targetNode)
                     self.clearAllTargetNodes()
+                    // If same team, piggy back.
+                    if currentTurn.team.rawValue == destinationMarkerComponent.team {
+                        withLoadingState {
+                            // Move to the destination marker’s tile.
+                            await self.move(sourceMarker, to: destinationNode)
 
-                    withLoadingState {
-                        // Move to the destination marker’s tile.
-                        await self.move(sourceMarker, to: destinationNode)
+                            // Ride on top of the tapped marker.
+                            await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                            self.detachMarker(from: sourceNode)
+                        }
+                    } else {
+                        // If not on the same team, capture.
+                        withLoadingState {
+                            // Move to the destination marker’s tile.
+                            await self.move(sourceMarker, to: destinationNode)
 
-                        // Ride on top of the tapped marker.
-                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                        self.detachMarker(from: sourceNode)
+                            // Ride on top of the tapped marker.
+                            await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                            self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
+                            self.reassign(sourceMarker, to: destinationNode)
+                            self.canPlayerThrow = true
+                        }
                     }
                 }
             case .new:
-                // Attempting to place a new marker, but tapped a marker that’s already on the board.
+                guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else { return }
                 guard let destinationNode = findNode(for: destinationMarker) else { return }
                 guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
 
@@ -320,15 +334,34 @@ extension AppModel {
                 self.discardRoll(for: targetNode)
                 self.clearAllTargetNodes()
 
-                withLoadingState {
-                    // Create a temporary marker at the START node and move it to the tapped tile.
-                    // This is just for animation purposes.
-                    guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
-                    let sourceMarker = try await self.create(at: startNode)
-                    await self.move(sourceMarker, to: destinationNode)
+                // If on the same team, piggyback
+                if currentTurn.team.rawValue == destinationMarkerComponent.team {
+                    // Attempting to place a new marker, but tapped a marker that’s already on the board.
+                    withLoadingState {
+                        // Create a temporary marker at the START node and move it to the tapped tile.
+                        // This is just for animation purposes.
+                        guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
+                        let sourceMarker = try await self.create(at: startNode)
+                        await self.move(sourceMarker, to: destinationNode)
 
-                    // Piggyback onto the existing marker.
-                    await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        // Piggyback onto the existing marker.
+                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                    }
+                } else {
+                    // If not on the same team, capture
+                    withLoadingState {
+                        // Create a temporary marker at the START node and move it to the tapped tile.
+                        // This is just for animation purposes.
+                        guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
+                        let sourceMarker = try await self.create(at: startNode)
+                        await self.move(sourceMarker, to: destinationNode)
+
+                        // Piggyback onto the existing marker.
+                        await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                        self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
+                        self.assign(marker: sourceMarker, to: destinationNode)
+                        self.canPlayerThrow = true
+                    }
                 }
             case .none:
                 guard let markerComponent = destinationMarker.components[MarkerComponent.self] else { return }
@@ -355,11 +388,23 @@ extension AppModel {
                     let sourceMarker = try await self.create(at: start)
                     await self.move(sourceMarker, to: destinationNode)
 
-                    // If a marker already exists on the selected tile, piggyback on it;
-                    // otherwise, register the new marker at that location.
                     if let destinationMarker = self.findMarker(for: destinationNode) {
-                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        // If a marker already exists on the selected tile, find which player
+                        // the marker belongs to.
+                        guard let player = self.player(for: destinationMarker) else {
+                            print("marker error")
+                            return
+                        }
+                        if player.team == self.currentTurn.team {
+                            await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        } else {
+                            await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                            self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
+                            self.assign(marker: sourceMarker, to: destinationNode)
+                            self.canPlayerThrow = true
+                        }
                     } else {
+                        // If no marker is on the tile, just move.
                         self.assign(marker: sourceMarker, to: destinationNode)
                     }
                 }
@@ -376,8 +421,21 @@ extension AppModel {
                     // If another marker already occupies the tile, piggyback onto it;
                     // otherwise, reassign the marker to the new location.
                     if let destinationMarker = self.findMarker(for: destinationNode) {
-                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                        self.detachMarker(from: startingNode)
+                        // If a marker already exists on the selected tile, find which player
+                        // the marker belongs to.
+                        guard let player = self.player(for: destinationMarker) else {
+                            print("marker error")
+                            return
+                        }
+                        if player.team == self.currentTurn.team {
+                            await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                            self.detachMarker(from: startingNode)
+                        } else {
+                            await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                            self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
+                            self.reassign(sourceMarker, to: destinationNode)
+                            self.canPlayerThrow = true
+                        }
                     } else {
                         self.reassign(sourceMarker, to: destinationNode)
                     }
@@ -437,6 +495,11 @@ extension AppModel {
     private func piggyBack(rider: Entity, carrier: Entity) async {
         addLevel(tapped: carrier, moving: rider)
         removeChildFromRoot(entity: rider)
+        selectedMarker = .none
+    }
+
+    private func capture(capturing: Entity, captured: Entity) async {
+        removeChildFromRoot(entity: captured)
         selectedMarker = .none
     }
 
@@ -507,6 +570,7 @@ extension AppModel {
     }
 }
 
+// MARK: - Marker Handling
 private extension AppModel {
     func assign(marker: Entity, to node: Node, player: Player? = nil) {
         let owner = player ?? currentTurn
@@ -541,9 +605,22 @@ private extension AppModel {
     }
 
     /// For lookup across *all* players (if player is not known)
-    func findMarker(for node: Node, player: Player? = nil) -> Entity? {
-        let owner = player ?? currentTurn
-        return trackedMarkers[owner]?[node]
+    func findMarker(for node: Node) -> Entity? {
+        for (_, dict) in trackedMarkers {
+            if let marker = dict.first(where: { $0.key == node })?.value {
+                return marker
+            }
+        }
+        return nil
+    }
+
+    func player(for marker: Entity) -> Player? {
+        for (player, markers) in trackedMarkers {
+            if markers.values.contains(marker) {
+                return player
+            }
+        }
+        return nil
     }
 }
 
