@@ -23,11 +23,9 @@ class AppModel: ObservableObject {
     private var playerTurnViewModel: PlayerTurnViewModel
     private var cancellables = Set<AnyCancellable>()
     private var nodes = Set<Node>()
-    private var trackedMarkers: [Player: [Node: Entity]] = [:]
-    var currentPlayerMarkers: [Node: Entity] {
-        get { trackedMarkers[currentTurn, default: [:]] }
-        set {
-            trackedMarkers[currentTurn] = newValue
+    private var trackedMarkers: [Player: [Node: Entity]] = [:] {
+        didSet {
+            print("//////////////////////")
             let _ = trackedMarkers.map { (key, value) in
                 value.map { (valueKey, valueValue) in
                     print("\(key.name): \(valueKey.name): \(valueValue.name)")
@@ -311,9 +309,6 @@ extension AppModel {
                         // Ride on top of the tapped marker.
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.detachMarker(from: sourceNode)
-                        if self.isOutOfThrows {
-                            self.playerTurnViewModel.switchTurn()
-                        }
                     }
                 }
             case .new:
@@ -334,9 +329,6 @@ extension AppModel {
 
                     // Piggyback onto the existing marker.
                     await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                    if self.isOutOfThrows {
-                        self.playerTurnViewModel.switchTurn()
-                    }
                 }
             case .none:
                 guard let markerComponent = destinationMarker.components[MarkerComponent.self] else { return }
@@ -365,14 +357,10 @@ extension AppModel {
 
                     // If a marker already exists on the selected tile, piggyback on it;
                     // otherwise, register the new marker at that location.
-                    if let destinationMarker = self.currentPlayerMarkers[destinationNode] {
+                    if let destinationMarker = self.findMarker(for: destinationNode) {
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                     } else {
                         self.assign(marker: sourceMarker, to: destinationNode)
-                    }
-
-                    if self.isOutOfThrows {
-                        self.playerTurnViewModel.switchTurn()
                     }
                 }
             case .existing(let sourceMarker):
@@ -387,15 +375,11 @@ extension AppModel {
                     
                     // If another marker already occupies the tile, piggyback onto it;
                     // otherwise, reassign the marker to the new location.
-                    if let destinationMarker = self.currentPlayerMarkers[destinationNode] {
+                    if let destinationMarker = self.findMarker(for: destinationNode) {
                         await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.detachMarker(from: startingNode)
                     } else {
                         self.reassign(sourceMarker, to: destinationNode)
-                    }
-
-                    if self.isOutOfThrows {
-                        self.playerTurnViewModel.switchTurn()
                     }
                 }
             case .none:
@@ -523,26 +507,43 @@ extension AppModel {
     }
 }
 
-// MARK: - Marker Handling
 private extension AppModel {
-    func assign(marker: Entity, to node: Node) {
-        currentPlayerMarkers[node] = marker
+    func assign(marker: Entity, to node: Node, player: Player? = nil) {
+        let owner = player ?? currentTurn
+        trackedMarkers[owner, default: [:]][node] = marker
     }
 
-    func reassign(_ marker: Entity, to node: Node) {
-        guard let previous = currentPlayerMarkers.first(where: { $0.value == marker })?.key else { return }
-        currentPlayerMarkers[previous] = nil
-        currentPlayerMarkers[node] = marker
+    func reassign(_ marker: Entity, to node: Node, player: Player? = nil) {
+        let owner = player ?? currentTurn
+        guard let previous = trackedMarkers[owner]?.first(where: { $0.value == marker })?.key else { return }
+        trackedMarkers[owner]?[previous] = nil
+        trackedMarkers[owner]?[node] = marker
     }
 
-    func detachMarker(from node: Node) {
-        currentPlayerMarkers[node] = nil
+    func detachMarker(from node: Node, player: Player? = nil) {
+        let owner = player ?? currentTurn
+        trackedMarkers[owner]?[node] = nil
     }
 
+    func findNode(for marker: Entity, player: Player? = nil) -> Node? {
+        let owner = player ?? currentTurn
+        return trackedMarkers[owner]?.first(where: { $0.value == marker })?.key
+    }
+
+    /// For lookup across *all* players (if player is not known)
     func findNode(for marker: Entity) -> Node? {
-        return currentPlayerMarkers.first(where: {
-            $0.value == marker
-        })?.key
+        for (_, dict) in trackedMarkers {
+            if let node = dict.first(where: { $0.value == marker })?.key {
+                return node
+            }
+        }
+        return nil
+    }
+
+    /// For lookup across *all* players (if player is not known)
+    func findMarker(for node: Node, player: Player? = nil) -> Entity? {
+        let owner = player ?? currentTurn
+        return trackedMarkers[owner]?[node]
     }
 }
 
@@ -580,6 +581,10 @@ private extension AppModel {
                 print("error occured in withLoadingState")
             }
             isLoading = false
+
+            if self.isOutOfThrows && !canPlayerThrow {
+                self.playerTurnViewModel.switchTurn()
+            }
         }
     }
 }
