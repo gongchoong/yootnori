@@ -65,4 +65,13 @@ enum Team: Int {
             return .black
         }
     }
+
+    var name: String {
+        switch self {
+        case .black:
+            return "Black"
+        case .white:
+            return "White"
+        }
+    }
 }

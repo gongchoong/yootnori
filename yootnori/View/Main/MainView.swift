@@ -59,7 +59,13 @@ struct MainView: View {
         } attachments: {
             Attachment(id: Constants.boardViewName) {
                 BoardView(viewModel: BoardViewModel(), action: { action in
-                    model.perform(action: action)
+                    do {
+                        try model.perform(action: action)
+                    } catch let error as AppModel.MarkerActionError {
+                        error.crashApp()
+                    } catch {
+                        fatalError("Unexpected error: \(error.localizedDescription)")
+                    }
                 })
             }
 
@@ -150,7 +156,13 @@ private extension MainView {
 
     func handleMarkerTapGesture(marker: Entity) {
         if !model.isOutOfThrows {
-            model.perform(action: .tappedMarker(marker))
+            do {
+                try model.perform(action: .tappedMarker(marker))
+            } catch let error as AppModel.MarkerActionError {
+                error.crashApp()
+            } catch {
+                fatalError("Unexpected error: \(error.localizedDescription)")
+            }
         }
     }
 }

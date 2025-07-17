@@ -53,7 +53,7 @@ struct PlayerStatusView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
-            Text(player.name)
+            Text(player.team.name)
                 .font(.system(size: 50, weight: .bold))
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)

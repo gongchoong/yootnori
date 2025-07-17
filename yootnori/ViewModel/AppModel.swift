@@ -28,7 +28,7 @@ class AppModel: ObservableObject {
             print("//////////////////////")
             let _ = trackedMarkers.map { (key, value) in
                 value.map { (valueKey, valueValue) in
-                    print("\(key.name): \(valueKey.name): \(valueValue.name)")
+                    print("\(key.team.name): \(valueKey.name): \(valueValue.name)")
                 }
             }
         }
@@ -280,174 +280,190 @@ extension AppModel {
 
 // Entity action
 extension AppModel {
-    func perform(action: Action) {
+    func perform(action: Action) throws {
         switch action {
         // User tapped a marker on the board.
         case .tappedMarker(let destinationMarker):
-            switch selectedMarker {
-            case .existing(let sourceMarker):
-                // Tapped the same marker again — just drop it to unselect.
-                if destinationMarker == sourceMarker {
+            try handleMarkerTap(destinationMarker)
+        // User tapped a tile.
+        case .tappedTile(let tile):
+            try handleTileTap(tile)
+        }
+    }
+
+    func handleMarkerTap(_ destinationMarker: Entity) throws {
+        switch selectedMarker {
+        case .existing(let sourceMarker):
+            // Tapped the same marker again — just drop it to unselect.
+            if destinationMarker == sourceMarker {
+                withLoadingState {
+                    await self.drop(destinationMarker)
+                }
+            } else {
+                guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else {
+                    throw MarkerActionError.markerComponentMissing(entity: destinationMarker)
+                }
+                guard let sourceNode = findNode(for: sourceMarker) else {
+                    throw MarkerActionError.nodeMissing(entity: sourceMarker)
+                }
+                guard let destinationNode = findNode(for: destinationMarker) else {
+                    throw MarkerActionError.nodeMissing(entity: destinationMarker)
+                }
+                try discardRoll(for: destinationNode)
+
+                // If same team, piggy back.
+                if currentTurn.team.rawValue == destinationMarkerComponent.team {
                     withLoadingState {
-                        await self.drop(destinationMarker)
+                        // Move to the destination marker’s tile.
+                        try await self.move(sourceMarker, to: destinationNode)
+
+                        // Ride on top of the tapped marker.
+                        try await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        self.detachMarker(from: sourceNode)
                     }
                 } else {
-                    guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else { return }
-                    guard let sourceNode = findNode(for: sourceMarker) else { return }
-                    guard let destinationNode = findNode(for: destinationMarker) else { return }
-                    // Ensure there's a valid target node for interaction resolution.
-                    guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
+                    // If not on the same team, capture.
+                    withLoadingState {
+                        // Move to the destination marker’s tile.
+                        try await self.move(sourceMarker, to: destinationNode)
 
-                    // Clear out any previous state tied to rolls or targets.
-                    self.discardRoll(for: targetNode)
-                    self.clearAllTargetNodes()
-                    // If same team, piggy back.
-                    if currentTurn.team.rawValue == destinationMarkerComponent.team {
-                        withLoadingState {
-                            // Move to the destination marker’s tile.
-                            await self.move(sourceMarker, to: destinationNode)
-
-                            // Ride on top of the tapped marker.
-                            await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                            self.detachMarker(from: sourceNode)
-                        }
-                    } else {
-                        // If not on the same team, capture.
-                        withLoadingState {
-                            // Move to the destination marker’s tile.
-                            await self.move(sourceMarker, to: destinationNode)
-
-                            // Ride on top of the tapped marker.
-                            await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                            self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                            self.reassign(sourceMarker, to: destinationNode)
-                            self.canPlayerThrow = true
-                        }
+                        // Ride on top of the tapped marker.
+                        await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                        self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
+                        self.reassign(sourceMarker, to: destinationNode)
+                        self.canPlayerThrow = true
                     }
                 }
-            case .new:
-                guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else { return }
-                guard let destinationNode = findNode(for: destinationMarker) else { return }
-                guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else { return }
+            }
+        case .new:
+            guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else {
+                throw MarkerActionError.markerComponentMissing(entity: destinationMarker)
+            }
+            guard let destinationNode = findNode(for: destinationMarker) else {
+                throw MarkerActionError.nodeMissing(entity: destinationMarker)
+            }
+            try discardRoll(for: destinationNode)
 
-                // Clear any lingering roll or target state before continuing.
-                self.discardRoll(for: targetNode)
-                self.clearAllTargetNodes()
-
-                // If on the same team, piggyback
-                if currentTurn.team.rawValue == destinationMarkerComponent.team {
-                    // Attempting to place a new marker, but tapped a marker that’s already on the board.
-                    withLoadingState {
-                        // Create a temporary marker at the START node and move it to the tapped tile.
-                        // This is just for animation purposes.
-                        guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
-                        let sourceMarker = try await self.create(at: startNode)
-                        await self.move(sourceMarker, to: destinationNode)
-
-                        // Piggyback onto the existing marker.
-                        await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+            // If on the same team, piggyback
+            if currentTurn.team.rawValue == destinationMarkerComponent.team {
+                // Attempting to place a new marker, but tapped a marker that’s already on the board.
+                withLoadingState {
+                    // Create a temporary marker at the START node and move it to the tapped tile.
+                    // This is just for animation purposes.
+                    guard let startNode = self.findNode(named: .bottomRightVertex) else {
+                        throw MarkerActionError.startNodeNotFound
                     }
-                } else {
-                    // If not on the same team, capture
-                    withLoadingState {
-                        // Create a temporary marker at the START node and move it to the tapped tile.
-                        // This is just for animation purposes.
-                        guard let startNode = self.findNode(named: .bottomRightVertex) else { return }
-                        let sourceMarker = try await self.create(at: startNode)
-                        await self.move(sourceMarker, to: destinationNode)
+                    let sourceMarker = try await self.create(at: startNode)
+                    try await self.move(sourceMarker, to: destinationNode)
 
-                        // Piggyback onto the existing marker.
+                    // Piggyback onto the existing marker.
+                    try await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                }
+            } else {
+                // If not on the same team, capture
+                withLoadingState {
+                    // Create a temporary marker at the START node and move it to the tapped tile.
+                    // This is just for animation purposes.
+                    guard let startNode = self.findNode(named: .bottomRightVertex) else {
+                        throw MarkerActionError.startNodeNotFound
+                    }
+                    let sourceMarker = try await self.create(at: startNode)
+                    try await self.move(sourceMarker, to: destinationNode)
+
+                    // Piggyback onto the existing marker.
+                    await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                    self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
+                    self.assign(marker: sourceMarker, to: destinationNode)
+                    self.canPlayerThrow = true
+                }
+            }
+        case .none:
+            guard let markerComponent = destinationMarker.components[MarkerComponent.self] else {
+                throw MarkerActionError.markerComponentMissing(entity: destinationMarker)
+            }
+            // Only allow selecting markers that belong to the current player's team; ignore taps on opponent markers
+            if currentTurn.team == Team(rawValue: markerComponent.team) {
+                // No marker was selected — now selecting the tapped existing marker on the board.
+                withLoadingState {
+                    await self.elevate(entity: destinationMarker)
+                    self.selectedMarker = .existing(destinationMarker)
+                }
+                // Show valid target tiles based on this marker's position.
+                guard let node = findNode(for: destinationMarker) else {
+                    throw MarkerActionError.nodeMissing(entity: destinationMarker)
+                }
+                updateTargetNodes(starting: node.name)
+            }
+        }
+    }
+
+    func handleTileTap(_ tile: Tile) throws {
+        guard let destinationNode = findNode(named: tile.nodeName) else { return }
+        switch selectedMarker {
+        case .new:
+            // Create a new marker at the START node, then move it to the selected tile.
+            withLoadingState {
+                guard let startingPosition = self.findNode(named: .bottomRightVertex) else {
+                    throw MarkerActionError.startNodeNotFound
+                }
+                let sourceMarker = try await self.create(at: startingPosition)
+                try await self.move(sourceMarker, to: destinationNode)
+
+                if let destinationMarker = self.findMarker(for: destinationNode) {
+                    // If a marker already exists on the selected tile, find which player
+                    // the marker belongs to.
+                    guard let player = self.player(for: destinationMarker) else {
+                        throw MarkerActionError.playerNotFound(entity: destinationMarker)
+                    }
+                    if player.team == self.currentTurn.team {
+                        try await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                    } else {
                         await self.capture(capturing: sourceMarker, captured: destinationMarker)
                         self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
                         self.assign(marker: sourceMarker, to: destinationNode)
                         self.canPlayerThrow = true
                     }
-                }
-            case .none:
-                guard let markerComponent = destinationMarker.components[MarkerComponent.self] else { return }
-                // Only allow selecting markers that belong to the current player's team; ignore taps on opponent markers
-                if currentTurn.team == Team(rawValue: markerComponent.team) {
-                    // No marker was selected — now selecting the tapped existing marker on the board.
-                    withLoadingState {
-                        await self.elevate(entity: destinationMarker)
-                        self.selectedMarker = .existing(destinationMarker)
-                    }
-                    // Show valid target tiles based on this marker's position.
-                    guard let node = findNode(for: destinationMarker) else { return }
-                    updateTargetNodes(starting: node.name)
+                } else {
+                    // If no marker is on the tile, just move.
+                    self.assign(marker: sourceMarker, to: destinationNode)
                 }
             }
-        // User tapped a tile.
-        case .tappedTile(let tile):
-            guard let destinationNode = findNode(named: tile.nodeName) else { return }
-            switch selectedMarker {
-            case .new:
-                // Create a new marker at the START node, then move it to the selected tile.
-                withLoadingState {
-                    guard let start = self.findNode(named: .bottomRightVertex) else { return }
-                    let sourceMarker = try await self.create(at: start)
-                    await self.move(sourceMarker, to: destinationNode)
+        case .existing(let sourceMarker):
+            // Locate the current position of the selected marker.
+            guard let startingNode = self.findNode(for: sourceMarker) else {
+                throw MarkerActionError.nodeMissing(entity: sourceMarker)
+            }
 
-                    if let destinationMarker = self.findMarker(for: destinationNode) {
-                        // If a marker already exists on the selected tile, find which player
-                        // the marker belongs to.
-                        guard let player = self.player(for: destinationMarker) else {
-                            print("marker error")
-                            return
-                        }
-                        if player.team == self.currentTurn.team {
-                            await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                        } else {
-                            await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                            self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                            self.assign(marker: sourceMarker, to: destinationNode)
-                            self.canPlayerThrow = true
-                        }
-                    } else {
-                        // If no marker is on the tile, just move.
-                        self.assign(marker: sourceMarker, to: destinationNode)
+            withLoadingState {
+                // Move the selected marker to the tapped tile.
+                try await self.move(sourceMarker, to: destinationNode)
+
+                // If another marker already occupies the tile, piggyback onto it;
+                // otherwise, reassign the marker to the new location.
+                if let destinationMarker = self.findMarker(for: destinationNode) {
+                    // If a marker already exists on the selected tile, find which player
+                    // the marker belongs to.
+                    guard let player = self.player(for: destinationMarker) else {
+                        throw MarkerActionError.playerNotFound(entity: destinationMarker)
                     }
-                }
-            case .existing(let sourceMarker):
-                // Locate the current position of the selected marker.
-                guard let startingNode = self.findNode(for: sourceMarker) else {
-                    return
-                }
-
-                withLoadingState {
-                    // Move the selected marker to the tapped tile.
-                    await self.move(sourceMarker, to: destinationNode)
-                    
-                    // If another marker already occupies the tile, piggyback onto it;
-                    // otherwise, reassign the marker to the new location.
-                    if let destinationMarker = self.findMarker(for: destinationNode) {
-                        // If a marker already exists on the selected tile, find which player
-                        // the marker belongs to.
-                        guard let player = self.player(for: destinationMarker) else {
-                            print("marker error")
-                            return
-                        }
-                        if player.team == self.currentTurn.team {
-                            await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                            self.detachMarker(from: startingNode)
-                        } else {
-                            await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                            self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                            self.reassign(sourceMarker, to: destinationNode)
-                            self.canPlayerThrow = true
-                        }
+                    if player.team == self.currentTurn.team {
+                        try await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        self.detachMarker(from: startingNode)
                     } else {
+                        await self.capture(capturing: sourceMarker, captured: destinationMarker)
+                        self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
                         self.reassign(sourceMarker, to: destinationNode)
+                        self.canPlayerThrow = true
                     }
+                } else {
+                    self.reassign(sourceMarker, to: destinationNode)
                 }
-            case .none:
-                break
             }
-            guard let targetNode = getTargetNode(nodeName: destinationNode.name) else { return }
-            discardRoll(for: targetNode)
-            clearAllTargetNodes()
-            selectedMarker = .none
+        case .none:
+            break
         }
+        try discardRoll(for: destinationNode)
+        selectedMarker = .none
     }
 
     private func create(at node: Node) async throws -> Entity {
@@ -469,13 +485,13 @@ extension AppModel {
         }
     }
     
-    private func move(_ marker: Entity, to node: Node) async {
-        func step(entity marker: Entity, to newNode: Node) async {
+    private func move(_ marker: Entity, to node: Node) async throws {
+        func step(entity marker: Entity, to newNode: Node) async throws {
             do {
                 try await advance(entity: marker, to: newNode, duration: Dimensions.Marker.duration)
                 await drop(marker, duration: Dimensions.Marker.duration)
             } catch {
-                fatalError("Failed to move selected marker to \(newNode.index)")
+                throw MarkerActionError.markerMoveFailed("Failed to move selected marker to \(newNode.index)")
             }
         }
 
@@ -488,12 +504,12 @@ extension AppModel {
         route = route.filter { $0.name != currentNode.name }
 
         for routeNode in route {
-            await step(entity: marker, to: routeNode)
+            try await step(entity: marker, to: routeNode)
         }
     }
 
-    private func piggyBack(rider: Entity, carrier: Entity) async {
-        addLevel(tapped: carrier, moving: rider)
+    private func piggyBack(rider: Entity, carrier: Entity) async throws {
+        try addLevel(tapped: carrier, moving: rider)
         removeChildFromRoot(entity: rider)
         selectedMarker = .none
     }
@@ -503,15 +519,25 @@ extension AppModel {
         selectedMarker = .none
     }
 
-    private func addLevel(tapped: Entity, moving: Entity) {
-        guard var tappedMarkerComponent = tapped.components[MarkerComponent.self] else { return }
-        guard let movingMarkerComponent = moving.components[MarkerComponent.self] else { return }
+    private func addLevel(tapped: Entity, moving: Entity) throws {
+        guard var tappedMarkerComponent = tapped.components[MarkerComponent.self] else {
+            throw MarkerActionError.markerComponentMissing(entity: tapped)
+        }
+        guard let movingMarkerComponent = moving.components[MarkerComponent.self] else {
+            throw MarkerActionError.markerComponentMissing(entity: moving)
+        }
         tappedMarkerComponent.level += movingMarkerComponent.level
         tapped.components[MarkerComponent.self] = tappedMarkerComponent
         attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
             guard let self = self else { return }
             if self.isOutOfThrows {
-                self.perform(action: .tappedMarker(tapped))
+                do {
+                    try self.perform(action: .tappedMarker(tapped))
+                } catch let error as AppModel.MarkerActionError {
+                    error.crashApp()
+                } catch {
+                    fatalError("Unexpected error: \(error.localizedDescription)")
+                }
             }
         }, level: tappedMarkerComponent.level, team: Team(rawValue: tappedMarkerComponent.team) ?? .black))
     }
@@ -565,8 +591,12 @@ extension AppModel {
         rollResult.map { "\($0.steps)" }
     }
 
-    func discardRoll(for targetNode: TargetNode) {
+    func discardRoll(for destinationNode: Node) throws {
+        guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else {
+            throw MarkerActionError.targetNodeMissing(node: destinationNode)
+        }
         rollViewModel.discardRoll(for: targetNode)
+        clearAllTargetNodes()
     }
 }
 
@@ -677,5 +707,35 @@ extension AppModel {
     subscript(player: Player) -> [Node: Entity] {
         get { trackedMarkers[player, default: [:]] }
         set { trackedMarkers[player] = newValue }
+    }
+}
+
+extension AppModel {
+    enum MarkerActionError: Error {
+        case markerComponentMissing(entity: Entity)
+        case nodeMissing(entity: Entity)
+        case targetNodeMissing(node: Node)
+        case markerMoveFailed(String)
+        case startNodeNotFound
+        case playerNotFound(entity: Entity)
+    }
+}
+
+extension AppModel.MarkerActionError {
+    func crashApp() -> Never {
+        switch self {
+        case .markerComponentMissing(let entity):
+            fatalError("Marker component is missing for entity: \(entity)")
+        case .nodeMissing(let entity):
+            fatalError("Node is missing for entity: \(entity)")
+        case .targetNodeMissing(let node):
+            fatalError("Target node is missing for node: \(node)")
+        case .markerMoveFailed(let reason):
+            fatalError("Failed to move marker: \(reason)")
+        case .startNodeNotFound:
+            fatalError("Start node could not be found.")
+        case .playerNotFound(let entity):
+            fatalError("Player not found for entity: \(entity)")
+        }
     }
 }
