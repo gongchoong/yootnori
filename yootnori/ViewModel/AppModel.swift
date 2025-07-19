@@ -328,10 +328,7 @@ extension AppModel {
                         try await self.move(sourceMarker, to: destinationNode)
 
                         // Ride on top of the tapped marker.
-                        await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                        self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                        self.reassign(sourceMarker, to: destinationNode)
-                        self.canPlayerThrow = true
+                        await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
                     }
                 }
             }
@@ -371,10 +368,7 @@ extension AppModel {
                     try await self.move(sourceMarker, to: destinationNode)
 
                     // Piggyback onto the existing marker.
-                    await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                    self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                    self.assign(marker: sourceMarker, to: destinationNode)
-                    self.canPlayerThrow = true
+                    await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode, isNewMarker: true)
                 }
             }
         case .none:
@@ -418,10 +412,7 @@ extension AppModel {
                     if player.team == self.currentTurn.team {
                         try await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                     } else {
-                        await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                        self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                        self.assign(marker: sourceMarker, to: destinationNode)
-                        self.canPlayerThrow = true
+                        await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode, isNewMarker: true)
                     }
                 } else {
                     // If no marker is on the tile, just move.
@@ -454,6 +445,7 @@ extension AppModel {
                         self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
                         self.reassign(sourceMarker, to: destinationNode)
                         self.canPlayerThrow = true
+                        await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
                     }
                 } else {
                     self.reassign(sourceMarker, to: destinationNode)
@@ -512,6 +504,24 @@ extension AppModel {
         try addLevel(tapped: carrier, moving: rider)
         removeChildFromRoot(entity: rider)
         selectedMarker = .none
+    }
+
+    private func handleCaptureTransition(
+        capturingMarker: Entity,
+        capturedMarker: Entity,
+        on node: Node,
+        isNewMarker: Bool = false
+    ) async {
+        await self.capture(capturing: capturingMarker, captured: capturedMarker)
+        self.detachMarker(from: node, player: self.currentTurn.opponent)
+        // If placing a newly created marker, assign it to the destination node.
+        // Otherwise, move (reassign) the existing capturing marker from its previous node.
+        if isNewMarker {
+            self.assign(marker: capturingMarker, to: node)
+        } else {
+            self.reassign(capturingMarker, to: node)
+        }
+        self.canPlayerThrow = true
     }
 
     private func capture(capturing: Entity, captured: Entity) async {
