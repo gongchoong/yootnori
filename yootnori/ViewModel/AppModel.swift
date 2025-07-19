@@ -540,7 +540,7 @@ extension AppModel {
         tapped.components[MarkerComponent.self] = tappedMarkerComponent
         attachmentsProvider.attachments[tapped.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
             guard let self = self else { return }
-            if self.isOutOfThrows {
+            if !self.isOutOfThrows {
                 do {
                     try self.perform(action: .tappedMarker(tapped))
                 } catch let error as AppModel.MarkerActionError {
