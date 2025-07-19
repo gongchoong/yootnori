@@ -441,10 +441,6 @@ extension AppModel {
                         try await self.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.detachMarker(from: startingNode)
                     } else {
-                        await self.capture(capturing: sourceMarker, captured: destinationMarker)
-                        self.detachMarker(from: destinationNode, player: self.currentTurn.opponent)
-                        self.reassign(sourceMarker, to: destinationNode)
-                        self.canPlayerThrow = true
                         await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
                     }
                 } else {
