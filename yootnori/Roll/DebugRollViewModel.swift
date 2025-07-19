@@ -11,8 +11,8 @@ class DebugRollViewModel: ObservableObject {
     @Published var result: [Yoot] = []
     var canRollAgain: Bool = false
 
-    var hasRemainingRoll: Bool {
-        !result.isEmpty && !canRollAgain
+    var isOutOfThrows: Bool {
+        result.isEmpty
     }
 
     func roll(yoot: Yoot) async {

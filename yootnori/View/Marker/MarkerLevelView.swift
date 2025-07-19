@@ -10,9 +10,13 @@ import SwiftUI
 struct MarkerLevelView: View {
     var tapAction: (() -> Void)
     var level: Int = 0
+    var team: Team = .black
 
     var body: some View {
         Text("x\(level)")
+            .font(.title)
+            .foregroundStyle(team.color)
+            .bold()
             .gesture(TapGesture()
                 .onEnded({
                     tapAction()

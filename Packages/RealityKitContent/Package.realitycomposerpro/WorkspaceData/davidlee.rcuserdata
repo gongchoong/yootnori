@@ -1,14 +1,18 @@
 {
   "advancedEditorSelectedIdentifier" : "ProjectBrowser",
   "openSceneRelativePaths" : [
-    "Marker.usda",
-    "YootThrowBoard.usda"
+    "Marker_black.usda",
+    "YootThrowBoard.usda",
+    "Marker_white.usda"
   ],
   "recentIdentifiers" : {
     "1D572CEB-057A-41C3-B575-04C37501A3C0" : [
 
     ],
     "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F" : [
+
+    ],
+    "F8297E3D-0A76-4C12-A183-C6CAB13CDB73" : [
 
     ]
   },
@@ -484,5 +488,5 @@
       }
     ]
   },
-  "selectedSceneRelativePath" : "YootThrowBoard.usda"
+  "selectedSceneRelativePath" : "Marker_white.usda"
 }

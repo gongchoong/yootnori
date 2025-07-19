@@ -9,6 +9,7 @@ import SwiftUI
 
 struct IntroductoryView: View {
     @Binding var showIntro: Bool
+    var didTapStartButton: () -> Void
     
     var body: some View {
         VStack(spacing: 25) {
@@ -70,6 +71,7 @@ struct IntroductoryView: View {
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showIntro = false
                 }
+                didTapStartButton()
             }) {
                 HStack {
                     Image(systemName: "play.fill")
@@ -111,5 +113,5 @@ struct IntroductoryView: View {
 }
 
 #Preview {
-    IntroductoryView(showIntro: .constant(true))
+    IntroductoryView(showIntro: .constant(true), didTapStartButton: {})
 }

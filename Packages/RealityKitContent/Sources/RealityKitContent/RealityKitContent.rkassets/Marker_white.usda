@@ -10,6 +10,13 @@
 
 def Xform "Root"
 {
+    float2 ui:nodegraph:node:pos = (20, 20)
+    int ui:nodegraph:node:stackingOrder = 1
+    quatf xformOp:orient = (1, 0, 0, 0)
+    float3 xformOp:scale = (1, 1, 1)
+    float3 xformOp:translate = (0, 0, 0)
+    uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
     def Cylinder "Cylinder" (
         active = true
         prepend apiSchemas = ["MaterialBindingAPI"]
@@ -25,7 +32,7 @@ def Xform "Root"
         float2 ui:nodegraph:node:pos = (20, 20)
         int ui:nodegraph:node:stackingOrder = 1
         quatf xformOp:orient = (0.7073883, 0.7068252, -2.0587714e-11, 2.0571322e-11)
-        float3 xformOp:scale = (0.14999998, 0.14999998, 0.14999998)
+        float3 xformOp:scale = (0.23, 0.23, 0.23)
         float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
@@ -38,7 +45,12 @@ def Xform "Root"
             def Shader "DefaultSurfaceShader"
             {
                 uniform token info:id = "UsdPreviewSurface"
-                color3f inputs:diffuseColor = (1, 1, 1)
+                color3f inputs:diffuseColor = (0.9782035, 1, 0.9871507) (
+                    colorSpace = "srgb_displayp3"
+                )
+                color3f inputs:emissiveColor = (1, 1, 1) (
+                    colorSpace = "srgb_displayp3"
+                )
                 float inputs:roughness = 0.75
                 token outputs:surface
             }

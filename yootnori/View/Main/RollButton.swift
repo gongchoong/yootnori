@@ -9,8 +9,12 @@ import SwiftUI
 
 struct RollButton: View {
     @EnvironmentObject var model: AppModel
-
     var didTapButton: () -> Void
+    // The button is disabled while yoots are animating or if the player has no throws remaining
+    var buttonDisabled: Bool {
+        model.isAnimating || !model.canPlayerThrow
+    }
+
     var body: some View {
         Button(action: {
             didTapButton()
@@ -26,7 +30,8 @@ struct RollButton: View {
                 )
         }
         .hoverEffect(.lift)
-        .opacity(model.isAnimating ? 0 : 1)
         .animation(.easeInOut(duration: 0.2), value: model.isAnimating)
+        .opacity(buttonDisabled ? 0 : 1)
+        .disabled(buttonDisabled)
     }
 }
