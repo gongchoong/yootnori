@@ -19,7 +19,8 @@ struct GameStatusView: View {
                     rollResult: model.rollResult,
                     isOutOfThrows: model.isOutOfThrows,
                     isLoading: model.isLoading,
-                    currentTurn: model.currentTurn)
+                    currentTurn: model.currentTurn,
+                    markersLeftToPlace: model.markersLeftToPlace(for: player))
                 {
                     markerButtonTapped()
                 }
@@ -37,6 +38,7 @@ struct PlayerStatusView: View {
     var isOutOfThrows: Bool
     var isLoading: Bool
     var currentTurn: Player
+    var markersLeftToPlace: Int
     let onMarkerTapped: () -> Void
 
     var description: String {
@@ -44,11 +46,15 @@ struct PlayerStatusView: View {
     }
 
     var newMarkerButtonDisabled: Bool {
-        isOutOfThrows || isLoading
+        isOutOfThrows || isLoading || !hasMarkersLeftToPlace
     }
 
     var isPlayerTurn: Bool {
         player.team == currentTurn.team
+    }
+
+    var hasMarkersLeftToPlace: Bool {
+        markersLeftToPlace > 0
     }
 
     var body: some View {
@@ -66,7 +72,7 @@ struct PlayerStatusView: View {
                 .foregroundColor(.secondary)
             
             Button(action: onMarkerTapped) {
-                Text("New Marker")
+                Text("New Marker \(markersLeftToPlace)")
                     .font(.system(size: 40, weight: .medium))
                     .foregroundColor(.primary)
             }

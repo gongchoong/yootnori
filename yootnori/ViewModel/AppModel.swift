@@ -47,6 +47,10 @@ class AppModel: ObservableObject {
         }
     }
 
+    var hasMarkersLeftToPlace: Bool {
+        markersLeftToPlace(for: currentTurn) > 0
+    }
+
     @State var markersToGo: Int = 4
     @Published var selectedMarker: SelectedMarker = .none
     @Published var targetNodes = Set<TargetNode>()
@@ -300,6 +304,7 @@ extension AppModel {
                     await self.drop(destinationMarker)
                 }
             } else {
+                guard isTappedMarkerOnTargetNode(destinationMarker) else { return }
                 guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else {
                     throw MarkerActionError.markerComponentMissing(entity: destinationMarker)
                 }
@@ -333,6 +338,8 @@ extension AppModel {
                 }
             }
         case .new:
+            guard hasMarkersLeftToPlace else { return }
+            guard isTappedMarkerOnTargetNode(destinationMarker) else { return }
             guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else {
                 throw MarkerActionError.markerComponentMissing(entity: destinationMarker)
             }
@@ -395,6 +402,7 @@ extension AppModel {
         guard let destinationNode = findNode(named: tile.nodeName) else { return }
         switch selectedMarker {
         case .new:
+            guard hasMarkersLeftToPlace else { return }
             // Create a new marker at the START node, then move it to the selected tile.
             withLoadingState {
                 guard let startingPosition = self.findNode(named: .bottomRightVertex) else {
@@ -578,6 +586,8 @@ private extension AppModel {
     }
     
     func drop(_ marker: Entity, duration: CGFloat = 0.6) async {
+        selectedMarker = .none
+        clearAllTargetNodes()
         do {
             var translation = marker.position
             translation.z = Dimensions.Marker.dropped
@@ -586,8 +596,6 @@ private extension AppModel {
                                  duration: duration)
             try? await Task.sleep(for: .seconds(duration))
         }
-        selectedMarker = .none
-        clearAllTargetNodes()
     }
 }
 
@@ -743,5 +751,26 @@ extension AppModel.MarkerActionError {
         case .playerNotFound(let entity):
             fatalError("Player not found for entity: \(entity)")
         }
+    }
+}
+
+extension AppModel {
+    private func markerCount(for player: Player) -> Int {
+        trackedMarkers[player]?.values.reduce(into: 0) { count, marker in
+            guard let level = marker.components[MarkerComponent.self]?.level else {
+                fatalError()
+            }
+            return count += level
+        } ?? 0
+    }
+
+    func markersLeftToPlace(for player: Player) -> Int {
+        player.score - markerCount(for: player)
+    }
+
+    // User can only tap markers that are placed on one of the target nodes.
+    func isTappedMarkerOnTargetNode(_ marker: Entity) -> Bool {
+        guard let node = findNode(for: marker) else { return false }
+        return targetNodes.contains { $0.name == node.name }
     }
 }

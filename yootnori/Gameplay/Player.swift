@@ -9,7 +9,7 @@ import SwiftUI
 class Player: Equatable, Hashable {
     let name: String
     let team: Team
-    var score: Int = 0
+    var score: Int = 4
 
     private init(name: String, team: Team) {
         self.name = name
