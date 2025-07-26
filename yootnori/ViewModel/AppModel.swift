@@ -18,11 +18,21 @@ enum SelectedMarker: Equatable {
 
 @MainActor
 class AppModel: ObservableObject {
+    enum MarkerActionError: Error {
+        case markerComponentMissing(entity: Entity)
+        case nodeMissing(entity: Entity)
+        case targetNodeMissing(node: Node)
+        case markerMoveFailed(String)
+        case startNodeNotFound
+        case playerNotFound(entity: Entity)
+        case routeDoesNotExist(from: Node, to: Node)
+    }
+
     private(set) var rootEntity = Entity()
     private var rollViewModel: RollViewModel
     private var playerTurnViewModel: PlayerTurnViewModel
     private var cancellables = Set<AnyCancellable>()
-    private var nodes = Set<Node>()
+    // private var nodes = Set<Node>()
     private var trackedMarkers: [Player: [Node: Entity]] = [:] {
         didSet {
             print("//////////////////////")
@@ -66,23 +76,16 @@ class AppModel: ObservableObject {
         }
     }
 
+    // Dependencies
+    let gameEngine = GameEngine()
+
     init(rollViewModel: RollViewModel, playerTurnViewModel: PlayerTurnViewModel) {
         self.rollViewModel = rollViewModel
         self.playerTurnViewModel = playerTurnViewModel
         
-        generateNodes()
         subscribe()
     }
 
-    private func generateNodes() {
-        nodes = Set(NodeConfig.nodeNames.map { name in
-            guard let index = NodeConfig.nodeIndexMap[name], let relationShip = NodeConfig.nodeRelationships[name] else {
-                return Node(name: .empty, index: Index.outer(column: 0, row: 0), next: [], prev: [])
-            }
-            return Node(name: name, index: index, next: relationShip.next, prev: relationShip.prev)
-        })
-    }
-    
     private func subscribe() {
         rollViewModel.resultPublisher
             .receive(on: RunLoop.main)
@@ -142,148 +145,12 @@ extension AppModel {
 
 // MARK: Calculations
 extension AppModel {
-    // Retrieve the names of all possible nodes where a marker can be placed based on the outcome of each Yoot roll.
-    func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
-        func step(
-            starting: NodeName,
-            next: NodeName,
-            yootRoll: Yoot,
-            remainingSteps: Int,
-            destination: inout Set<TargetNode>
-        ) {
-            // Marker cannot move past the starting node.
-            if starting != .bottomRightVertex, next == .bottomRightVertex {
-                destination.insert(TargetNode(name: next, yootRoll: yootRoll))
-                return
-            }
-            guard remainingSteps > 0 else {
-                destination.insert(TargetNode(name: next, yootRoll: yootRoll))
-                return
-            }
-            var nextNodes = nextNodeNames(from: next)
-            filter(nextNodes: &nextNodes)
-
-            guard !nextNodes.isEmpty else { return }
-            for nextNode in nextNodes {
-                step(
-                    starting: starting,
-                    next: nextNode,
-                    yootRoll: yootRoll,
-                    remainingSteps: remainingSteps - 1,
-                    destination: &destination
-                )
-            }
-        }
-
-        func filter(nextNodes: inout [NodeName]) {
-            // Inner nodes can only be reached if starting node is topRightVertex, topLeftVertex, or inner node
-            nextNodes = nextNodes.filter({ node in
-                node.isInnerNode ? starting.isInnerNode || starting == .topRightVertex || starting == .topLeftVertex : true
-            })
-
-            // If starting node is topRightVertex, or topLeftVertex, marker can only travel towards inner nodes.
-            nextNodes = nextNodes.filter({ node in
-                starting.isTopVertexNode ? node.isInnerNode : true
-            })
-
-            // If starting node is topRightVertex, or topRightDiagonals, marker cannot travel
-            // towards the bottomRightDiagonal nodes.
-            nextNodes = nextNodes.filter({ node in
-                starting == .topRightVertex || starting.isTopRightDiagonalNode ? !node.isBottomRightDiagonalNode : true
-            })
-
-            // If starting node is topLeftVertex, or topLeftDiagonals, marker cannot travel
-            // towards the bottomLeftDiagonal nodes.
-            nextNodes = nextNodes.filter({ node in
-                starting == .topLeftVertex || starting.isTopLeftDiagonalNode ? !node.isBottomLeftDiagonalNode : true
-            })
-
-            // If starting node is center, marker cannot travel towards the bottomLeftDiagonal nodes.
-            nextNodes = nextNodes.filter({ node in
-                starting == .center ? !node.isBottomLeftDiagonalNode : true
-            })
-        }
-
-        var targetNodes = Set<TargetNode>()
-        for yootRoll in self.rollResult {
-            step(
-                starting: starting,
-                next: starting,
-                yootRoll: yootRoll,
-                remainingSteps: yootRoll.steps,
-                destination: &targetNodes
-            )
-        }
-        self.targetNodes = targetNodes
-    }
-    
     func getTargetNode(nodeName: NodeName) -> TargetNode? {
         targetNodes.filter({ $0.name == nodeName }).first
     }
     
     func clearAllTargetNodes() {
         self.targetNodes.removeAll()
-    }
-
-    /// Recursively finds a path from the `start` node to the `destination` node,
-    /// considering visited nodes to prevent cycles and applying custom path rules
-    /// (e.g., directional constraints when passing through `.center`).
-    ///
-    /// - Parameters:
-    ///   - start: The current node being evaluated in the recursive search.
-    ///   - destination: The target node we want to reach.
-    ///   - startingPoint: The original starting node for determining conditional routes (e.g., center behavior).
-    ///   - visited: A set of nodes already visited to avoid infinite loops.
-    /// - Returns: An array representing the path from `start` to `destination`, or `nil` if no path is found.
-    private func findRoute(from start: Node, to destination: Node, startingPoint: Node, visited: Set<Node> = []) -> [Node]? {
-        // Check if we've already visited this node to prevent infinite loops
-        guard !visited.contains(start) else { return nil }
-
-        // Add the current node to the visited set.
-        var newVisited = visited
-        newVisited.insert(start)
-
-        // If the start is the destination, return start.
-        if start == destination {
-            return [start]
-        }
-
-        // Get valid next steps
-        let nextSteps = validNextNodes(for: start, startingFrom: startingPoint)
-
-        // Recursively explore each next node
-        for nextNodeName in nextSteps {
-            guard let nextNode = findNode(named: nextNodeName) else { break }
-            if let path = findRoute(from: nextNode, to: destination, startingPoint: startingPoint, visited: newVisited) {
-                return [start] + path
-            }
-        }
-
-        // If no path is found, return nil.
-        return nil
-    }
-
-    /// Determines the valid next nodes to traverse from a given node,
-    /// applying special routing logic when passing through the center node.
-    ///
-    /// - Parameters:
-    ///   - node: The current node being evaluated.
-    ///   - origin: The original starting node for the route.
-    /// - Returns: A filtered list of next node names.
-    ///   If the current node is `.center`, returns a single valid direction
-    ///   based on the origin:
-    ///     - From the top right path: only `.leftBottomDiagonal1`
-    ///     - From the top left path: only `.rightBottomDiagonal1`
-    private func validNextNodes(for node: Node, startingFrom origin: Node) -> [NodeName] {
-        if node.name == .center {
-            if [.topRightVertex, .rightTopDiagonal1, .rightTopDiagonal2].contains(origin.name) {
-                return [.leftBottomDiagonal1]
-            }
-            if [.topLeftVertex, .leftTopDiagonal1, .leftTopDiagonal2].contains(origin.name) {
-                return [.rightBottomDiagonal1]
-            }
-        }
-        return node.next
     }
 }
 
@@ -503,7 +370,9 @@ extension AppModel {
         }
 
         let currentNode = findNode(for: marker) ?? .bottomRightVertex
-        guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else { return false }
+        guard var route = findRoute(from: currentNode, to: node, startingPoint: currentNode) else {
+            throw MarkerActionError.routeDoesNotExist(from: currentNode, to: node)
+        }
         route = route.filter { $0.name != currentNode.name }
 
         for routeNode in route {
@@ -700,17 +569,30 @@ private extension AppModel {
     }
 }
 
-extension AppModel {
+// MARK: - GameEngine integrations
+private extension AppModel {
+    func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
+        let calculatedTargetNodes = gameEngine.calculateTargetNodes(
+            starting: starting,
+            rollResult: rollResult
+        )
+        self.targetNodes = calculatedTargetNodes
+    }
+
+    func findRoute(from start: Node, to destination: Node, startingPoint: Node, visited: Set<Node> = []) -> [Node]? {
+        gameEngine.findRoute(from: start, to: destination, startingPoint: startingPoint, visited: visited)
+    }
+
     func findNode(named nodeName: NodeName) -> Node? {
-        nodes.filter { $0.name == nodeName }.first
+        gameEngine.findNode(named: nodeName)
     }
 
     func nextNodeNames(from nodeName: NodeName) -> [NodeName] {
-        nodes.filter { $0.name == nodeName }.first?.next ?? []
+        gameEngine.nextNodeNames(from: nodeName)
     }
 
     func previousNodeNames(from nodeName: NodeName) -> [NodeName] {
-        nodes.filter { $0.name == nodeName }.first?.prev ?? []
+        gameEngine.previousNodeNames(from: nodeName)
     }
 }
 
@@ -760,17 +642,6 @@ extension AppModel {
     }
 }
 
-extension AppModel {
-    enum MarkerActionError: Error {
-        case markerComponentMissing(entity: Entity)
-        case nodeMissing(entity: Entity)
-        case targetNodeMissing(node: Node)
-        case markerMoveFailed(String)
-        case startNodeNotFound
-        case playerNotFound(entity: Entity)
-    }
-}
-
 extension AppModel.MarkerActionError {
     func crashApp() -> Never {
         switch self {
@@ -786,6 +657,8 @@ extension AppModel.MarkerActionError {
             fatalError("Start node could not be found.")
         case .playerNotFound(let entity):
             fatalError("Player not found for entity: \(entity)")
+        case .routeDoesNotExist(let from, let node):
+            fatalError("Route does not exist from: \(from), to: \(node)")
         }
     }
 }
