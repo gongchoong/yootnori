@@ -24,6 +24,7 @@
 		541B8DC82DB21D9B004B9F38 /* BoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC72DB21D9B004B9F38 /* BoardViewModel.swift */; };
 		541B8DCA2DB21DAA004B9F38 /* TileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */; };
 		541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */; };
+		541FC5192E35489200E3742E /* GameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541FC5182E35489100E3742E /* GameEngine.swift */; };
 		542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */; };
 		5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702492CF83318003F017B /* AttachmentsProvider.swift */; };
 		5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5427024C2CF83466003F017B /* MarkerLevelView.swift */; };
@@ -70,6 +71,7 @@
 		541B8DC72DB21D9B004B9F38 /* BoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardViewModel.swift; sourceTree = "<group>"; };
 		541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileViewModel.swift; sourceTree = "<group>"; };
 		541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugRollViewModel.swift; sourceTree = "<group>"; };
+		541FC5182E35489100E3742E /* GameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEngine.swift; sourceTree = "<group>"; };
 		542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerRuntimeComponent.swift; sourceTree = "<group>"; };
 		542702492CF83318003F017B /* AttachmentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsProvider.swift; sourceTree = "<group>"; };
 		5427024C2CF83466003F017B /* MarkerLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerLevelView.swift; sourceTree = "<group>"; };
@@ -128,6 +130,7 @@
 		540A18EC2C9F6CD500291CEF /* yootnori */ = {
 			isa = PBXGroup;
 			children = (
+				541FC5172E35488A00E3742E /* Managers */,
 				54B6DA2B2E1BA34100F32A93 /* Gameplay */,
 				541DF8072DB6055600BF89D2 /* Roll */,
 				546745E22DB422340032C0A6 /* Data */,
@@ -196,6 +199,14 @@
 				541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */,
 			);
 			path = Roll;
+			sourceTree = "<group>";
+		};
+		541FC5172E35488A00E3742E /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				541FC5182E35489100E3742E /* GameEngine.swift */,
+			);
+			path = Managers;
 			sourceTree = "<group>";
 		};
 		542702462CF832B4003F017B /* Components */ = {
@@ -420,6 +431,7 @@
 				54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */,
 				54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */,
 				54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */,
+				541FC5192E35489200E3742E /* GameEngine.swift in Sources */,
 				5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */,
 				548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */,
 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
