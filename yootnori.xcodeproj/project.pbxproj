@@ -25,6 +25,7 @@
 		541B8DCA2DB21DAA004B9F38 /* TileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */; };
 		541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */; };
 		541FC5192E35489200E3742E /* GameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541FC5182E35489100E3742E /* GameEngine.swift */; };
+		541FC51B2E37F62300E3742E /* MarkerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541FC51A2E37F62100E3742E /* MarkerManager.swift */; };
 		542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */; };
 		5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542702492CF83318003F017B /* AttachmentsProvider.swift */; };
 		5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5427024C2CF83466003F017B /* MarkerLevelView.swift */; };
@@ -72,6 +73,7 @@
 		541B8DC92DB21DAA004B9F38 /* TileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileViewModel.swift; sourceTree = "<group>"; };
 		541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugRollViewModel.swift; sourceTree = "<group>"; };
 		541FC5182E35489100E3742E /* GameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEngine.swift; sourceTree = "<group>"; };
+		541FC51A2E37F62100E3742E /* MarkerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerManager.swift; sourceTree = "<group>"; };
 		542702472CF832C0003F017B /* MarkerRuntimeComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerRuntimeComponent.swift; sourceTree = "<group>"; };
 		542702492CF83318003F017B /* AttachmentsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttachmentsProvider.swift; sourceTree = "<group>"; };
 		5427024C2CF83466003F017B /* MarkerLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerLevelView.swift; sourceTree = "<group>"; };
@@ -204,6 +206,7 @@
 		541FC5172E35488A00E3742E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				541FC51A2E37F62100E3742E /* MarkerManager.swift */,
 				541FC5182E35489100E3742E /* GameEngine.swift */,
 			);
 			path = Managers;
@@ -414,6 +417,7 @@
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,
 				541B8DC62DB21D8E004B9F38 /* RollView.swift in Sources */,
 				54DC1F1B2E21C8EC00D8F77C /* PlayerTurnViewModel.swift in Sources */,
+				541FC51B2E37F62300E3742E /* MarkerManager.swift in Sources */,
 				544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */,
 				54B6DA2F2E1BA52E00F32A93 /* PlayerTurnMonitor.swift in Sources */,
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,
