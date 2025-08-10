@@ -9,6 +9,7 @@ import SwiftUI
 struct GameStatusView: View {
     var players: [Player]
     @EnvironmentObject var model: AppModel
+    @EnvironmentObject var gameStateManager: GameStateManager
     var markerButtonTapped: (() -> Void)
 
     var body: some View {
@@ -16,9 +17,9 @@ struct GameStatusView: View {
             ForEach(players, id: \.self) { player in
                 PlayerStatusView(
                     player: player,
-                    rollResult: model.rollResult,
-                    isOutOfThrows: model.isOutOfThrows,
-                    isLoading: model.isLoading,
+                    rollResult: [],
+                    isOutOfThrows: false,
+                    isLoading: gameStateManager.state == .animating,
                     currentTurn: model.currentTurn,
                     markersLeftToPlace: model.markersLeftToPlace(for: player))
                 {

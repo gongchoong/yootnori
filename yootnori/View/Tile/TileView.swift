@@ -9,6 +9,7 @@ import SwiftUI
 
 struct TileView: View {
     @EnvironmentObject var model: AppModel
+    @EnvironmentObject var gameStateManager: GameStateManager
     private var viewModel: TileViewModel
     private let didTapTile: ((Tile) -> Void)
     
@@ -52,7 +53,7 @@ struct TileView: View {
                 didTapTile(viewModel.tile)
             }
         }
-        .disabled(model.isLoading)
+        .disabled(gameStateManager.state == .animating)
     }
 }
 

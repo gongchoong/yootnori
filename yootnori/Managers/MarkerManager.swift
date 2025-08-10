@@ -109,6 +109,15 @@ class MarkerManager: ObservableObject {
         detachMarker(from: .bottomRightVertex, player: player)
         rootEntity.removeChild(marker)
     }
+
+    func markerCount(for player: Player) -> Int {
+        trackedMarkers[player]?.values.reduce(into: 0) { count, marker in
+            guard let level = marker.components[MarkerComponent.self]?.level else {
+                fatalError()
+            }
+            count += level
+        } ?? 0
+    }
 }
 
 // MARK: - Animation Helpers
@@ -194,6 +203,7 @@ extension MarkerManager {
     }
 
     func detachMarker(from node: Node, player: Player) {
+        print("detaching \(player.team)'s marker from \(node.name)")
         trackedMarkers[player]?[node] = nil
     }
 
@@ -228,5 +238,10 @@ extension MarkerManager {
             }
         }
         return nil
+    }
+
+    subscript(player: Player, node: Node) -> Entity? {
+        get { trackedMarkers[player]?[node] }
+        set { trackedMarkers[player]?[node] = newValue }
     }
 }

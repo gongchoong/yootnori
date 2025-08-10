@@ -11,16 +11,18 @@ import RealityKitContent
 import SwiftUI
 import Combine
 
-protocol RollViewModel {
-    func roll()
+protocol RollViewModel: ObservableObject {
+    func roll() async
     func discardRoll(for target: TargetNode)
     func checkForLanding()
-    var resultPublisher: Published<[Yoot]>.Publisher { get }
-    var isAnimatingPublisher: Published<Bool>.Publisher { get }
-    var canPlayerThrowPublisher: Published<Bool>.Publisher { get }
-    var isOutOfThrowsPublisher: AnyPublisher<Bool, Never> { get }
-    var shouldStartCheckingForLanding: Bool { get }
+    var result: [Yoot] { get set }
     var yootThrowBoard: Entity? { get set }
+}
+
+protocol RollViewModelDelegate: AnyObject {
+    func didStartRolling()
+    func didFinishRolling()
+    func userDidReceiveBonusRoll()
 }
 
 class ThrowViewModel: RollViewModel, ObservableObject {
@@ -38,33 +40,25 @@ class ThrowViewModel: RollViewModel, ObservableObject {
 
     var yootThrowBoard: Entity?
     var yootEntities: [Entity] = []
+    var result: [Yoot] = []
+    weak var delegate: RollViewModelDelegate?
+
     private var originalTransforms: [String: Transform] = [:]
+    private var wasMoving = false
+    private var landed = false
+    private var isAnimating = false
 
-    @Published var wasMoving = false
-    @Published var landed = false
-
-    @Published var isAnimating = false
-    var isAnimatingPublisher: Published<Bool>.Publisher { $isAnimating }
-    @Published var result: [Yoot] = []
-    var resultPublisher: Published<[Yoot]>.Publisher { $result }
-    @Published var canPlayerThrow: Bool = false
-    var canPlayerThrowPublisher: Published<Bool>.Publisher { $canPlayerThrow }
-    var isOutOfThrowsPublisher: AnyPublisher<Bool, Never> {
-        $result
-            .map { $0.isEmpty }
-            .eraseToAnyPublisher()
-    }
-
-    var allEntitiesMoving: Bool {
+    private var allEntitiesMoving: Bool {
         yootEntities.allSatisfy({ $0.isMoving() })
     }
 
-    var shouldStartCheckingForLanding: Bool {
+    private var shouldStartCheckingForLanding: Bool {
         guard isAnimating, !landed, wasMoving || allEntitiesMoving else { return false }
         return true
     }
 
-    func roll() {
+    func roll() async {
+        delegate?.didStartRolling()
         do {
             landed = false
             isAnimating = true
@@ -83,7 +77,7 @@ class ThrowViewModel: RollViewModel, ObservableObject {
 
                     // Apply impulse with random lateral component
                     let impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
-                    physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
+                    await physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
                 }
             }
         } catch let error {
@@ -99,6 +93,7 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     }
 
     func checkForLanding() {
+        guard shouldStartCheckingForLanding else { return }
         var currentlyMoving = false
 
         for yoot in yootEntities {
@@ -119,9 +114,12 @@ class ThrowViewModel: RollViewModel, ObservableObject {
                 return
             }
 
-            result.append(yootResult)
-            canPlayerThrow = yootResult.canThrowAgain
-            isAnimating = false
+            Task { @MainActor in
+                if yootResult.canThrowAgain {
+                    delegate?.userDidReceiveBonusRoll()
+                }
+                delegate?.didFinishRolling()
+            }
         }
 
         wasMoving = currentlyMoving

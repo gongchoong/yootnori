@@ -9,10 +9,10 @@ import SwiftUI
 
 struct RollButton: View {
     @EnvironmentObject var model: AppModel
+    @EnvironmentObject var gameStateManager: GameStateManager
     var didTapButton: () -> Void
-    // The button is disabled while yoots are animating or if the player has no throws remaining
-    var buttonDisabled: Bool {
-        model.isAnimating || !model.canPlayerThrow
+    var buttonEnabled: Bool {
+        gameStateManager.state == .waitingForRoll || gameStateManager.state == .waitingForRollOrSelect
     }
 
     var body: some View {
@@ -30,8 +30,8 @@ struct RollButton: View {
                 )
         }
         .hoverEffect(.lift)
-        .animation(.easeInOut(duration: 0.2), value: model.isAnimating)
-        .opacity(buttonDisabled ? 0 : 1)
-        .disabled(buttonDisabled)
+        .animation(.easeInOut(duration: 0.2), value: gameStateManager.state == .animating)
+        .disabled(!buttonEnabled)
+        .opacity(buttonEnabled ? 1 : 0)
     }
 }

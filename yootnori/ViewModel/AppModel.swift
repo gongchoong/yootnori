@@ -32,20 +32,6 @@ class AppModel: ObservableObject {
     private var rollViewModel: RollViewModel
     private var playerTurnViewModel: PlayerTurnViewModel
     private var cancellables = Set<AnyCancellable>()
-    private var trackedMarkers: [Player: [Node: Entity]] = [:] {
-        didSet {
-            print("//////////////////////")
-            let _ = trackedMarkers.map { (key, value) in
-                value.map { (valueKey, valueValue) in
-                    print("\(key.team.name): \(valueKey.name): \(valueValue.name)")
-                }
-            }
-        }
-    }
-
-    var shouldStartCheckingForLanding: Bool {
-        rollViewModel.shouldStartCheckingForLanding
-    }
 
     var yootThrowBoard: Entity? {
         set {
@@ -66,24 +52,18 @@ class AppModel: ObservableObject {
     var attachmentsProvider: AttachmentsProvider {
         markerManager.attachmentsProvider
     }
-    @Published var isLoading: Bool = false
-    @Published private(set) var rollResult: [Yoot] = []
-    @Published var isAnimating: Bool = false
-    @Published var isOutOfThrows: Bool = false
-    @Published var canPlayerThrow: Bool = false
-    @Published var currentTurn: Player = .none {
-        didSet {
-            canPlayerThrow = true
-        }
-    }
+
+    @Published var currentTurn: Player = .none
 
     // Dependencies
     let markerManager: MarkerManager
     let gameEngine = GameEngine()
+    let gameStateManager: GameStateManager
 
-    init(rollViewModel: RollViewModel, playerTurnViewModel: PlayerTurnViewModel) {
+    init(rollViewModel: any RollViewModel, playerTurnViewModel: PlayerTurnViewModel, gameStateManager: GameStateManager) {
         self.rollViewModel = rollViewModel
         self.playerTurnViewModel = playerTurnViewModel
+        self.gameStateManager = gameStateManager
         self.markerManager = MarkerManager(rootEntity: rootEntity)
         self.markerManager.delegate = self
 
@@ -91,30 +71,10 @@ class AppModel: ObservableObject {
     }
 
     private func subscribe() {
-        rollViewModel.resultPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: \.rollResult, on: self)
-            .store(in: &cancellables)
-
-        rollViewModel.isAnimatingPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: \.isAnimating, on: self)
-            .store(in: &cancellables)
-        
-        rollViewModel.isOutOfThrowsPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: \.isOutOfThrows, on: self)
-            .store(in: &cancellables)
-
-        rollViewModel.canPlayerThrowPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: \.canPlayerThrow, on: self)
-            .store(in: &cancellables)
-
-        playerTurnViewModel.currentTurnPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: \.currentTurn, on: self)
-            .store(in: &cancellables)
+        gameStateManager.$currentPlayer
+                .receive(on: RunLoop.main)
+                .assign(to: \.currentTurn, on: self)
+                .store(in: &cancellables)
     }
 }
 
@@ -122,15 +82,45 @@ class AppModel: ObservableObject {
 extension AppModel {
     func startGame() {
         print("Starting a new game...")
-        playerTurnViewModel.updateTurn(.playerA)
+        gameStateManager.startGame()
     }
 
-    func roll() {
-        rollViewModel.roll()
+    func roll() async {
+        guard gameStateManager.state == .waitingForRoll ||
+                gameStateManager.state == .waitingForRollOrSelect else { return }
+        await rollViewModel.roll()
+    }
+
+    func debugRoll(result: Yoot) {
+        gameStateManager.startRolling()
+
+        gameStateManager.unsetCanThrowAgain()
+        if result.canThrowAgain {
+            gameStateManager.setCanThrowAgain()
+        }
+
+        gameStateManager.finishRolling()
+
+        rollViewModel.result.append(result)
     }
 
     func handleNewMarkerTap() {
+        switch gameStateManager.state {
+        case .waitingForSelect, .waitingForRollOrSelect:
+            gameStateManager.selectMarker()
+        case .waitingForMove:
+            if gameStateManager.playerCanThrowAgain {
+                gameStateManager.canRollOrMove()
+                break
+            }
+            if selectedMarker == .new {
+                gameStateManager.unselectMarker()
+            }
+        default:
+            break
+        }
         clearAllTargetNodes()
+
         switch selectedMarker {
         case .existing, .none:
             // If a marker was already picked up, drop that marker.
@@ -161,6 +151,10 @@ extension AppModel {
 // Entity action
 extension AppModel {
     func perform(action: Action) throws {
+        guard !rollViewModel.result.isEmpty else {
+            return
+        }
+
         switch action {
         // User tapped a marker on the board.
         case .tappedMarker(let destinationMarker):
@@ -177,7 +171,10 @@ extension AppModel {
             // Tapped the same marker again — just drop it to unselect.
             if destinationMarker == sourceMarker {
                 withLoadingState {
+                    self.selectedMarker = .none
+                    self.clearAllTargetNodes()
                     await self.markerManager.drop(destinationMarker)
+                    self.updateGameState(actionResult: .drop)
                 }
             } else {
                 guard isTappedMarkerOnTargetNode(destinationMarker) else { return }
@@ -192,6 +189,8 @@ extension AppModel {
                 }
                 try discardRoll(for: destinationNode)
 
+                gameStateManager.startAnimating()
+
                 // If same team, piggy back.
                 if currentTurn.team.rawValue == destinationMarkerComponent.team {
                     withLoadingState {
@@ -201,6 +200,7 @@ extension AppModel {
                         // Ride on top of the tapped marker.
                         try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                         self.markerManager.detachMarker(from: sourceNode, player: self.currentTurn)
+                        self.updateGameState(actionResult: .piggyback)
                     }
                 } else {
                     // If not on the same team, capture.
@@ -210,6 +210,7 @@ extension AppModel {
 
                         // Ride on top of the tapped marker.
                         await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
+                        self.updateGameState(actionResult: .capture)
                     }
                 }
             }
@@ -222,7 +223,9 @@ extension AppModel {
             guard let destinationNode = markerManager.findNode(for: destinationMarker) else {
                 throw MarkerManager.MarkerError.nodeMissing(entity: destinationMarker)
             }
+
             try discardRoll(for: destinationNode)
+            gameStateManager.startAnimating()
 
             // If on the same team, piggyback
             if currentTurn.team.rawValue == destinationMarkerComponent.team {
@@ -238,6 +241,7 @@ extension AppModel {
 
                     // Piggyback onto the existing marker.
                     try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                    self.updateGameState(actionResult: .piggyback)
                 }
             } else {
                 // If not on the same team, capture
@@ -252,6 +256,7 @@ extension AppModel {
 
                     // Piggyback onto the existing marker.
                     await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode, isNewMarker: true)
+                    self.updateGameState(actionResult: .capture)
                 }
             }
         case .none:
@@ -261,15 +266,18 @@ extension AppModel {
             // Only allow selecting markers that belong to the current player's team; ignore taps on opponent markers
             if currentTurn.team == Team(rawValue: markerComponent.team) {
                 // No marker was selected — now selecting the tapped existing marker on the board.
+                gameStateManager.selectMarker()
                 withLoadingState {
                     await self.markerManager.elevate(entity: destinationMarker)
                     self.selectedMarker = .existing(destinationMarker)
+
+                    // Show valid target tiles based on this marker's position.
+                    guard let node = self.markerManager.findNode(for: destinationMarker) else {
+                        throw MarkerActionError.nodeMissing(entity: destinationMarker)
+                    }
+                    self.updateTargetNodes(starting: node.name)
+                    self.updateGameState(actionResult: .lift)
                 }
-                // Show valid target tiles based on this marker's position.
-                guard let node = markerManager.findNode(for: destinationMarker) else {
-                    throw MarkerActionError.nodeMissing(entity: destinationMarker)
-                }
-                updateTargetNodes(starting: node.name)
             }
         }
     }
@@ -284,6 +292,7 @@ extension AppModel {
                 guard let startingPosition = self.findNode(named: .bottomRightVertex) else {
                     throw MarkerActionError.startNodeNotFound
                 }
+                self.gameStateManager.startAnimating()
                 let sourceMarker = try await self.markerManager.create(at: startingPosition, for: self.currentTurn)
                 try await self.markerManager.move(sourceMarker, to: destinationNode, using: self.gameEngine)
 
@@ -295,12 +304,15 @@ extension AppModel {
                     }
                     if player.team == self.currentTurn.team {
                         try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        self.updateGameState(actionResult: .piggyback)
                     } else {
                         await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode, isNewMarker: true)
+                        self.updateGameState(actionResult: .capture)
                     }
                 } else {
                     // If no marker is on the tile, just move.
                     self.markerManager.assign(marker: sourceMarker, to: destinationNode, player: self.currentTurn)
+                    self.updateGameState(actionResult: .move)
                 }
             }
         case .existing(let sourceMarker):
@@ -309,11 +321,14 @@ extension AppModel {
                 throw MarkerActionError.nodeMissing(entity: sourceMarker)
             }
 
+            gameStateManager.startAnimating()
+
             withLoadingState {
                 // Move the selected marker to the tapped tile.
                 let scored = try await self.markerManager.move(sourceMarker, to: destinationNode, using: self.gameEngine)
                 if scored {
                     try self.markerManager.handleScore(marker: sourceMarker, player: self.currentTurn)
+                    self.updateGameState(actionResult: .score)
                 } else {
                     // If another marker already occupies the tile, piggyback onto it;
                     // otherwise, reassign the marker to the new location.
@@ -326,11 +341,14 @@ extension AppModel {
                         if player.team == self.currentTurn.team {
                             try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
                             self.markerManager.detachMarker(from: startingNode, player: self.currentTurn)
+                            self.updateGameState(actionResult: .piggyback)
                         } else {
                             await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
+                            self.updateGameState(actionResult: .capture)
                         }
                     } else {
                         self.markerManager.reassign(sourceMarker, to: destinationNode, player: self.currentTurn)
+                        self.updateGameState(actionResult: .move)
                     }
                 }
             }
@@ -356,7 +374,6 @@ extension AppModel {
         } else {
             markerManager.reassign(capturingMarker, to: node, player: currentTurn)
         }
-        canPlayerThrow = true
         selectedMarker = .none
     }
 
@@ -371,7 +388,7 @@ extension AppModel {
 // MARK: - DebugRollViewModel
 extension AppModel {
     var yootRollSteps: [String] {
-        rollResult.map { "\($0.steps)" }
+        rollViewModel.result.map { "\($0.steps)" }
     }
 
     func discardRoll(for destinationNode: Node) throws {
@@ -380,6 +397,7 @@ extension AppModel {
         }
         rollViewModel.discardRoll(for: targetNode)
         clearAllTargetNodes()
+        selectedMarker = .none
     }
 }
 
@@ -388,7 +406,7 @@ private extension AppModel {
     func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
         let calculatedTargetNodes = gameEngine.calculateTargetNodes(
             starting: starting,
-            rollResult: rollResult
+            rollResult: rollViewModel.result
         )
         self.targetNodes = calculatedTargetNodes
     }
@@ -423,20 +441,61 @@ private extension AppModel {
 private extension AppModel {
     func withLoadingState(operation: @escaping () async throws -> Void) {
         Task { @MainActor in
-            isLoading = true
             do {
                 try await operation()
             } catch {
                 print("error occured in withLoadingState")
             }
-            isLoading = false
             if isGameOver() {
                 print("GAME OVER")
+                gameStateManager.endGame(winner: currentTurn)
                 return
             }
+        }
+    }
+}
 
-            if self.isOutOfThrows && !canPlayerThrow {
-                self.playerTurnViewModel.switchTurn()
+// MARK: - GameStateManager
+extension AppModel {
+    enum ActionResult {
+        case piggyback
+        case capture
+        case move
+        case score
+        case drop
+        case lift
+    }
+
+    func updateGameState(actionResult: ActionResult) {
+        switch actionResult {
+        case .move, .score, .piggyback:
+            if gameStateManager.playerCanThrowAgain {
+                if self.rollViewModel.result.isEmpty {
+                    gameStateManager.canRollAgain()
+                } else {
+                    gameStateManager.canRollOrMove()
+                }
+            } else {
+                if self.rollViewModel.result.isEmpty {
+                    gameStateManager.finishTurn()
+                    gameStateManager.switchTurn()
+                } else {
+                    gameStateManager.canMoveAgain()
+                }
+            }
+        case .capture:
+            if self.rollViewModel.result.isEmpty {
+                gameStateManager.canRollAgain()
+            } else {
+                gameStateManager.canRollOrMove()
+            }
+        case .lift:
+            gameStateManager.selectMarker()
+        case .drop:
+            if gameStateManager.playerCanThrowAgain {
+                gameStateManager.canRollOrMove()
+            } else {
+                gameStateManager.unselectMarker()
             }
         }
     }
@@ -445,14 +504,6 @@ private extension AppModel {
 extension AppModel {
     func checkForLanding() {
         rollViewModel.checkForLanding()
-    }
-}
-
-// MARK: - trackedMarkers
-extension AppModel {
-    subscript(player: Player) -> [Node: Entity] {
-        get { trackedMarkers[player, default: [:]] }
-        set { trackedMarkers[player] = newValue }
     }
 }
 
@@ -478,17 +529,8 @@ extension AppModel.MarkerActionError {
 }
 
 extension AppModel {
-    private func markerCount(for player: Player) -> Int {
-        trackedMarkers[player]?.values.reduce(into: 0) { count, marker in
-            guard let level = marker.components[MarkerComponent.self]?.level else {
-                fatalError()
-            }
-            return count += level
-        } ?? 0
-    }
-
     func markersLeftToPlace(for player: Player) -> Int {
-        player.score - markerCount(for: player)
+        return player.score - markerManager.markerCount(for: player)
     }
 
     // User can only tap markers that are placed on one of the target nodes.
@@ -500,7 +542,7 @@ extension AppModel {
 
 extension AppModel: MarkerManagerProtocol {
     func didTapPromotedMarkerLevel(marker: Entity) {
-        if !self.isOutOfThrows {
+        if !self.rollViewModel.result.isEmpty {
             do {
                 try self.perform(action: .tappedMarker(marker))
             } catch let error as AppModel.MarkerActionError {
