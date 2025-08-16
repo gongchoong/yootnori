@@ -15,14 +15,16 @@ protocol RollViewModel: ObservableObject {
     func roll() async
     func discardRoll(for target: TargetNode)
     func checkForLanding()
+    var delegate: RollViewModelDelegate? { get set }
     var result: [Yoot] { get set }
+    var resultPublisher: Published<[Yoot]>.Publisher { get }
     var yootThrowBoard: Entity? { get set }
 }
 
-protocol RollViewModelDelegate: AnyObject {
-    func didStartRolling()
-    func didFinishRolling()
-    func userDidReceiveBonusRoll()
+protocol RollViewModelDelegate {
+    func rollViewModelDidStartRoll()
+    func rollViewModelDidFinishRoll()
+    func rollViewModelDidDetectDouble()
 }
 
 class ThrowViewModel: RollViewModel, ObservableObject {
@@ -39,9 +41,12 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     }
 
     var yootThrowBoard: Entity?
+    var delegate: RollViewModelDelegate?
     var yootEntities: [Entity] = []
-    var result: [Yoot] = []
-    weak var delegate: RollViewModelDelegate?
+    @Published var result: [Yoot] = []
+    var resultPublisher: Published<[Yoot]>.Publisher {
+        $result
+    }
 
     private var originalTransforms: [String: Transform] = [:]
     private var wasMoving = false
@@ -58,7 +63,7 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     }
 
     func roll() async {
-        delegate?.didStartRolling()
+        delegate?.rollViewModelDidStartRoll()
         do {
             landed = false
             isAnimating = true
@@ -108,18 +113,12 @@ class ThrowViewModel: RollViewModel, ObservableObject {
             landed = true
             let upsideDownCount = yootEntities.filter { isEntityUpsideDown($0) }.count
 
-            // Use the rawValue initializer for mapping
-            guard let yootResult = Yoot(rawValue: upsideDownCount) else {
-                result.append(.doe)
-                return
+            let rollResult = Yoot(rawValue: upsideDownCount) ?? .doe
+            if rollResult.canThrowAgain {
+                delegate?.rollViewModelDidDetectDouble()
             }
-
-            Task { @MainActor in
-                if yootResult.canThrowAgain {
-                    delegate?.userDidReceiveBonusRoll()
-                }
-                delegate?.didFinishRolling()
-            }
+            result.append(rollResult)
+            delegate?.rollViewModelDidFinishRoll()
         }
 
         wasMoving = currentlyMoving

@@ -9,6 +9,12 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
+enum SelectedMarker: Equatable {
+    case new
+    case existing(Entity)
+    case none
+}
+
 @MainActor
 protocol MarkerManagerProtocol {
     func didTapPromotedMarkerLevel(marker: Entity)
@@ -28,12 +34,15 @@ class MarkerManager: ObservableObject {
 
     @Published var selectedMarker: SelectedMarker = .none
     var rootEntity: Entity = Entity()
-    let attachmentsProvider: AttachmentsProvider = AttachmentsProvider()
+    let attachmentsProvider: AttachmentsProvider
     var delegate: MarkerManagerProtocol? = nil
+
+    init() {
+        attachmentsProvider = AttachmentsProvider()
+    }
 
     private var trackedMarkers: [Player: [Node: Entity]] = [:] {
         didSet {
-            print("//////////////////////")
             let _ = trackedMarkers.map { (key, value) in
                 value.map { (valueKey, valueValue) in
                     print("\(key.team.name): \(valueKey.name): \(valueValue.name)")

@@ -10,12 +10,6 @@ import RealityKit
 import RealityKitContent
 import Combine
 
-enum SelectedMarker: Equatable {
-    case new
-    case existing(Entity)
-    case none
-}
-
 @MainActor
 class AppModel: ObservableObject {
     enum MarkerActionError: Error {
@@ -31,23 +25,27 @@ class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - GameStateManager
-    @Published private(set) var gameState: GameState = .idle
-    @Published var currentTurn: Player = .none
-    @Published var selectedMarker: SelectedMarker = .none
-    @Published var targetNodes = Set<TargetNode>()
+    var rollResult: [Yoot] {
+        rollViewModel.result
+    }
+
+    var gameState: GameState {
+        gameStateManager.state
+    }
+    var currentTurn: Player {
+        gameStateManager.currentPlayer
+    }
+
+    var selectedMarker: SelectedMarker {
+        markerManager.selectedMarker
+    }
+
+    var targetNodes: Set<TargetNode> {
+        gameEngine.targetNodes
+    }
 
     var attachmentsProvider: AttachmentsProvider {
         markerManager.attachmentsProvider
-    }
-
-    var yootThrowBoard: Entity? {
-        set {
-            rollViewModel.yootThrowBoard = newValue
-        }
-        get {
-            rollViewModel.yootThrowBoard
-        }
     }
 
     // Dependencies
@@ -61,6 +59,7 @@ class AppModel: ObservableObject {
         self.gameStateManager = gameStateManager
         self.markerManager = markerManager
         self.gameEngine = gameEngine
+        self.rollViewModel.delegate = self
         self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
 
@@ -68,20 +67,44 @@ class AppModel: ObservableObject {
     }
 
     private func subscribe() {
+        rollViewModel.resultPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+
         gameStateManager.$state
             .receive(on: RunLoop.main)
-            .assign(to: \.gameState, on: self)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
             .store(in: &cancellables)
 
         gameStateManager.$currentPlayer
-                .receive(on: RunLoop.main)
-                .assign(to: \.currentTurn, on: self)
-                .store(in: &cancellables)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
 
         markerManager.$selectedMarker
             .receive(on: RunLoop.main)
-            .assign(to: \.selectedMarker, on: self)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
             .store(in: &cancellables)
+
+        gameEngine.$targetNodes
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
+
+    func setYootThrowBoard(_ board: Entity) {
+        rollViewModel.yootThrowBoard = board
     }
 }
 
@@ -95,6 +118,7 @@ extension AppModel {
     func roll() async {
         guard gameStateManager.state == .waitingForRoll ||
                 gameStateManager.state == .waitingForRollOrSelect else { return }
+
         await rollViewModel.roll()
     }
 
@@ -126,7 +150,7 @@ extension AppModel {
         default:
             break
         }
-        clearAllTargetNodes()
+        gameEngine.clearAllTargetNodes()
 
         switch selectedMarker {
         case .existing, .none:
@@ -137,25 +161,14 @@ extension AppModel {
                 }
             }
             markerManager.setSelectedMarker(.new)
-            updateTargetNodes()
+            gameEngine.updateTargetNodes(for: rollViewModel.result)
         case .new:
             markerManager.setSelectedMarker(.none)
         }
     }
 }
 
-// MARK: Calculations
-extension AppModel {
-    func getTargetNode(nodeName: NodeName) -> TargetNode? {
-        targetNodes.filter({ $0.name == nodeName }).first
-    }
-    
-    func clearAllTargetNodes() {
-        self.targetNodes.removeAll()
-    }
-}
-
-// Entity action
+// MARK: - Entity action
 extension AppModel {
     func perform(action: Action) throws {
         guard !rollViewModel.result.isEmpty else {
@@ -179,7 +192,7 @@ extension AppModel {
             if destinationMarker == sourceMarker {
                 withLoadingState {
                     self.markerManager.setSelectedMarker(.none)
-                    self.clearAllTargetNodes()
+                    self.gameEngine.clearAllTargetNodes()
                     await self.markerManager.drop(destinationMarker)
                     self.updateGameState(actionResult: .drop)
                 }
@@ -283,7 +296,7 @@ extension AppModel {
                     guard let node = self.markerManager.findNode(for: destinationMarker) else {
                         throw MarkerActionError.nodeMissing(entity: destinationMarker)
                     }
-                    self.updateTargetNodes(starting: node.name)
+                    self.gameEngine.updateTargetNodes(starting: node.name, for: self.rollViewModel.result)
                     self.updateGameState(actionResult: .lift)
                 }
             }
@@ -386,12 +399,21 @@ extension AppModel {
         }
         markerManager.setSelectedMarker(.none)
     }
+}
 
-    private func isGameOver() -> Bool {
-        guard currentTurn.score > 0 else {
-            return true
-        }
-        return false
+extension AppModel {
+    func availableMarkerCount(for player: Player) -> Int {
+        return player.score - markerManager.markerCount(for: player)
+    }
+
+    // User can only tap markers that are placed on one of the target nodes.
+    func isTappedMarkerOnTargetNode(_ marker: Entity) -> Bool {
+        guard let node = self.markerManager.findNode(for: marker) else { return false }
+        return targetNodes.contains { $0.name == node.name }
+    }
+
+    func checkForLanding() {
+        rollViewModel.checkForLanding()
     }
 }
 
@@ -402,25 +424,17 @@ extension AppModel {
     }
 
     func discardRoll(for destinationNode: Node) throws {
-        guard let targetNode = self.getTargetNode(nodeName: destinationNode.name) else {
+        guard let targetNode = self.gameEngine.getTargetNode(nodeName: destinationNode.name) else {
             throw MarkerActionError.targetNodeMissing(node: destinationNode)
         }
         rollViewModel.discardRoll(for: targetNode)
-        clearAllTargetNodes()
+        gameEngine.clearAllTargetNodes()
         markerManager.setSelectedMarker(.none)
     }
 }
 
 // MARK: - GameEngine integrations
 private extension AppModel {
-    func updateTargetNodes(starting: NodeName = .bottomRightVertex) {
-        let calculatedTargetNodes = gameEngine.calculateTargetNodes(
-            starting: starting,
-            rollResult: rollViewModel.result
-        )
-        self.targetNodes = calculatedTargetNodes
-    }
-
     func findRoute(from start: Node, to destination: Node, startingPoint: Node, visited: Set<Node> = []) -> [Node]? {
         gameEngine.findRoute(from: start, to: destination, startingPoint: startingPoint, visited: visited)
     }
@@ -439,16 +453,6 @@ private extension AppModel {
 }
 
 private extension AppModel {
-    func addChildToRoot(entity: Entity) {
-        rootEntity.addChild(entity)
-    }
-
-    func removeChildFromRoot(entity: Entity) {
-        rootEntity.removeChild(entity)
-    }
-}
-
-private extension AppModel {
     func withLoadingState(operation: @escaping () async throws -> Void) {
         Task { @MainActor in
             do {
@@ -462,6 +466,10 @@ private extension AppModel {
                 return
             }
         }
+    }
+
+    func isGameOver() -> Bool {
+        return currentTurn.score > 0 ? false : true
     }
 }
 
@@ -511,12 +519,6 @@ extension AppModel {
     }
 }
 
-extension AppModel {
-    func checkForLanding() {
-        rollViewModel.checkForLanding()
-    }
-}
-
 extension AppModel.MarkerActionError {
     func crashApp() -> Never {
         switch self {
@@ -538,18 +540,6 @@ extension AppModel.MarkerActionError {
     }
 }
 
-extension AppModel {
-    func availableMarkerCount(for player: Player) -> Int {
-        return player.score - markerManager.markerCount(for: player)
-    }
-
-    // User can only tap markers that are placed on one of the target nodes.
-    func isTappedMarkerOnTargetNode(_ marker: Entity) -> Bool {
-        guard let node = self.markerManager.findNode(for: marker) else { return false }
-        return targetNodes.contains { $0.name == node.name }
-    }
-}
-
 extension AppModel: MarkerManagerProtocol {
     func didTapPromotedMarkerLevel(marker: Entity) {
         if !self.rollViewModel.result.isEmpty {
@@ -564,4 +554,18 @@ extension AppModel: MarkerManagerProtocol {
     }
 }
 
+@MainActor
+extension AppModel: @preconcurrency RollViewModelDelegate {
+    func rollViewModelDidStartRoll() {
+        gameStateManager.unsetCanThrowAgain()
+        gameStateManager.startRolling()
+    }
 
+    func rollViewModelDidFinishRoll() {
+        gameStateManager.finishRolling()
+    }
+
+    func rollViewModelDidDetectDouble() {
+        gameStateManager.setCanThrowAgain()
+    }
+}

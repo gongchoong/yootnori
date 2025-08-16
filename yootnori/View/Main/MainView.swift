@@ -34,10 +34,10 @@ struct MainView: View {
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
-            await createDebugView(content, attachments)
-//            await createGameStatusView(content, attachments)
-//            await createYootThrowBoard(content)
-//            await createRollButton(content, attachments)
+            // await createDebugView(content, attachments)
+            await createGameStatusView(content, attachments)
+            await createYootThrowBoard(content)
+            await createRollButton(content, attachments)
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
                 createLevelView(for: event.entity)
@@ -134,11 +134,11 @@ private extension MainView {
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
-        guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
-        model.yootThrowBoard = yootThrowBoard
-        content.add(yootThrowBoard)
-        yootThrowBoard.position = Constants.throwBoardPosition
-        yootThrowBoard.scale = Constants.throwBoardScale
+        guard let board = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
+        content.add(board)
+        board.position = Constants.throwBoardPosition
+        board.scale = Constants.throwBoardScale
+        model.setYootThrowBoard(board)
     }
 
     func createRollButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {

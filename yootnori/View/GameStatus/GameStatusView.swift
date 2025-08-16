@@ -16,7 +16,7 @@ struct GameStatusView: View {
             ForEach(players, id: \.self) { player in
                 PlayerStatusView(
                     player: player,
-                    rollResult: [],
+                    rollResult: model.rollResult,
                     isOutOfThrows: false,
                     isLoading: model.gameState == .animating,
                     currentTurn: model.currentTurn,
