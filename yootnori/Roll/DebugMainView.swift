@@ -9,7 +9,6 @@ import SwiftUI
 
 struct DebugMainView: View {
     @EnvironmentObject var model: AppModel
-    @EnvironmentObject var gameStateManager: GameStateManager
     var rollButtonTapped: ((Yoot) -> Void)
     var markerButtonTapped: (() -> Void)
 
@@ -27,7 +26,7 @@ struct DebugMainView: View {
                         .fontWeight(.bold)
                 }
             }
-            .disabled(gameStateManager.state != .waitingForRoll && gameStateManager.state != .waitingForRollOrSelect)
+            .disabled(model.gameState != .waitingForRoll && model.gameState != .waitingForRollOrSelect)
 
             Text(String(describing: model.yootRollSteps))
                 .font(.system(size: 40))
@@ -35,14 +34,14 @@ struct DebugMainView: View {
             Button {
                 markerButtonTapped()
             } label: {
-                Text("\(model.markersLeftToPlace(for: model.currentTurn))x")
+                Text("\(model.availableMarkerCount(for: model.currentTurn))x")
                     .font(.system(size: 40))
             }
             .foregroundStyle(model.selectedMarker == .new ? Color.accentColor : .white)
             .background(model.selectedMarker == .new ? Color.white : Color.accentColor)
             .clipShape(Capsule())
             .animation(.easeInOut, value: model.selectedMarker == .new)
-            .disabled(gameStateManager.state != .waitingForSelect && gameStateManager.state != .waitingForRollOrSelect && gameStateManager.state != .waitingForMove)
+            .disabled(model.gameState != .waitingForSelect && model.gameState != .waitingForRollOrSelect && model.gameState != .waitingForMove)
         }
     }
 }

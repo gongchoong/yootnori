@@ -9,10 +9,9 @@ import SwiftUI
 
 struct RollButton: View {
     @EnvironmentObject var model: AppModel
-    @EnvironmentObject var gameStateManager: GameStateManager
     var didTapButton: () -> Void
     var buttonEnabled: Bool {
-        gameStateManager.state == .waitingForRoll || gameStateManager.state == .waitingForRollOrSelect
+        model.gameState == .waitingForRoll || model.gameState == .waitingForRollOrSelect
     }
 
     var body: some View {
@@ -30,7 +29,7 @@ struct RollButton: View {
                 )
         }
         .hoverEffect(.lift)
-        .animation(.easeInOut(duration: 0.2), value: gameStateManager.state == .animating)
+        .animation(.easeInOut(duration: 0.2), value: model.gameState == .animating)
         .disabled(!buttonEnabled)
         .opacity(buttonEnabled ? 1 : 0)
     }

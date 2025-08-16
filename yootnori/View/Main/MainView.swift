@@ -24,7 +24,6 @@ struct MainView: View {
     }
 
     @EnvironmentObject var model: AppModel
-    @EnvironmentObject var gameStateManager: GameStateManager
     @Environment(\.physicalMetrics) var physicalMetrics
     @State private var sceneUpdateSubscription: EventSubscription?
 
@@ -108,7 +107,7 @@ struct MainView: View {
         .onDisappear {
             sceneUpdateSubscription?.cancel()
         }
-        .disabled(gameStateManager.state == .animating)
+        .disabled(model.gameState == .animating)
         .environmentObject(model)
     }
 }

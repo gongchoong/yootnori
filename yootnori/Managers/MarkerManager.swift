@@ -26,6 +26,11 @@ class MarkerManager: ObservableObject {
         case routeDoesNotExist(from: Node, to: Node)
     }
 
+    @Published var selectedMarker: SelectedMarker = .none
+    var rootEntity: Entity = Entity()
+    let attachmentsProvider: AttachmentsProvider = AttachmentsProvider()
+    var delegate: MarkerManagerProtocol? = nil
+
     private var trackedMarkers: [Player: [Node: Entity]] = [:] {
         didSet {
             print("//////////////////////")
@@ -35,14 +40,6 @@ class MarkerManager: ObservableObject {
                 }
             }
         }
-    }
-
-    private let rootEntity: Entity
-    let attachmentsProvider: AttachmentsProvider = AttachmentsProvider()
-    var delegate: MarkerManagerProtocol? = nil
-
-    init(rootEntity: Entity) {
-        self.rootEntity = rootEntity
     }
 
     func create(at node: Node, for player: Player) async throws -> Entity {
@@ -117,6 +114,10 @@ class MarkerManager: ObservableObject {
             }
             count += level
         } ?? 0
+    }
+
+    func setSelectedMarker(_ state: SelectedMarker) {
+        selectedMarker = state
     }
 }
 

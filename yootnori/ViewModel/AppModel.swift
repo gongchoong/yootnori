@@ -29,9 +29,17 @@ class AppModel: ObservableObject {
     }
 
     private(set) var rootEntity = Entity()
-    private var rollViewModel: RollViewModel
-    private var playerTurnViewModel: PlayerTurnViewModel
     private var cancellables = Set<AnyCancellable>()
+
+    // MARK: - GameStateManager
+    @Published private(set) var gameState: GameState = .idle
+    @Published var currentTurn: Player = .none
+    @Published var selectedMarker: SelectedMarker = .none
+    @Published var targetNodes = Set<TargetNode>()
+
+    var attachmentsProvider: AttachmentsProvider {
+        markerManager.attachmentsProvider
+    }
 
     var yootThrowBoard: Entity? {
         set {
@@ -42,39 +50,38 @@ class AppModel: ObservableObject {
         }
     }
 
-    var hasMarkersLeftToPlace: Bool {
-        markersLeftToPlace(for: currentTurn) > 0
-    }
-
-    @State var markersToGo: Int = 4
-    @Published var selectedMarker: SelectedMarker = .none
-    @Published var targetNodes = Set<TargetNode>()
-    var attachmentsProvider: AttachmentsProvider {
-        markerManager.attachmentsProvider
-    }
-
-    @Published var currentTurn: Player = .none
-
     // Dependencies
-    let markerManager: MarkerManager
-    let gameEngine = GameEngine()
-    let gameStateManager: GameStateManager
+    private let rollViewModel: any RollViewModel
+    private let gameStateManager: GameStateManager
+    private let markerManager: MarkerManager
+    private let gameEngine: GameEngine
 
-    init(rollViewModel: any RollViewModel, playerTurnViewModel: PlayerTurnViewModel, gameStateManager: GameStateManager) {
+    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine) {
         self.rollViewModel = rollViewModel
-        self.playerTurnViewModel = playerTurnViewModel
         self.gameStateManager = gameStateManager
-        self.markerManager = MarkerManager(rootEntity: rootEntity)
+        self.markerManager = markerManager
+        self.gameEngine = gameEngine
+        self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
 
         subscribe()
     }
 
     private func subscribe() {
+        gameStateManager.$state
+            .receive(on: RunLoop.main)
+            .assign(to: \.gameState, on: self)
+            .store(in: &cancellables)
+
         gameStateManager.$currentPlayer
                 .receive(on: RunLoop.main)
                 .assign(to: \.currentTurn, on: self)
                 .store(in: &cancellables)
+
+        markerManager.$selectedMarker
+            .receive(on: RunLoop.main)
+            .assign(to: \.selectedMarker, on: self)
+            .store(in: &cancellables)
     }
 }
 
@@ -129,10 +136,10 @@ extension AppModel {
                     await self.markerManager.drop(entity)
                 }
             }
-            selectedMarker = .new
+            markerManager.setSelectedMarker(.new)
             updateTargetNodes()
         case .new:
-            selectedMarker = .none
+            markerManager.setSelectedMarker(.none)
         }
     }
 }
@@ -171,7 +178,7 @@ extension AppModel {
             // Tapped the same marker again — just drop it to unselect.
             if destinationMarker == sourceMarker {
                 withLoadingState {
-                    self.selectedMarker = .none
+                    self.markerManager.setSelectedMarker(.none)
                     self.clearAllTargetNodes()
                     await self.markerManager.drop(destinationMarker)
                     self.updateGameState(actionResult: .drop)
@@ -215,7 +222,8 @@ extension AppModel {
                 }
             }
         case .new:
-            guard hasMarkersLeftToPlace else { return }
+            let markersRemaning = availableMarkerCount(for: currentTurn)
+            guard markersRemaning > 0 else { return }
             guard isTappedMarkerOnTargetNode(destinationMarker) else { return }
             guard let destinationMarkerComponent = destinationMarker.components[MarkerComponent.self] else {
                 throw MarkerManager.MarkerError.markerComponentMissing(entity: destinationMarker)
@@ -269,7 +277,7 @@ extension AppModel {
                 gameStateManager.selectMarker()
                 withLoadingState {
                     await self.markerManager.elevate(entity: destinationMarker)
-                    self.selectedMarker = .existing(destinationMarker)
+                    self.markerManager.setSelectedMarker(.existing(destinationMarker))
 
                     // Show valid target tiles based on this marker's position.
                     guard let node = self.markerManager.findNode(for: destinationMarker) else {
@@ -286,7 +294,8 @@ extension AppModel {
         guard let destinationNode = findNode(named: tile.nodeName) else { return }
         switch selectedMarker {
         case .new:
-            guard hasMarkersLeftToPlace else { return }
+            let markersRemaining = availableMarkerCount(for: currentTurn)
+            guard markersRemaining > 0 else { return }
             // Create a new marker at the START node, then move it to the selected tile.
             withLoadingState {
                 guard let startingPosition = self.findNode(named: .bottomRightVertex) else {
@@ -356,7 +365,8 @@ extension AppModel {
             break
         }
         try discardRoll(for: destinationNode)
-        selectedMarker = .none
+        markerManager.setSelectedMarker(.none)
+
     }
 
     private func handleCaptureTransition(
@@ -374,7 +384,7 @@ extension AppModel {
         } else {
             markerManager.reassign(capturingMarker, to: node, player: currentTurn)
         }
-        selectedMarker = .none
+        markerManager.setSelectedMarker(.none)
     }
 
     private func isGameOver() -> Bool {
@@ -397,7 +407,7 @@ extension AppModel {
         }
         rollViewModel.discardRoll(for: targetNode)
         clearAllTargetNodes()
-        selectedMarker = .none
+        markerManager.setSelectedMarker(.none)
     }
 }
 
@@ -529,7 +539,7 @@ extension AppModel.MarkerActionError {
 }
 
 extension AppModel {
-    func markersLeftToPlace(for player: Player) -> Int {
+    func availableMarkerCount(for player: Player) -> Int {
         return player.score - markerManager.markerCount(for: player)
     }
 
@@ -553,3 +563,5 @@ extension AppModel: MarkerManagerProtocol {
         }
     }
 }
+
+
