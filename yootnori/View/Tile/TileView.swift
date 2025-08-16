@@ -52,7 +52,7 @@ struct TileView: View {
                 didTapTile(viewModel.tile)
             }
         }
-        .disabled(model.isLoading)
+        .disabled(model.gameState == .animating)
     }
 }
 

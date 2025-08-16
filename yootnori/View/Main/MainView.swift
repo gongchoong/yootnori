@@ -34,6 +34,7 @@ struct MainView: View {
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
+            // await createDebugView(content, attachments)
             await createGameStatusView(content, attachments)
             await createYootThrowBoard(content)
             await createRollButton(content, attachments)
@@ -44,8 +45,6 @@ struct MainView: View {
 
             // Subscribe to scene update events
             sceneUpdateSubscription = content.subscribe(to: SceneEvents.Update.self) { event in
-                // Only check during landing detection
-                guard model.shouldStartCheckingForLanding else { return }
                 model.checkForLanding()
             }
         } update: { content, attachments in
@@ -69,6 +68,15 @@ struct MainView: View {
                 })
             }
 
+            Attachment(id: Constants.debugViewName) {
+                DebugMainView { result in
+                    model.debugRoll(result: result)
+                } markerButtonTapped: {
+                    model.handleNewMarkerTap()
+                }
+
+            }
+
             Attachment(id: Constants.gameStatusViewName) {
                 GameStatusView(players: [.playerA, .playerB]) {
                     model.handleNewMarkerTap()
@@ -77,7 +85,9 @@ struct MainView: View {
 
             Attachment(id: Constants.rollButtonName) {
                 RollButton {
-                    model.roll()
+                    Task { @MainActor in
+                        await model.roll()
+                    }
                 }
             }
 
@@ -97,7 +107,7 @@ struct MainView: View {
         .onDisappear {
             sceneUpdateSubscription?.cancel()
         }
-        .disabled(model.isLoading)
+        .disabled(model.gameState == .animating)
         .environmentObject(model)
     }
 }
@@ -124,11 +134,11 @@ private extension MainView {
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
-        guard let yootThrowBoard = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
-        model.yootThrowBoard = yootThrowBoard
-        content.add(yootThrowBoard)
-        yootThrowBoard.position = Constants.throwBoardPosition
-        yootThrowBoard.scale = Constants.throwBoardScale
+        guard let board = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
+        content.add(board)
+        board.position = Constants.throwBoardPosition
+        board.scale = Constants.throwBoardScale
+        model.setYootThrowBoard(board)
     }
 
     func createRollButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
@@ -155,14 +165,12 @@ private extension MainView {
     }
 
     func handleMarkerTapGesture(marker: Entity) {
-        if !model.isOutOfThrows {
-            do {
-                try model.perform(action: .tappedMarker(marker))
-            } catch let error as AppModel.MarkerActionError {
-                error.crashApp()
-            } catch {
-                fatalError("Unexpected error: \(error.localizedDescription)")
-            }
+        do {
+            try model.perform(action: .tappedMarker(marker))
+        } catch let error as AppModel.MarkerActionError {
+            error.crashApp()
+        } catch {
+            fatalError("Unexpected error: \(error.localizedDescription)")
         }
     }
 }

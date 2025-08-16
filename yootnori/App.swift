@@ -10,7 +10,23 @@ import RealityKitContent
 
 @main
 struct yootnoriApp: App {
-    @StateObject private var model = AppModel(rollViewModel: ThrowViewModel(), playerTurnViewModel: PlayerTurnViewModel())
+    @StateObject private var model: AppModel
+
+    init() {
+        let appModel = AppModel(
+            rollViewModel: ThrowViewModel(),
+            gameStateManager: GameStateManager(),
+            markerManager: MarkerManager(),
+            gameEngine: GameEngine()
+        )
+
+        _model = StateObject(wrappedValue: appModel)
+
+        RealityKitContent.MarkerComponent.registerComponent()
+        MarkerRuntimeComponent.registerComponent()
+        YootComponent.registerComponent()
+    }
+
     var body: some Scene {
         WindowGroup {
             FullSpaceView()
@@ -21,11 +37,5 @@ struct yootnoriApp: App {
             FullSpaceView()
                 .environmentObject(model)
         }
-    }
-
-    init() {
-        RealityKitContent.MarkerComponent.registerComponent()
-        MarkerRuntimeComponent.registerComponent()
-        YootComponent.registerComponent()
     }
 }

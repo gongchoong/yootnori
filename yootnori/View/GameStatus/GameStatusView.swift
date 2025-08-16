@@ -17,10 +17,10 @@ struct GameStatusView: View {
                 PlayerStatusView(
                     player: player,
                     rollResult: model.rollResult,
-                    isOutOfThrows: model.isOutOfThrows,
-                    isLoading: model.isLoading,
+                    isOutOfThrows: false,
+                    isLoading: model.gameState == .animating,
                     currentTurn: model.currentTurn,
-                    markersLeftToPlace: model.markersLeftToPlace(for: player))
+                    markersLeftToPlace: model.availableMarkerCount(for: player))
                 {
                     markerButtonTapped()
                 }

@@ -5,8 +5,10 @@
 //  Created by David Lee on 7/26/25.
 //
 import RealityKit
+import Combine
 
 class GameEngine {
+    @Published var targetNodes: Set<TargetNode> = []
     private var nodes = Set<Node>()
 
     init() {
@@ -51,17 +53,17 @@ extension GameEngine {
 extension GameEngine {
     /// Calculates all possible target nodes based on yoot roll results
     /// - Parameter starting: The starting node name (default: bottomRightVertex)
-    /// - Parameter rollResult: Array of yoot roll results
+    /// - Parameter rolls: Array of yoot roll results
     /// - Returns: Set of target nodes that can be reached
-    func calculateTargetNodes(starting: NodeName = .bottomRightVertex, rollResult: [Yoot]) -> Set<TargetNode> {
+    func calculateTargetNodes(starting: NodeName = .bottomRightVertex, for rolls: [Yoot]) -> Set<TargetNode> {
         var targetNodes = Set<TargetNode>()
 
-        for yootRoll in rollResult {
+        for roll in rolls {
             calculateReachableNodes(
                 starting: starting,
                 next: starting,
-                yootRoll: yootRoll,
-                remainingSteps: yootRoll.steps,
+                yootRoll: roll,
+                remainingSteps: roll.steps,
                 destination: &targetNodes
             )
         }
@@ -195,5 +197,20 @@ extension GameEngine {
             }
         }
         return node.next
+    }
+}
+
+// MARK: - Target Nodes
+extension GameEngine {
+    func updateTargetNodes(starting: NodeName = .bottomRightVertex, for rolls: [Yoot]) {
+        targetNodes = calculateTargetNodes(starting: starting, for: rolls)
+    }
+
+    func getTargetNode(nodeName: NodeName) -> TargetNode? {
+        targetNodes.filter({ $0.name == nodeName }).first
+    }
+
+    func clearAllTargetNodes() {
+        self.targetNodes.removeAll()
     }
 }

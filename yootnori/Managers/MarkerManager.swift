@@ -9,6 +9,12 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 
+enum SelectedMarker: Equatable {
+    case new
+    case existing(Entity)
+    case none
+}
+
 @MainActor
 protocol MarkerManagerProtocol {
     func didTapPromotedMarkerLevel(marker: Entity)
@@ -26,23 +32,23 @@ class MarkerManager: ObservableObject {
         case routeDoesNotExist(from: Node, to: Node)
     }
 
+    @Published var selectedMarker: SelectedMarker = .none
+    var rootEntity: Entity = Entity()
+    let attachmentsProvider: AttachmentsProvider
+    var delegate: MarkerManagerProtocol? = nil
+
+    init() {
+        attachmentsProvider = AttachmentsProvider()
+    }
+
     private var trackedMarkers: [Player: [Node: Entity]] = [:] {
         didSet {
-            print("//////////////////////")
             let _ = trackedMarkers.map { (key, value) in
                 value.map { (valueKey, valueValue) in
                     print("\(key.team.name): \(valueKey.name): \(valueValue.name)")
                 }
             }
         }
-    }
-
-    private let rootEntity: Entity
-    let attachmentsProvider: AttachmentsProvider = AttachmentsProvider()
-    var delegate: MarkerManagerProtocol? = nil
-
-    init(rootEntity: Entity) {
-        self.rootEntity = rootEntity
     }
 
     func create(at node: Node, for player: Player) async throws -> Entity {
@@ -108,6 +114,19 @@ class MarkerManager: ObservableObject {
         detachMarker(from: startingNode, player: player)
         detachMarker(from: .bottomRightVertex, player: player)
         rootEntity.removeChild(marker)
+    }
+
+    func markerCount(for player: Player) -> Int {
+        trackedMarkers[player]?.values.reduce(into: 0) { count, marker in
+            guard let level = marker.components[MarkerComponent.self]?.level else {
+                fatalError()
+            }
+            count += level
+        } ?? 0
+    }
+
+    func setSelectedMarker(_ state: SelectedMarker) {
+        selectedMarker = state
     }
 }
 
@@ -194,6 +213,7 @@ extension MarkerManager {
     }
 
     func detachMarker(from node: Node, player: Player) {
+        print("detaching \(player.team)'s marker from \(node.name)")
         trackedMarkers[player]?[node] = nil
     }
 
@@ -228,5 +248,10 @@ extension MarkerManager {
             }
         }
         return nil
+    }
+
+    subscript(player: Player, node: Node) -> Entity? {
+        get { trackedMarkers[player]?[node] }
+        set { trackedMarkers[player]?[node] = newValue }
     }
 }

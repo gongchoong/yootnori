@@ -13,42 +13,35 @@ struct DebugMainView: View {
     var markerButtonTapped: (() -> Void)
 
     var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(.blue)
-            VStack(spacing: 10) {
-                ForEach(Yoot.allCases, id: \.self) { roll in
-                    Button {
-                        rollButtonTapped(roll)
-                    } label: {
-                        Text("Roll \(roll.steps)")
-                            .font(.system(size: 40))
-                            .fontWeight(.bold)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
-                .disabled(model.isOutOfThrows || model.isLoading)
-
-                Text(String(describing: model.yootRollSteps))
-                    .font(.system(size: 40))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 40)
-
+        VStack(spacing: 10) {
+            Text(String(describing: model.currentTurn.team.name))
+                .font(.system(size: 40))
+                .fontWeight(.bold)
+            ForEach(Yoot.allCases, id: \.self) { roll in
                 Button {
-                    markerButtonTapped()
+                    rollButtonTapped(roll)
                 } label: {
-                    Text("\(model.markersToGo)x")
+                    Text("Roll \(roll.steps)")
                         .font(.system(size: 40))
+                        .fontWeight(.bold)
                 }
-                .foregroundStyle(model.selectedMarker == .new ? Color.accentColor : .white)
-                .background(model.selectedMarker == .new ? Color.white : Color.accentColor)
-                .clipShape(Capsule())
-                .frame(maxWidth: .infinity)
-                .frame(height: 40)
-                .animation(.easeInOut, value: model.selectedMarker == .new)
-                .disabled(model.isOutOfThrows || model.isLoading)
             }
+            .disabled(model.gameState != .waitingForRoll && model.gameState != .waitingForRollOrSelect)
+
+            Text(String(describing: model.yootRollSteps))
+                .font(.system(size: 40))
+
+            Button {
+                markerButtonTapped()
+            } label: {
+                Text("\(model.availableMarkerCount(for: model.currentTurn))x")
+                    .font(.system(size: 40))
+            }
+            .foregroundStyle(model.selectedMarker == .new ? Color.accentColor : .white)
+            .background(model.selectedMarker == .new ? Color.white : Color.accentColor)
+            .clipShape(Capsule())
+            .animation(.easeInOut, value: model.selectedMarker == .new)
+            .disabled(model.gameState != .waitingForSelect && model.gameState != .waitingForRollOrSelect && model.gameState != .waitingForMove)
         }
     }
 }
