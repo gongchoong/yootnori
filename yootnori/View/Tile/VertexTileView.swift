@@ -8,15 +8,9 @@
 import SwiftUI
 
 struct VertexTileView: View {
-    enum Constants {
-        static var verticeInnerHeightConstant: CGFloat = 0.35
-        static var verticeOuterHeightConstant: CGFloat = 0.75
-        static var verticeOuterLineWidth: CGFloat = 7
-        static var edgeInnerHeightConstant: CGFloat = 0.3
-        static var edgeOuterHeightConstant: CGFloat = 0.5
-        static var edgeOuterLineWidth: CGFloat = 10
-        static var innerTileConstant: CGFloat = 1.25
-    }
+    @Environment(\.vertexTileViewConstants) private var vertexConstants
+    @EnvironmentObject var model: AppModel
+
     private let tile: Tile
     private let tileWidth: CGFloat
     private let tileHeight: CGFloat
@@ -24,60 +18,45 @@ struct VertexTileView: View {
         switch tile.location {
         case .topLeftCorner, .topRightCorner, .bottomLeftCorner, .bottomRightCorner, .center:
             let innerCircleWidth = tile.type == .edge ?
-                tileHeight * Constants.verticeInnerHeightConstant :
-                tileHeight * Constants.verticeInnerHeightConstant * Constants.innerTileConstant
+                tileHeight * vertexConstants.verticeInnerHeightConstant :
+                tileHeight * vertexConstants.verticeInnerHeightConstant * vertexConstants.innerTileConstant
             let outerCircleHeight = tile.type == .edge ?
-                tileHeight * Constants.verticeOuterHeightConstant :
-                tileHeight * Constants.verticeOuterHeightConstant * Constants.innerTileConstant
-            Circle()
-                .fill(.black)
-                .frame(
-                    width: innerCircleWidth,
-                    height: innerCircleWidth
+                tileHeight * vertexConstants.verticeOuterHeightConstant :
+                tileHeight * vertexConstants.verticeOuterHeightConstant * vertexConstants.innerTileConstant
+            ZStack {
+                VertexTileBackgroundView(
+                    isHighlighted: model.shouldHighlight(for: tile),
+                    circleHeight: tileHeight
                 )
-            Circle()
-                .fill(.clear)
-                .stroke(.black, lineWidth: Constants.verticeOuterLineWidth)
-                .frame(
-                    width: outerCircleHeight,
-                    height: outerCircleHeight
-                )
-            ForEach(tile.paths ?? [], id: \.self) { path in
-                TilePathView(
-                    tilePath: path,
+                TileDecorationView(
+                    tile: tile,
                     tileWidth: tileWidth,
                     tileHeight: tileHeight,
                     innerCircleHeight: innerCircleWidth,
-                    outerCircleHeight: outerCircleHeight
+                    outerCircleHeight: outerCircleHeight,
+                    lineWidth: vertexConstants.verticeOuterLineWidth
                 )
             }
+
         case .edgeTop, .edgeBottom, .edgeRight, .edgeLeft, .diagonalTopLeft, .diagonalTopRight, .diagonalBottomLeft, .diagonalBottomRight:
             let innerCircleWidth = tile.type == .edge ?
-                tileHeight * Constants.edgeInnerHeightConstant :
-                tileHeight * Constants.edgeInnerHeightConstant * Constants.innerTileConstant
+                tileHeight * vertexConstants.edgeInnerHeightConstant :
+                tileHeight * vertexConstants.edgeInnerHeightConstant * vertexConstants.innerTileConstant
             let outerCircleHeight = tile.type == .edge ?
-                tileHeight * Constants.edgeOuterHeightConstant :
-                tileHeight * Constants.edgeOuterHeightConstant * Constants.innerTileConstant
-            Circle()
-                .fill(.black)
-                .frame(
-                    width: innerCircleWidth,
-                    height: innerCircleWidth
+                tileHeight * vertexConstants.edgeOuterHeightConstant :
+                tileHeight * vertexConstants.edgeOuterHeightConstant * vertexConstants.innerTileConstant
+            ZStack {
+                VertexTileBackgroundView(
+                    isHighlighted: model.shouldHighlight(for: tile),
+                    circleHeight: tileHeight
                 )
-            Circle()
-                .fill(.clear)
-                .stroke(.black, lineWidth: Constants.edgeOuterLineWidth)
-                .frame(
-                    width: outerCircleHeight,
-                    height: outerCircleHeight
-                )
-            ForEach(tile.paths ?? [], id: \.self) { path in
-                TilePathView(
-                    tilePath: path,
+                TileDecorationView(
+                    tile: tile,
                     tileWidth: tileWidth,
                     tileHeight: tileHeight,
                     innerCircleHeight: innerCircleWidth,
-                    outerCircleHeight: outerCircleHeight
+                    outerCircleHeight: outerCircleHeight,
+                    lineWidth: vertexConstants.verticeOuterLineWidth
                 )
             }
         default:
@@ -95,6 +74,39 @@ struct VertexTileView: View {
         self.tileHeight = tileHeight
     }
 }
+
+struct TileDecorationView: View {
+    let tile: Tile
+    let tileWidth: CGFloat
+    let tileHeight: CGFloat
+    let innerCircleHeight: CGFloat
+    let outerCircleHeight: CGFloat
+    let lineWidth: CGFloat
+
+    var body: some View {
+        Group {
+            Circle()
+                .fill(.black)
+                .frame(width: innerCircleHeight, height: innerCircleHeight)
+
+            Circle()
+                .fill(.clear)
+                .stroke(.black, lineWidth: lineWidth)
+                .frame(width: outerCircleHeight, height: outerCircleHeight)
+
+            ForEach(tile.paths ?? [], id: \.self) { path in
+                TilePathView(
+                    tilePath: path,
+                    tileWidth: tileWidth,
+                    tileHeight: tileHeight,
+                    innerCircleHeight: innerCircleHeight,
+                    outerCircleHeight: outerCircleHeight
+                )
+            }
+        }
+    }
+}
+
 
 #Preview {
     VertexTileView(

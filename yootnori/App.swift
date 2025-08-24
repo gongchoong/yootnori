@@ -31,6 +31,7 @@ struct yootnoriApp: App {
         WindowGroup {
             FullSpaceView()
                 .environmentObject(model)
+                .injectGameConstants()
         }.windowStyle(.volumetric)
 
         ImmersiveSpace(id: "ImmersiveSpace") {

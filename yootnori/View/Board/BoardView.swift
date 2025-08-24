@@ -24,8 +24,7 @@ struct BoardView: View {
                 ForEach(Array(boardViewModel.edgeTiles.enumerated()), id: \.offset) { rowIndex, row in
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, tile in
-                            let tileViewModel = TileViewModel(tile: tile, targetNodes: model.targetNodes)
-                            TileView(tileViewModel: tileViewModel) { tile in
+                            TileView(tile: tile) { tile in
                                 boardAction(.tappedTile(tile))
                             }
                         }
@@ -39,8 +38,7 @@ struct BoardView: View {
                 ForEach(Array(boardViewModel.innerTiles.enumerated()), id: \.offset) { rowIndex, row in
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, tile in
-                            let tileViewModel = TileViewModel(tile: tile, targetNodes: model.targetNodes)
-                            TileView(tileViewModel: tileViewModel) { tile in
+                            TileView(tile: tile) { tile in
                                 boardAction(.tappedTile(tile))
                             }
                         }
