@@ -417,6 +417,13 @@ extension AppModel {
     }
 }
 
+// MARK: - Tile
+extension AppModel {
+    func shouldHighlight(for tile: Tile) -> Bool {
+        targetNodes.contains { $0.name == tile.nodeName }
+    }
+}
+
 // MARK: - DebugRollViewModel
 extension AppModel {
     var yootRollSteps: [String] {
