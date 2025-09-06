@@ -58,7 +58,11 @@ extension GameEngine {
     func calculateTargetNodes(starting: NodeName = .bottomRightVertex, for rolls: [Yoot]) -> Set<TargetNode> {
         var targetNodes = Set<TargetNode>()
 
-        for roll in rolls {
+        // Sort the rolls in descending order
+        // For markers that can score, use the smallest roll that can score the marker.
+        let orderedRolls = rolls.sorted { $0.rawValue > $1.rawValue }
+
+        for roll in orderedRolls {
             calculateReachableNodes(
                 starting: starting,
                 next: starting,
@@ -80,8 +84,9 @@ extension GameEngine {
         destination: inout Set<TargetNode>
     ) {
         // Marker cannot move past the starting node
-        if starting != .bottomRightVertex, next == .bottomRightVertex {
-            destination.insert(TargetNode(name: next, yootRoll: yootRoll))
+        // Display a score button
+        if starting != .bottomRightVertex, next == .bottomRightVertex, remainingSteps > 0 {
+            destination.insert(TargetNode(name: .score, yootRoll: yootRoll))
             return
         }
 

@@ -48,6 +48,10 @@ class AppModel: ObservableObject {
         markerManager.attachmentsProvider
     }
 
+    var markerCanScore: Bool {
+        gameEngine.targetNodes.contains { $0.name == .score }
+    }
+
     // Dependencies
     private let rollViewModel: any RollViewModel
     private let gameStateManager: GameStateManager
@@ -347,31 +351,27 @@ extension AppModel {
 
             withLoadingState {
                 // Move the selected marker to the tapped tile.
-                let scored = try await self.markerManager.move(sourceMarker, to: destinationNode, using: self.gameEngine)
-                if scored {
-                    try self.markerManager.handleScore(marker: sourceMarker, player: self.currentTurn)
-                    self.updateGameState(actionResult: .score)
-                } else {
-                    // If another marker already occupies the tile, piggyback onto it;
-                    // otherwise, reassign the marker to the new location.
-                    if let destinationMarker = self.markerManager.findMarker(for: destinationNode) {
-                        // If a marker already exists on the selected tile, find which player
-                        // the marker belongs to.
-                        guard let player = self.markerManager.player(for: destinationMarker) else {
-                            throw MarkerActionError.playerNotFound(entity: destinationMarker)
-                        }
-                        if player.team == self.currentTurn.team {
-                            try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                            self.markerManager.detachMarker(from: startingNode, player: self.currentTurn)
-                            self.updateGameState(actionResult: .piggyback)
-                        } else {
-                            await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
-                            self.updateGameState(actionResult: .capture)
-                        }
-                    } else {
-                        self.markerManager.reassign(sourceMarker, to: destinationNode, player: self.currentTurn)
-                        self.updateGameState(actionResult: .move)
+                try await self.markerManager.move(sourceMarker, to: destinationNode, using: self.gameEngine)
+
+                // If another marker already occupies the tile, piggyback onto it;
+                // otherwise, reassign the marker to the new location.
+                if let destinationMarker = self.markerManager.findMarker(for: destinationNode) {
+                    // If a marker already exists on the selected tile, find which player
+                    // the marker belongs to.
+                    guard let player = self.markerManager.player(for: destinationMarker) else {
+                        throw MarkerActionError.playerNotFound(entity: destinationMarker)
                     }
+                    if player.team == self.currentTurn.team {
+                        try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
+                        self.markerManager.detachMarker(from: startingNode, player: self.currentTurn)
+                        self.updateGameState(actionResult: .piggyback)
+                    } else {
+                        await self.handleCaptureTransition(capturingMarker: sourceMarker, capturedMarker: destinationMarker, on: destinationNode)
+                        self.updateGameState(actionResult: .capture)
+                    }
+                } else {
+                    self.markerManager.reassign(sourceMarker, to: destinationNode, player: self.currentTurn)
+                    self.updateGameState(actionResult: .move)
                 }
             }
         case .none:
@@ -414,6 +414,15 @@ extension AppModel {
 
     func checkForLanding() {
         rollViewModel.checkForLanding()
+    }
+
+    func handleScore() {
+        do {
+            try self.markerManager.handleScore(player: self.currentTurn)
+            self.updateGameState(actionResult: .score)
+        } catch let error {
+            print(error)
+        }
     }
 }
 

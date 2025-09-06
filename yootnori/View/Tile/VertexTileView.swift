@@ -14,6 +14,7 @@ struct VertexTileView: View {
     private let tile: Tile
     private let tileWidth: CGFloat
     private let tileHeight: CGFloat
+
     var body: some View {
         switch tile.location {
         case .topLeftCorner, .topRightCorner, .bottomLeftCorner, .bottomRightCorner, .center:
@@ -76,36 +77,80 @@ struct VertexTileView: View {
 }
 
 struct TileDecorationView: View {
-    let tile: Tile
-    let tileWidth: CGFloat
-    let tileHeight: CGFloat
-    let innerCircleHeight: CGFloat
-    let outerCircleHeight: CGFloat
-    let lineWidth: CGFloat
+    @EnvironmentObject var model: AppModel
+
+    private let tile: Tile
+    private let tileWidth: CGFloat
+    private let tileHeight: CGFloat
+    private let innerCircleHeight: CGFloat
+    private let outerCircleHeight: CGFloat
+    private let lineWidth: CGFloat
+
+    init(tile: Tile, tileWidth: CGFloat, tileHeight: CGFloat, innerCircleHeight: CGFloat, outerCircleHeight: CGFloat, lineWidth: CGFloat, didTapScore: (() -> Void)? = nil) {
+        self.tile = tile
+        self.tileWidth = tileWidth
+        self.tileHeight = tileHeight
+        self.innerCircleHeight = innerCircleHeight
+        self.outerCircleHeight = outerCircleHeight
+        self.lineWidth = lineWidth
+    }
 
     var body: some View {
-        Group {
-            Circle()
-                .fill(.black)
-                .frame(width: innerCircleHeight, height: innerCircleHeight)
+        ZStack {
+            Group {
+                Circle()
+                    .fill(.black)
+                    .frame(width: innerCircleHeight, height: innerCircleHeight)
 
-            Circle()
-                .fill(.clear)
-                .stroke(.black, lineWidth: lineWidth)
-                .frame(width: outerCircleHeight, height: outerCircleHeight)
+                Circle()
+                    .fill(.clear)
+                    .stroke(.black, lineWidth: lineWidth)
+                    .frame(width: outerCircleHeight, height: outerCircleHeight)
 
-            ForEach(tile.paths ?? [], id: \.self) { path in
-                TilePathView(
-                    tilePath: path,
-                    tileWidth: tileWidth,
-                    tileHeight: tileHeight,
-                    innerCircleHeight: innerCircleHeight,
-                    outerCircleHeight: outerCircleHeight
-                )
+                ForEach(tile.paths ?? [], id: \.self) { path in
+                    TilePathView(
+                        tilePath: path,
+                        tileWidth: tileWidth,
+                        tileHeight: tileHeight,
+                        innerCircleHeight: innerCircleHeight,
+                        outerCircleHeight: outerCircleHeight
+                    )
+                }
+            }
+
+            if tile.nodeName == .bottomRightVertex {
+                ScoreButton {
+                    model.handleScore()
+                }
             }
         }
     }
 }
+
+struct ScoreButton: View {
+    @EnvironmentObject var model: AppModel
+    var action: () -> Void   // closure for button tap
+
+    var body: some View {
+        Button(action: action) {
+            ZStack {
+                Rectangle()
+                    .fill(Color.red)
+                    .aspectRatio(2.8, contentMode: .fit)
+                    .cornerRadius(6) // optional nicer look
+
+                Text("SCORE")
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .bold()
+            }
+        }
+        .buttonStyle(.plain) // prevents SwiftUI's default blue highlight
+        .opacity(model.markerCanScore ? 1 : 0)
+        .disabled(!model.markerCanScore)
+    }
+}
+
 
 
 #Preview {

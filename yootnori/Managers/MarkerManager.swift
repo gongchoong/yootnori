@@ -30,6 +30,7 @@ class MarkerManager: ObservableObject {
         case creationFailed(String)
         case movementFailed(String)
         case routeDoesNotExist(from: Node, to: Node)
+        case selectedMarkerNotFound
     }
 
     @Published var selectedMarker: SelectedMarker = .none
@@ -70,9 +71,7 @@ class MarkerManager: ObservableObject {
         }
     }
 
-    @discardableResult
-    func move(_ marker: Entity, to destinationNode: Node, using gameEngine: GameEngine) async throws -> Bool {
-        var didScore = false
+    func move(_ marker: Entity, to destinationNode: Node, using gameEngine: GameEngine) async throws {
         let currentNode = findNode(for: marker) ?? .bottomRightVertex
         guard let route = gameEngine.findRoute(from: currentNode, to: destinationNode, startingPoint: currentNode) else {
             throw MarkerError.routeDoesNotExist(from: currentNode, to: destinationNode)
@@ -81,12 +80,7 @@ class MarkerManager: ObservableObject {
 
         for routeNode in filteredRoute {
             try await stepMarker(marker, to: routeNode)
-            if routeNode.name == .bottomRightVertex {
-                didScore = true
-                break
-            }
         }
-        return didScore
     }
 
     func piggyBack(rider: Entity, carrier: Entity) async throws {
@@ -103,7 +97,11 @@ class MarkerManager: ObservableObject {
         }
     }
 
-    func handleScore(marker: Entity, player: Player) throws {
+    func handleScore(player: Player) throws {
+        guard case .existing(let marker) = selectedMarker else {
+            throw MarkerError.selectedMarkerNotFound
+        }
+
         guard let startingNode = findNode(for: marker, player: player) else {
             throw MarkerError.nodeMissing(entity: marker)
         }

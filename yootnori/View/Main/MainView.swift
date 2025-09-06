@@ -31,13 +31,18 @@ struct MainView: View {
     @State private var subscriptions = [EventSubscription]()
     @State private var yootEntities: [Entity] = []
 
+    private var debugMode = true
+
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
-            // await createDebugView(content, attachments)
-            await createGameStatusView(content, attachments)
-            await createYootThrowBoard(content)
-            await createRollButton(content, attachments)
+            if debugMode {
+                await createDebugView(content, attachments)
+            } else {
+                await createGameStatusView(content, attachments)
+                await createYootThrowBoard(content)
+                await createRollButton(content, attachments)
+            }
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
                 createLevelView(for: event.entity)
