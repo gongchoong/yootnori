@@ -50,7 +50,6 @@ enum NodeName: String, Equatable, CaseIterable {
     case rightBottomDiagonal2
     case center
     case empty
-    case score
 }
 
 extension NodeName {

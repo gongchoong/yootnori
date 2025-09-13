@@ -117,12 +117,6 @@ struct TileDecorationView: View {
                     )
                 }
             }
-
-            if tile.nodeName == .bottomRightVertex {
-                ScoreButton {
-                    model.handleScore()
-                }
-            }
         }
     }
 }
@@ -141,10 +135,11 @@ struct ScoreButton: View {
 
                 Text("SCORE")
                     .foregroundColor(.white)
-                    .font(.headline)
+                    .font(.largeTitle)
                     .bold()
             }
         }
+        .frame(width: 140, height: 60)
         .buttonStyle(.plain) // prevents SwiftUI's default blue highlight
         .opacity(model.markerCanScore ? 1 : 0)
         .disabled(!model.markerCanScore)

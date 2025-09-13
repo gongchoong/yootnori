@@ -19,7 +19,7 @@ struct FullSpaceView: View {
             MainView()
                 .environmentObject(model)
                 .blur(radius: showIntroduction ? 10 : 0)
-                .scaleEffect(showIntroduction ? 0.95 : 1.0)
+                .scaleEffect(showIntroduction ? 0.8 : 0.95)
                 .animation(.easeInOut(duration: 0.5), value: showIntroduction)
 
             // Popup overlay

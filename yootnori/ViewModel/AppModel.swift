@@ -20,6 +20,7 @@ class AppModel: ObservableObject {
         case startNodeNotFound
         case playerNotFound(entity: Entity)
         case routeDoesNotExist(from: Node, to: Node)
+        case invalidSelectedMarker(SelectedMarker)
     }
 
     private(set) var rootEntity = Entity()
@@ -49,7 +50,7 @@ class AppModel: ObservableObject {
     }
 
     var markerCanScore: Bool {
-        gameEngine.targetNodes.contains { $0.name == .score }
+        gameEngine.targetNodes.contains { $0.name == .bottomRightVertex && $0.canScore }
     }
 
     // Dependencies
@@ -186,6 +187,8 @@ extension AppModel {
         // User tapped a tile.
         case .tappedTile(let tile):
             try handleTileTap(tile)
+        case .score:
+            try handleScore()
         }
     }
 
@@ -382,6 +385,22 @@ extension AppModel {
 
     }
 
+    private func handleScore() throws {
+        switch selectedMarker {
+        case .existing(let sourceMarker):
+            gameStateManager.startAnimating()
+
+            withLoadingState {
+                try await self.markerManager.move(sourceMarker, to: .bottomRightVertex, using: self.gameEngine)
+                try self.markerManager.handleScore(player: self.currentTurn)
+                try self.discardRoll(name: .bottomRightVertex)
+                self.updateGameState(actionResult: .score)
+            }
+        default:
+            throw MarkerActionError.invalidSelectedMarker(selectedMarker)
+        }
+    }
+
     private func handleCaptureTransition(
         capturingMarker: Entity,
         capturedMarker: Entity,
@@ -415,21 +434,12 @@ extension AppModel {
     func checkForLanding() {
         rollViewModel.checkForLanding()
     }
-
-    func handleScore() {
-        do {
-            try self.markerManager.handleScore(player: self.currentTurn)
-            self.updateGameState(actionResult: .score)
-        } catch let error {
-            print(error)
-        }
-    }
 }
 
 // MARK: - Tile
 extension AppModel {
     func shouldHighlight(for tile: Tile) -> Bool {
-        targetNodes.contains { $0.name == tile.nodeName }
+        targetNodes.contains { $0.name == tile.nodeName && !$0.canScore }
     }
 }
 
@@ -442,6 +452,15 @@ extension AppModel {
     func discardRoll(for destinationNode: Node) throws {
         guard let targetNode = self.gameEngine.getTargetNode(nodeName: destinationNode.name) else {
             throw MarkerActionError.targetNodeMissing(node: destinationNode)
+        }
+        rollViewModel.discardRoll(for: targetNode)
+        gameEngine.clearAllTargetNodes()
+        markerManager.setSelectedMarker(.none)
+    }
+
+    func discardRoll(name: NodeName) throws {
+        guard let targetNode = self.gameEngine.getTargetNode(nodeName: name) else {
+            throw MarkerActionError.targetNodeMissing(node: .bottomRightVertex)
         }
         rollViewModel.discardRoll(for: targetNode)
         gameEngine.clearAllTargetNodes()
