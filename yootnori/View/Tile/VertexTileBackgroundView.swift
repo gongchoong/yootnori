@@ -9,6 +9,8 @@ import SwiftUI
 
 struct VertexTileBackgroundView: View {
     @Environment(\.vertexTileViewConstants) private var vertexConstants
+    @Environment(\.boardViewConstants) private var boardViewConstants
+
     private let isHighlighted: Bool
     private let circleHeight: CGFloat
 
@@ -20,7 +22,7 @@ struct VertexTileBackgroundView: View {
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(.blue)
+                .fill(boardViewConstants.boardColor)
             Circle()
                 .fill(.white)
                 .frame(width: circleHeight, height: circleHeight)

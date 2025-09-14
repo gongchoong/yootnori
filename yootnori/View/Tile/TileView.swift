@@ -9,6 +9,8 @@ import SwiftUI
 
 struct TileView: View {
     @EnvironmentObject var model: AppModel
+    @Environment(\.boardViewConstants) private var boardViewConstants
+
     private var tile: Tile
     private let didTapTile: ((Tile) -> Void)
     
@@ -28,7 +30,7 @@ struct TileView: View {
                 )
             case .hidden, .stage:
                 Rectangle()
-                    .fill(.blue)
+                    .fill(boardViewConstants.boardColor)
             }
         }
         .onTapGesture {

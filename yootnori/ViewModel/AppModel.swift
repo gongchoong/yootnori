@@ -571,6 +571,8 @@ extension AppModel.MarkerActionError {
             fatalError("Player not found for entity: \(entity)")
         case .routeDoesNotExist(let from, let node):
             fatalError("Route does not exist from: \(from), to: \(node)")
+        case .invalidSelectedMarker(let selectedMarker):
+            fatalError("Selected marker not found: \(selectedMarker)")
         }
     }
 }
