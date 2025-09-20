@@ -12,28 +12,41 @@ private struct VertexTileViewConstantsKey: EnvironmentKey {
     static let defaultValue = VertexTileViewConstants()
 }
 
+private struct BoardViewConstantsKey: EnvironmentKey {
+    static let defaultValue = BoardViewConstants()
+}
+
 extension EnvironmentValues {
     var vertexTileViewConstants: VertexTileViewConstants {
         get { self[VertexTileViewConstantsKey.self] }
         set { self[VertexTileViewConstantsKey.self] = newValue }
     }
+
+    var boardViewConstants: BoardViewConstants {
+        get { self[BoardViewConstantsKey.self] }
+        set { self[BoardViewConstantsKey.self] = newValue }
+    }
 }
 
 struct InjectGameConstants: ViewModifier {
     let vertex: VertexTileViewConstants
+    let board: BoardViewConstants
 
     func body(content: Content) -> some View {
         content
             .environment(\.vertexTileViewConstants, vertex)
+            .environment(\.boardViewConstants, board)
     }
 }
 
 extension View {
     func injectGameConstants(
-        vertexTileViewConstants: VertexTileViewConstants = VertexTileViewConstants()
+        vertexTileViewConstants: VertexTileViewConstants = VertexTileViewConstants(),
+        boardViewConstants: BoardViewConstants = BoardViewConstants()
     ) -> some View {
         self.modifier(InjectGameConstants(
-            vertex: vertexTileViewConstants
+            vertex: vertexTileViewConstants,
+            board: boardViewConstants
         ))
     }
 }

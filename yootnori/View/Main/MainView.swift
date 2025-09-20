@@ -16,11 +16,13 @@ struct MainView: View {
         static var debugViewName: String = "DebugView"
         static var gameStatusViewName: String = "GameStatusView"
         static var rollButtonName: String = "RollButton"
+        static var scoreButtonName: String = "ScoreButton"
         static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.1]
         static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
         static var gameStatusViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
         static var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.2]
         static var throwBoardScale: SIMD3<Float> = [0.15,0.15,0.15]
+        static var scoreButtonPosition: SIMD3<Float> = [-0.1, 0, -0.1]
     }
 
     @EnvironmentObject var model: AppModel
@@ -31,13 +33,20 @@ struct MainView: View {
     @State private var subscriptions = [EventSubscription]()
     @State private var yootEntities: [Entity] = []
 
+    private var debugMode = true
+
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
-            // await createDebugView(content, attachments)
-            await createGameStatusView(content, attachments)
-            await createYootThrowBoard(content)
-            await createRollButton(content, attachments)
+            if debugMode {
+                await createDebugView(content, attachments)
+                await createScoreButton(content, attachments)
+            } else {
+                await createGameStatusView(content, attachments)
+                await createYootThrowBoard(content)
+                await createRollButton(content, attachments)
+                await createScoreButton(content, attachments)
+            }
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
                 createLevelView(for: event.entity)
@@ -65,8 +74,7 @@ struct MainView: View {
                     } catch {
                         fatalError("Unexpected error: \(error.localizedDescription)")
                     }
-                })
-            }
+                })            }
 
             Attachment(id: Constants.debugViewName) {
                 DebugMainView { result in
@@ -87,6 +95,18 @@ struct MainView: View {
                 RollButton {
                     Task { @MainActor in
                         await model.roll()
+                    }
+                }
+            }
+
+            Attachment(id: Constants.scoreButtonName) {
+                ScoreButton {
+                    do {
+                        try model.perform(action: .score)
+                    } catch let error as AppModel.MarkerActionError {
+                        error.crashApp()
+                    } catch {
+                        fatalError("Unexpected error: \(error.localizedDescription)")
                     }
                 }
             }
@@ -145,6 +165,12 @@ private extension MainView {
         guard let rollButton = attachments.entity(for: Constants.rollButtonName) else { return }
         content.add(rollButton)
         rollButton.position = [0, -0.4, 0.4]
+    }
+
+    func createScoreButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
+        guard let scoreButton = attachments.entity(for: Constants.scoreButtonName) else { return }
+        content.add(scoreButton)
+        scoreButton.position = [0.15, -0.34, -0.1]
     }
 }
 

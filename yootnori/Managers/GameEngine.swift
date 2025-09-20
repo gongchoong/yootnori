@@ -55,13 +55,24 @@ extension GameEngine {
     /// - Parameter starting: The starting node name (default: bottomRightVertex)
     /// - Parameter rolls: Array of yoot roll results
     /// - Returns: Set of target nodes that can be reached
-    func calculateTargetNodes(starting: NodeName = .bottomRightVertex, for rolls: [Yoot]) -> Set<TargetNode> {
+    func calculateTargetNodes(starting: NodeName?, for rolls: [Yoot]) -> Set<TargetNode> {
         var targetNodes = Set<TargetNode>()
 
-        for roll in rolls {
+        // Sort the rolls in descending order
+        // For markers that can score, use the smallest roll that can score the marker.
+        let orderedRolls = rolls.sorted { $0.rawValue < $1.rawValue }
+
+        let next: NodeName = {
+            guard let starting else {
+                return .bottomRightVertex
+            }
+            return starting
+        }()
+
+        for roll in orderedRolls {
             calculateReachableNodes(
                 starting: starting,
-                next: starting,
+                next: next,
                 yootRoll: roll,
                 remainingSteps: roll.steps,
                 destination: &targetNodes
@@ -73,15 +84,23 @@ extension GameEngine {
     
     /// Recursively calculates reachable nodes for a specific yoot roll
     private func calculateReachableNodes(
-        starting: NodeName,
+        starting: NodeName?,
         next: NodeName,
         yootRoll: Yoot,
         remainingSteps: Int,
         destination: inout Set<TargetNode>
     ) {
         // Marker cannot move past the starting node
-        if starting != .bottomRightVertex, next == .bottomRightVertex {
-            destination.insert(TargetNode(name: next, yootRoll: yootRoll))
+        // Display a score button
+        if starting != nil, next == .bottomRightVertex, remainingSteps > 0 {
+            destination.insert(TargetNode(name: .bottomRightVertex, yootRoll: yootRoll, canScore: true))
+            return
+        }
+
+        // Marker is sitting on the starting node.
+        // Display a starting button
+        if starting == .bottomRightVertex, remainingSteps > 0 {
+            destination.insert(TargetNode(name: .bottomRightVertex, yootRoll: yootRoll, canScore: true))
             return
         }
 
@@ -107,7 +126,8 @@ extension GameEngine {
     }
 
     /// Applies movement rules to filter valid next nodes
-    private func applyMovementFilters(nextNodes: inout [NodeName], starting: NodeName) {
+    private func applyMovementFilters(nextNodes: inout [NodeName], starting: NodeName?) {
+        guard let starting else { return }
         // Inner nodes can only be reached if starting node is topRightVertex, topLeftVertex, or inner node
         nextNodes = nextNodes.filter { node in
             node.isInnerNode ? (starting.isInnerNode || starting == .topRightVertex || starting == .topLeftVertex) : true
@@ -202,12 +222,17 @@ extension GameEngine {
 
 // MARK: - Target Nodes
 extension GameEngine {
-    func updateTargetNodes(starting: NodeName = .bottomRightVertex, for rolls: [Yoot]) {
+    func updateTargetNodes(starting: NodeName? = nil, for rolls: [Yoot]) {
         targetNodes = calculateTargetNodes(starting: starting, for: rolls)
     }
 
+    // For markers in scoring position
+    // e.g. Marker position = .bottomNode4, rolls = .yoot, .gae
+    // Use the smallest roll (.gae) for scoring.
     func getTargetNode(nodeName: NodeName) -> TargetNode? {
-        targetNodes.filter({ $0.name == nodeName }).first
+        let filteredTargetNodes = targetNodes.filter({ $0.name == nodeName })
+        let min = filteredTargetNodes.min(by: { $0.yootRoll.rawValue > $1.yootRoll.rawValue })
+        return min
     }
 
     func clearAllTargetNodes() {

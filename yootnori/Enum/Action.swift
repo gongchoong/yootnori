@@ -11,4 +11,5 @@ import RealityKit
 enum Action {
     case tappedMarker(Entity)
     case tappedTile(Tile)
+    case score
 }
