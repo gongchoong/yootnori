@@ -18,6 +18,7 @@
 		540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A19042C9F6D8000291CEF /* FullSpaceView.swift */; };
 		540A1EC92E88666C00012CA3 /* GroupActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1EC82E88666900012CA3 /* GroupActivityManager.swift */; };
 		540A1ECC2E8868F000012CA3 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1ECB2E8868EF00012CA3 /* Message.swift */; };
+		540A1ECF2E88777600012CA3 /* SharePlayMock in Frameworks */ = {isa = PBXBuildFile; productRef = 540A1ECE2E88777600012CA3 /* SharePlayMock */; };
 		540EE1BB2C9F6EC70056F03C /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BA2C9F6EC70056F03C /* MainView.swift */; };
 		540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BC2C9F6F290056F03C /* BoardView.swift */; };
 		540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1C02C9F6F860056F03C /* AppModel.swift */; };
@@ -118,6 +119,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				540A1ECF2E88777600012CA3 /* SharePlayMock in Frameworks */,
 				540A18F02C9F6CD500291CEF /* RealityKitContent in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -393,6 +395,7 @@
 			name = yootnori;
 			packageProductDependencies = (
 				540A18EF2C9F6CD500291CEF /* RealityKitContent */,
+				540A1ECE2E88777600012CA3 /* SharePlayMock */,
 			);
 			productName = yootnori;
 			productReference = 540A18EA2C9F6CD500291CEF /* yootnori.app */;
@@ -422,6 +425,9 @@
 				Base,
 			);
 			mainGroup = 540A18E12C9F6CD500291CEF;
+			packageReferences = (
+				540A1ECD2E88777600012CA3 /* XCRemoteSwiftPackageReference "SharePlayMock" */,
+			);
 			productRefGroup = 540A18EB2C9F6CD500291CEF /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -698,10 +704,26 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		540A1ECD2E88777600012CA3 /* XCRemoteSwiftPackageReference "SharePlayMock" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Pixeland-Tech/SharePlayMock";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		540A18EF2C9F6CD500291CEF /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;
+		};
+		540A1ECE2E88777600012CA3 /* SharePlayMock */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 540A1ECD2E88777600012CA3 /* XCRemoteSwiftPackageReference "SharePlayMock" */;
+			productName = SharePlayMock;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
