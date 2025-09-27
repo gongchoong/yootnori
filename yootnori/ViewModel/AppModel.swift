@@ -59,14 +59,14 @@ class AppModel: ObservableObject {
     private let gameStateManager: GameStateManager
     private let markerManager: MarkerManager
     private let gameEngine: GameEngine
-    private let groupActivityManager: GroupActivityManager
+    private let sharePlayManager: SharePlayManagerProtocol
 
-    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, groupActivityManager: GroupActivityManager) {
+    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, sharePlayManager: SharePlayManagerProtocol) {
         self.rollViewModel = rollViewModel
         self.gameStateManager = gameStateManager
         self.markerManager = markerManager
         self.gameEngine = gameEngine
-        self.groupActivityManager = groupActivityManager
+        self.sharePlayManager = sharePlayManager
         self.rollViewModel.delegate = self
         self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
@@ -613,10 +613,10 @@ extension AppModel: @preconcurrency RollViewModelDelegate {
 // MARK: - Group Activity
 extension AppModel {
     func startSharePlay() {
-        groupActivityManager.startSharePlay()
+        self.sharePlayManager.startSharePlay()
     }
 
     func configureGroupSessions() {
-        self.groupActivityManager.configureGroupSessions()
+        self.sharePlayManager.configureGroupSessions()
     }
 }

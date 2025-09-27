@@ -1,23 +1,25 @@
 //
-//  GroupActivityManager.swift
+//  SharePlayMockManager.swift
 //  yootnori
 //
 //  Created by David Lee on 9/27/25.
 //
 
+#if MOCK
 import Foundation
 import Combine
 import GroupActivities
+import SharePlayMock
 
-class GroupActivityManager {
+class SharePlayMockManager: SharePlayManagerProtocol {
 
-    @Published var sharePlaySession: GroupSession<AppGroupActivity>?
-    var sharePlayMessenger: GroupSessionMessenger?
+    @Published var sharePlaySession: GroupSessionMock<AppGroupActivityMock>?
+    var sharePlayMessenger: GroupSessionMessengerMock?
     var tasks = Set<Task<Void, Never>>()
 
     func startSharePlay() {
         Task {
-            let activity = AppGroupActivity()
+            let activity = AppGroupActivityMock()
             switch await activity.prepareForActivation() {
             case .activationPreferred:
                 do {
@@ -36,10 +38,11 @@ class GroupActivityManager {
     }
 
     func configureGroupSessions() {
+        print("Start SharePlay mock")
         Task {
-            for await session in AppGroupActivity.sessions() {
+            for await session in AppGroupActivityMock.sessions() {
                 self.sharePlaySession = session
-                let messenger = GroupSessionMessenger(session: session)
+                let messenger = GroupSessionMessengerMock(session: session)
                 self.sharePlayMessenger = messenger
 
                 self.tasks.insert(
@@ -78,3 +81,4 @@ class GroupActivityManager {
         }
     }
 }
+#endif
