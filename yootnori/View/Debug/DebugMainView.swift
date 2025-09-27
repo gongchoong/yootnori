@@ -42,6 +42,15 @@ struct DebugMainView: View {
             .clipShape(Capsule())
             .animation(.easeInOut, value: model.selectedMarker == .new)
             .disabled(model.gameState != .waitingForSelect && model.gameState != .waitingForRollOrSelect && model.gameState != .waitingForMove)
+
+            Button {
+                model.startSharePlay()
+            } label: {
+                Image(systemName: "shareplay")
+                    .imageScale(.large)
+                    .foregroundStyle(Color.accentColor)
+            }
+            .buttonStyle(.plain)
         }
     }
 }

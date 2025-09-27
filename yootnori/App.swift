@@ -17,7 +17,8 @@ struct yootnoriApp: App {
             rollViewModel: ThrowViewModel(),
             gameStateManager: GameStateManager(),
             markerManager: MarkerManager(),
-            gameEngine: GameEngine()
+            gameEngine: GameEngine(),
+            groupActivityManager: GroupActivityManager()
         )
 
         _model = StateObject(wrappedValue: appModel)

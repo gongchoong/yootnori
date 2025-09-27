@@ -9,6 +9,7 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 import Combine
+import GroupActivities
 
 @MainActor
 class AppModel: ObservableObject {
@@ -58,12 +59,14 @@ class AppModel: ObservableObject {
     private let gameStateManager: GameStateManager
     private let markerManager: MarkerManager
     private let gameEngine: GameEngine
+    private let groupActivityManager: GroupActivityManager
 
-    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine) {
+    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, groupActivityManager: GroupActivityManager) {
         self.rollViewModel = rollViewModel
         self.gameStateManager = gameStateManager
         self.markerManager = markerManager
         self.gameEngine = gameEngine
+        self.groupActivityManager = groupActivityManager
         self.rollViewModel.delegate = self
         self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
@@ -604,5 +607,16 @@ extension AppModel: @preconcurrency RollViewModelDelegate {
 
     func rollViewModelDidDetectDouble() {
         gameStateManager.setCanThrowAgain()
+    }
+}
+
+// MARK: - Group Activity
+extension AppModel {
+    func startSharePlay() {
+        groupActivityManager.startSharePlay()
+    }
+
+    func configureGroupSessions() {
+        self.groupActivityManager.configureGroupSessions()
     }
 }
