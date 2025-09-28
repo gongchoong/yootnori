@@ -1,5 +1,5 @@
 //
-//  SharePlayMockManager.swift
+//  SharePlayManagerMock.swift
 //  yootnori
 //
 //  Created by David Lee on 9/27/25.
@@ -11,11 +11,15 @@ import Combine
 import GroupActivities
 import SharePlayMock
 
-class SharePlayMockManager: SharePlayManagerProtocol {
+class SharePlayManagerMock: SharePlayManagerProtocol {
 
     @Published var sharePlaySession: GroupSessionMock<AppGroupActivityMock>?
     var sharePlayMessenger: GroupSessionMessengerMock?
     var tasks = Set<Task<Void, Never>>()
+
+    init() {
+        // SharePlayMockManager.enable(webSocketUrl: "ws://[ip_address]:8080/endpoint")
+    }
 
     func startSharePlay() {
         Task {
@@ -33,6 +37,16 @@ class SharePlayMockManager: SharePlayManagerProtocol {
                 print("SharePlay group activity activation cancelled")
             @unknown default:
                 print("SharePlay group activity activation unknown case")
+            }
+        }
+    }
+
+    func sendMessage(_ message: GroupMessage) {
+        Task {
+            do {
+                try await sharePlayMessenger?.send(message)
+            } catch {
+                print("sendEnlargeMessage failed \(error)")
             }
         }
     }

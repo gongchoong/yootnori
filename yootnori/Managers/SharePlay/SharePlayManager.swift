@@ -12,6 +12,7 @@ import GroupActivities
 protocol SharePlayManagerProtocol {
     func startSharePlay()
     func configureGroupSessions()
+    func sendMessage(_ message: GroupMessage)
 }
 
 class SharePlayManager: SharePlayManagerProtocol {
@@ -38,6 +39,10 @@ class SharePlayManager: SharePlayManagerProtocol {
                 print("SharePlay group activity activation unknown case")
             }
         }
+    }
+
+    func sendMessage(_ message: GroupMessage) {
+
     }
 
     func configureGroupSessions() {

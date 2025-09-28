@@ -15,7 +15,7 @@ struct yootnoriApp: App {
     init() {
         #if MOCK
         print("BUILD SETTING: MOCK")
-        let sharePlayManager = SharePlayMockManager()
+        let sharePlayManager = SharePlayManagerMock()
         #else
         let sharePlayManager = SharePlayManager()
         #endif

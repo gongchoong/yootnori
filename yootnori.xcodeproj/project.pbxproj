@@ -19,7 +19,7 @@
 		540A1EC92E88666C00012CA3 /* SharePlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1EC82E88666900012CA3 /* SharePlayManager.swift */; };
 		540A1ECC2E8868F000012CA3 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1ECB2E8868EF00012CA3 /* Message.swift */; };
 		540A1ECF2E88777600012CA3 /* SharePlayMock in Frameworks */ = {isa = PBXBuildFile; productRef = 540A1ECE2E88777600012CA3 /* SharePlayMock */; };
-		540A1ED52E88866400012CA3 /* SharePlayMockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1ED42E88864B00012CA3 /* SharePlayMockManager.swift */; };
+		540A1ED52E88866400012CA3 /* SharePlayManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1ED42E88864B00012CA3 /* SharePlayManagerMock.swift */; };
 		540EE1BB2C9F6EC70056F03C /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BA2C9F6EC70056F03C /* MainView.swift */; };
 		540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BC2C9F6F290056F03C /* BoardView.swift */; };
 		540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1C02C9F6F860056F03C /* AppModel.swift */; };
@@ -74,7 +74,7 @@
 		540A19042C9F6D8000291CEF /* FullSpaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FullSpaceView.swift; sourceTree = "<group>"; };
 		540A1EC82E88666900012CA3 /* SharePlayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayManager.swift; sourceTree = "<group>"; };
 		540A1ECB2E8868EF00012CA3 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
-		540A1ED42E88864B00012CA3 /* SharePlayMockManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayMockManager.swift; sourceTree = "<group>"; };
+		540A1ED42E88864B00012CA3 /* SharePlayManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayManagerMock.swift; sourceTree = "<group>"; };
 		540EE1BA2C9F6EC70056F03C /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		540EE1BC2C9F6F290056F03C /* BoardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardView.swift; sourceTree = "<group>"; };
 		540EE1C02C9F6F860056F03C /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
@@ -202,7 +202,7 @@
 		540A1ED62E888B7700012CA3 /* SharePlay */ = {
 			isa = PBXGroup;
 			children = (
-				540A1ED42E88864B00012CA3 /* SharePlayMockManager.swift */,
+				540A1ED42E88864B00012CA3 /* SharePlayManagerMock.swift */,
 				540A1EC82E88666900012CA3 /* SharePlayManager.swift */,
 			);
 			path = SharePlay;
@@ -485,7 +485,7 @@
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,
 				549AC3922E5B8FEF00150D28 /* Environment+Constants.swift in Sources */,
 				540EE1C32C9F74570056F03C /* TileView.swift in Sources */,
-				540A1ED52E88866400012CA3 /* SharePlayMockManager.swift in Sources */,
+				540A1ED52E88866400012CA3 /* SharePlayManagerMock.swift in Sources */,
 				544044492CE16F9B0023360C /* Action.swift in Sources */,
 				542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */,
 				540A18F42C9F6CD500291CEF /* ContentView.swift in Sources */,
@@ -663,7 +663,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.6;
+				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Debug;
 		};
@@ -691,7 +691,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.6;
+				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Release;
 		};
@@ -783,7 +783,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 2.6;
+				XROS_DEPLOYMENT_TARGET = 2.5;
 			};
 			name = Mock;
 		};

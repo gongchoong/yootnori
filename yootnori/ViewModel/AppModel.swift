@@ -34,6 +34,7 @@ class AppModel: ObservableObject {
     var gameState: GameState {
         gameStateManager.state
     }
+
     var currentTurn: Player {
         gameStateManager.currentPlayer
     }
@@ -109,6 +110,7 @@ class AppModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
     }
 
     func setYootThrowBoard(_ board: Entity) {
@@ -618,5 +620,10 @@ extension AppModel {
 
     func configureGroupSessions() {
         self.sharePlayManager.configureGroupSessions()
+    }
+
+    func sendMessage() {
+        let message = GroupMessage(id: .init(), message: "Test message \(Date.now)")
+        self.sharePlayManager.sendMessage(message)
     }
 }
