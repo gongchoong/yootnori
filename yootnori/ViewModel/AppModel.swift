@@ -9,6 +9,7 @@ import SwiftUI
 import RealityKit
 import RealityKitContent
 import Combine
+import GroupActivities
 
 @MainActor
 class AppModel: ObservableObject {
@@ -33,6 +34,7 @@ class AppModel: ObservableObject {
     var gameState: GameState {
         gameStateManager.state
     }
+
     var currentTurn: Player {
         gameStateManager.currentPlayer
     }
@@ -58,12 +60,14 @@ class AppModel: ObservableObject {
     private let gameStateManager: GameStateManager
     private let markerManager: MarkerManager
     private let gameEngine: GameEngine
+    private let sharePlayManager: SharePlayManagerProtocol
 
-    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine) {
+    init(rollViewModel: any RollViewModel, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, sharePlayManager: SharePlayManagerProtocol) {
         self.rollViewModel = rollViewModel
         self.gameStateManager = gameStateManager
         self.markerManager = markerManager
         self.gameEngine = gameEngine
+        self.sharePlayManager = sharePlayManager
         self.rollViewModel.delegate = self
         self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
@@ -106,6 +110,7 @@ class AppModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+
     }
 
     func setYootThrowBoard(_ board: Entity) {
@@ -604,5 +609,21 @@ extension AppModel: @preconcurrency RollViewModelDelegate {
 
     func rollViewModelDidDetectDouble() {
         gameStateManager.setCanThrowAgain()
+    }
+}
+
+// MARK: - Group Activity
+extension AppModel {
+    func startSharePlay() {
+        self.sharePlayManager.startSharePlay()
+    }
+
+    func configureGroupSessions() {
+        self.sharePlayManager.configureGroupSessions()
+    }
+
+    func sendMessage() {
+        let message = GroupMessage(id: .init(), message: "Test message \(Date.now)")
+        self.sharePlayManager.sendMessage(message)
     }
 }

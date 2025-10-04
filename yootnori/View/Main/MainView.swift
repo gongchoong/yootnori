@@ -128,6 +128,9 @@ struct MainView: View {
             sceneUpdateSubscription?.cancel()
         }
         .disabled(model.gameState == .animating)
+        .task {
+            model.configureGroupSessions()
+        }
         .environmentObject(model)
     }
 }

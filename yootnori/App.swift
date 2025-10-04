@@ -13,11 +13,18 @@ struct yootnoriApp: App {
     @StateObject private var model: AppModel
 
     init() {
+        #if MOCK
+        print("BUILD SETTING: MOCK")
+        let sharePlayManager = SharePlayManagerMock()
+        #else
+        let sharePlayManager = SharePlayManager()
+        #endif
         let appModel = AppModel(
             rollViewModel: ThrowViewModel(),
             gameStateManager: GameStateManager(),
             markerManager: MarkerManager(),
-            gameEngine: GameEngine()
+            gameEngine: GameEngine(),
+            sharePlayManager: sharePlayManager
         )
 
         _model = StateObject(wrappedValue: appModel)
