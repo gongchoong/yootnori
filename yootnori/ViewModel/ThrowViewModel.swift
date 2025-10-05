@@ -81,7 +81,14 @@ class ThrowViewModel: RollViewModel, ObservableObject {
                     let randomZ = Float.random(in: -Constants.zOffset...Constants.zOffset)
 
                     // Apply impulse with random lateral component
-                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
+                    var impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
+
+                    // 💥 Clamp total impulse magnitude to prevent too strong throws
+                    let maxImpulseMagnitude: Float = 0.00055  // adjust this if needed
+                    let magnitude = simd_length(impulse)
+                    if magnitude > maxImpulseMagnitude {
+                        impulse = simd_normalize(impulse) * maxImpulseMagnitude
+                    }
                     await physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
                 }
             }
