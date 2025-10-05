@@ -10,7 +10,7 @@
 
 def Xform "Root"
 {
-    reorder nameChildren = ["yoot_1", "yoot_2", "yoot_3", "yoot_4", "floor"]
+    reorder nameChildren = ["yoot_1", "yoot_2", "yoot_3", "yoot_4", "floor", "wall_left", "wall_right", "wall_front", "wall_back", "ceiling"]
     def "yoot_1" (
         active = true
         customData = {
@@ -20,8 +20,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (0.45, 0.5, 0)
+        float3 xformOp:scale = (0.2, 0.2, 0.2)
+        float3 xformOp:translate = (0.75, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -91,8 +91,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (0.15, 0.5, 0)
+        float3 xformOp:scale = (0.2, 0.2, 0.2)
+        float3 xformOp:translate = (0.25, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -162,8 +162,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.50000006, 0.49999997, 0.5)
-        float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (-0.15, 0.5, 0)
+        float3 xformOp:scale = (0.2, 0.2, 0.2)
+        float3 xformOp:translate = (-0.25, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -233,8 +233,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.1, 0.1, 0.1)
-        float3 xformOp:translate = (-0.45, 0.5, 0)
+        float3 xformOp:scale = (0.2, 0.2, 0.2)
+        float3 xformOp:translate = (-0.75, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -303,7 +303,7 @@ def Xform "Root"
         rel material:binding = </Root/floor/DefaultMaterial>
         double size = 10
         quatf xformOp:orient = (1, 0, 0, 0)
-        float3 xformOp:scale = (1, 0.08, 1)
+        float3 xformOp:scale = (1, 0.1, 1)
         float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
@@ -312,6 +312,366 @@ def Xform "Root"
             token outputs:mtlx:surface
             token outputs:realitykit:vertex
             token outputs:surface.connect = </Root/floor/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                float inputs:clearcoatRoughness = 0
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:opacity = 0.6
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (10, 10, 10)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            float angularDamping = 0.05
+            bool gravityEnabled = 0
+            uniform token info:id = "RealityKit.RigidBody"
+            token motionType = "Static"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 1
+                double staticFriction = 1
+            }
+        }
+    }
+
+    def Cube "wall_left" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+        customData = {
+            float3 rotationEulerHint = (0, 0, 1.5707964)
+        }
+    )
+    {
+        rel material:binding = </Root/floor/DefaultMaterial> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        double size = 10
+        quatf xformOp:orient = (0.70710677, 0, 0, 0.70710677)
+        float3 xformOp:scale = (0.8, 0.1, 1)
+        float3 xformOp:translate = (-5.5, 3.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:mtlx:surface
+            token outputs:realitykit:vertex
+            token outputs:surface.connect = </Root/wall_left/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (10, 10, 10)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            bool gravityEnabled = 0
+            uniform token info:id = "RealityKit.RigidBody"
+            token motionType = "Static"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 1
+                double staticFriction = 1
+            }
+        }
+    }
+
+    def Cube "wall_right" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+        customData = {
+            float3 rotationEulerHint = (0, 0, 1.5707964)
+        }
+    )
+    {
+        rel material:binding = </Root/floor/DefaultMaterial> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        double size = 10
+        float2 ui:nodegraph:node:pos = (20, 20)
+        int ui:nodegraph:node:stackingOrder = 1
+        quatf xformOp:orient = (0.70710677, 0, 0, 0.70710677)
+        float3 xformOp:scale = (0.8, 0.1, 0.9999999)
+        float3 xformOp:translate = (5.5, 3.5, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:surface.connect = </Root/wall_right/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (10, 10, 10)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            bool gravityEnabled = 0
+            uniform token info:id = "RealityKit.RigidBody"
+            token motionType = "Static"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 1
+                double staticFriction = 1
+            }
+        }
+    }
+
+    def Cube "wall_front" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+        customData = {
+            float3 rotationEulerHint = (1.5707964, 0, 1.5707964)
+        }
+    )
+    {
+        rel material:binding = </Root/floor/DefaultMaterial> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        double size = 10
+        float2 ui:nodegraph:node:pos = (40, 40)
+        int ui:nodegraph:node:stackingOrder = 2
+        quatf xformOp:orient = (0.5, 0.5, 0.5, 0.5)
+        float3 xformOp:scale = (0.8, 0.1, 1.2)
+        float3 xformOp:translate = (0, 3.5, 5.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:surface.connect = </Root/wall_front/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (10, 10, 10)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            bool gravityEnabled = 0
+            uniform token info:id = "RealityKit.RigidBody"
+            token motionType = "Static"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 1
+                double staticFriction = 1
+            }
+        }
+    }
+
+    def Cube "wall_back" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+        customData = {
+            float3 rotationEulerHint = (1.5707964, 0, 1.5707964)
+        }
+    )
+    {
+        rel material:binding = </Root/floor/DefaultMaterial> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
+        double size = 10
+        float2 ui:nodegraph:node:pos = (60, 60)
+        int ui:nodegraph:node:stackingOrder = 3
+        quatf xformOp:orient = (0.5, 0.49999994, 0.5, 0.5)
+        float3 xformOp:scale = (0.8, 0.1, 1.2)
+        float3 xformOp:translate = (0, 3.5, -5.5)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:surface.connect = </Root/wall_back/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
+
+            def Shader "DefaultSurfaceShader"
+            {
+                uniform token info:id = "UsdPreviewSurface"
+                color3f inputs:diffuseColor = (1, 1, 1)
+                float inputs:roughness = 0.75
+                token outputs:surface
+            }
+        }
+
+        def RealityKitComponent "Collider"
+        {
+            uint group = 1
+            uniform token info:id = "RealityKit.Collider"
+            uint mask = 4294967295
+            token type = "Default"
+
+            def RealityKitStruct "Shape"
+            {
+                float3 extent = (10, 10, 10)
+                token shapeType = "Box"
+
+                def RealityKitStruct "pose"
+                {
+                }
+            }
+        }
+
+        def RealityKitComponent "RigidBody"
+        {
+            bool gravityEnabled = 0
+            uniform token info:id = "RealityKit.RigidBody"
+            token motionType = "Static"
+
+            def RealityKitStruct "massFrame"
+            {
+                def RealityKitStruct "m_pose"
+                {
+                }
+            }
+
+            def RealityKitStruct "material"
+            {
+                double dynamicFriction = 1
+                double restitution = 1
+                double staticFriction = 1
+            }
+        }
+    }
+
+    def Cube "ceiling" (
+        active = true
+        prepend apiSchemas = ["MaterialBindingAPI"]
+    )
+    {
+        rel material:binding = </Root/ceiling/DefaultMaterial>
+        double size = 10
+        float2 ui:nodegraph:node:pos = (20, 20)
+        int ui:nodegraph:node:stackingOrder = 1
+        quatf xformOp:orient = (1, 0, 0, 0)
+        float3 xformOp:scale = (1, 0.1, 1)
+        float3 xformOp:translate = (0, 7, 0)
+        uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
+
+        def Material "DefaultMaterial"
+        {
+            token outputs:mtlx:surface
+            token outputs:realitykit:vertex
+            token outputs:surface.connect = </Root/ceiling/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
 
             def Shader "DefaultSurfaceShader"
             {
