@@ -10,7 +10,7 @@
 
 def Xform "Root"
 {
-    reorder nameChildren = ["yoot_1", "yoot_2", "yoot_3", "yoot_4", "floor", "wall_left", "wall_right", "wall_front", "wall_back", "ceiling"]
+    reorder nameChildren = ["yoot_1", "yoot_2", "yoot_3", "yoot_4", "floor", "wall_left", "wall_right", "wall_front", "wall_back", "ceiling", "Material_wall"]
     def "yoot_1" (
         active = true
         customData = {
@@ -20,8 +20,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.2, 0.2, 0.2)
-        float3 xformOp:translate = (0.75, 1, 0)
+        float3 xformOp:scale = (0.3, 0.3, 0.3)
+        float3 xformOp:translate = (1.2, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -80,6 +80,21 @@ def Xform "Root"
         {
             uniform token info:id = "RealityKit.MotionState"
         }
+
+        over "_materials"
+        {
+            over "Material_004"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+            }
+
+            over "Material_001"
+            {
+                token outputs:mtlx:surface
+                token outputs:realitykit:vertex
+            }
+        }
     }
 
     def "yoot_2" (
@@ -91,8 +106,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.2, 0.2, 0.2)
-        float3 xformOp:translate = (0.25, 1, 0)
+        float3 xformOp:scale = (0.3, 0.3, 0.3)
+        float3 xformOp:translate = (0.4, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -162,8 +177,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.50000006, 0.49999997, 0.5)
-        float3 xformOp:scale = (0.2, 0.2, 0.2)
-        float3 xformOp:translate = (-0.25, 1, 0)
+        float3 xformOp:scale = (0.3, 0.3, 0.3)
+        float3 xformOp:translate = (-0.4, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -233,8 +248,8 @@ def Xform "Root"
     )
     {
         quatf xformOp:orient = (0.5, -0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.2, 0.2, 0.2)
-        float3 xformOp:translate = (-0.75, 1, 0)
+        float3 xformOp:scale = (0.3, 0.3, 0.3)
+        float3 xformOp:translate = (-1.2, 1, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
         def RealityKitCustomComponent "RealityKitContent_YootComponent"
@@ -303,7 +318,7 @@ def Xform "Root"
         rel material:binding = </Root/floor/DefaultMaterial>
         double size = 10
         quatf xformOp:orient = (1, 0, 0, 0)
-        float3 xformOp:scale = (1, 0.1, 1)
+        float3 xformOp:scale = (1.2, 0.1, 1.2)
         float3 xformOp:translate = (0, 0, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
 
@@ -373,29 +388,14 @@ def Xform "Root"
         }
     )
     {
-        rel material:binding = </Root/floor/DefaultMaterial> (
+        rel material:binding = </Root/Material_wall> (
             bindMaterialAs = "weakerThanDescendants"
         )
         double size = 10
         quatf xformOp:orient = (0.70710677, 0, 0, 0.70710677)
-        float3 xformOp:scale = (0.8, 0.1, 1)
-        float3 xformOp:translate = (-5.5, 3.5, 0)
+        float3 xformOp:scale = (1, 0.1, 1.2)
+        float3 xformOp:translate = (-5.5, 4.5, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-        def Material "DefaultMaterial"
-        {
-            token outputs:mtlx:surface
-            token outputs:realitykit:vertex
-            token outputs:surface.connect = </Root/wall_left/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
-
-            def Shader "DefaultSurfaceShader"
-            {
-                uniform token info:id = "UsdPreviewSurface"
-                color3f inputs:diffuseColor = (1, 1, 1)
-                float inputs:roughness = 0.75
-                token outputs:surface
-            }
-        }
 
         def RealityKitComponent "Collider"
         {
@@ -417,12 +417,17 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 0
             bool gravityEnabled = 0
             uniform token info:id = "RealityKit.RigidBody"
+            bool isCCDEnabled = 1
+            float linearDamping = 0
             token motionType = "Static"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -430,9 +435,9 @@ def Xform "Root"
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0
                 double restitution = 1
-                double staticFriction = 1
+                double staticFriction = 0
             }
         }
     }
@@ -445,29 +450,16 @@ def Xform "Root"
         }
     )
     {
-        rel material:binding = </Root/floor/DefaultMaterial> (
+        rel material:binding = </Root/Material_wall> (
             bindMaterialAs = "weakerThanDescendants"
         )
         double size = 10
         float2 ui:nodegraph:node:pos = (20, 20)
         int ui:nodegraph:node:stackingOrder = 1
         quatf xformOp:orient = (0.70710677, 0, 0, 0.70710677)
-        float3 xformOp:scale = (0.8, 0.1, 0.9999999)
-        float3 xformOp:translate = (5.5, 3.5, 0)
+        float3 xformOp:scale = (1, 0.1, 1.2)
+        float3 xformOp:translate = (5.5, 4.5, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-        def Material "DefaultMaterial"
-        {
-            token outputs:surface.connect = </Root/wall_right/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
-
-            def Shader "DefaultSurfaceShader"
-            {
-                uniform token info:id = "UsdPreviewSurface"
-                color3f inputs:diffuseColor = (1, 1, 1)
-                float inputs:roughness = 0.75
-                token outputs:surface
-            }
-        }
 
         def RealityKitComponent "Collider"
         {
@@ -489,12 +481,17 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 0
             bool gravityEnabled = 0
             uniform token info:id = "RealityKit.RigidBody"
+            bool isCCDEnabled = 1
+            float linearDamping = 0
             token motionType = "Static"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -502,9 +499,9 @@ def Xform "Root"
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0
                 double restitution = 1
-                double staticFriction = 1
+                double staticFriction = 0
             }
         }
     }
@@ -517,29 +514,16 @@ def Xform "Root"
         }
     )
     {
-        rel material:binding = </Root/floor/DefaultMaterial> (
+        rel material:binding = </Root/Material_wall> (
             bindMaterialAs = "weakerThanDescendants"
         )
         double size = 10
         float2 ui:nodegraph:node:pos = (40, 40)
         int ui:nodegraph:node:stackingOrder = 2
         quatf xformOp:orient = (0.5, 0.5, 0.5, 0.5)
-        float3 xformOp:scale = (0.8, 0.1, 1.2)
-        float3 xformOp:translate = (0, 3.5, 5.5)
+        float3 xformOp:scale = (1, 0.1, 1.2)
+        float3 xformOp:translate = (0, 4.5, 5.5)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-        def Material "DefaultMaterial"
-        {
-            token outputs:surface.connect = </Root/wall_front/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
-
-            def Shader "DefaultSurfaceShader"
-            {
-                uniform token info:id = "UsdPreviewSurface"
-                color3f inputs:diffuseColor = (1, 1, 1)
-                float inputs:roughness = 0.75
-                token outputs:surface
-            }
-        }
 
         def RealityKitComponent "Collider"
         {
@@ -561,12 +545,17 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 0
             bool gravityEnabled = 0
             uniform token info:id = "RealityKit.RigidBody"
+            bool isCCDEnabled = 1
+            float linearDamping = 0
             token motionType = "Static"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -574,9 +563,9 @@ def Xform "Root"
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0
                 double restitution = 1
-                double staticFriction = 1
+                double staticFriction = 0
             }
         }
     }
@@ -589,29 +578,16 @@ def Xform "Root"
         }
     )
     {
-        rel material:binding = </Root/floor/DefaultMaterial> (
+        rel material:binding = </Root/Material_wall> (
             bindMaterialAs = "weakerThanDescendants"
         )
         double size = 10
         float2 ui:nodegraph:node:pos = (60, 60)
         int ui:nodegraph:node:stackingOrder = 3
         quatf xformOp:orient = (0.5, 0.49999994, 0.5, 0.5)
-        float3 xformOp:scale = (0.8, 0.1, 1.2)
-        float3 xformOp:translate = (0, 3.5, -5.5)
+        float3 xformOp:scale = (1, 0.1, 1.2)
+        float3 xformOp:translate = (0, 4.5, -5.5)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-        def Material "DefaultMaterial"
-        {
-            token outputs:surface.connect = </Root/wall_back/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
-
-            def Shader "DefaultSurfaceShader"
-            {
-                uniform token info:id = "UsdPreviewSurface"
-                color3f inputs:diffuseColor = (1, 1, 1)
-                float inputs:roughness = 0.75
-                token outputs:surface
-            }
-        }
 
         def RealityKitComponent "Collider"
         {
@@ -633,12 +609,17 @@ def Xform "Root"
 
         def RealityKitComponent "RigidBody"
         {
+            float angularDamping = 0
             bool gravityEnabled = 0
             uniform token info:id = "RealityKit.RigidBody"
+            bool isCCDEnabled = 1
+            float linearDamping = 0
             token motionType = "Static"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -646,9 +627,9 @@ def Xform "Root"
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0
                 double restitution = 1
-                double staticFriction = 1
+                double staticFriction = 0
             }
         }
     }
@@ -658,31 +639,16 @@ def Xform "Root"
         prepend apiSchemas = ["MaterialBindingAPI"]
     )
     {
-        rel material:binding = </Root/ceiling/DefaultMaterial>
+        rel material:binding = </Root/Material_wall> (
+            bindMaterialAs = "weakerThanDescendants"
+        )
         double size = 10
         float2 ui:nodegraph:node:pos = (20, 20)
         int ui:nodegraph:node:stackingOrder = 1
         quatf xformOp:orient = (1, 0, 0, 0)
-        float3 xformOp:scale = (1, 0.1, 1)
-        float3 xformOp:translate = (0, 7, 0)
+        float3 xformOp:scale = (1.2, 0.1, 1.2)
+        float3 xformOp:translate = (0, 9, 0)
         uniform token[] xformOpOrder = ["xformOp:translate", "xformOp:orient", "xformOp:scale"]
-
-        def Material "DefaultMaterial"
-        {
-            token outputs:mtlx:surface
-            token outputs:realitykit:vertex
-            token outputs:surface.connect = </Root/ceiling/DefaultMaterial/DefaultSurfaceShader.outputs:surface>
-
-            def Shader "DefaultSurfaceShader"
-            {
-                uniform token info:id = "UsdPreviewSurface"
-                float inputs:clearcoatRoughness = 0
-                color3f inputs:diffuseColor = (1, 1, 1)
-                float inputs:opacity = 0.6
-                float inputs:roughness = 0.75
-                token outputs:surface
-            }
-        }
 
         def RealityKitComponent "Collider"
         {
@@ -707,10 +673,13 @@ def Xform "Root"
             float angularDamping = 0.05
             bool gravityEnabled = 0
             uniform token info:id = "RealityKit.RigidBody"
+            bool isCCDEnabled = 1
             token motionType = "Static"
 
             def RealityKitStruct "massFrame"
             {
+                float m_mass = 0
+
                 def RealityKitStruct "m_pose"
                 {
                 }
@@ -722,6 +691,71 @@ def Xform "Root"
                 double restitution = 1
                 double staticFriction = 1
             }
+        }
+    }
+
+    def Material "Material_wall" (
+        references = None
+    )
+    {
+        token cullMode = "unspecified" (
+            allowedTokens = ["unspecified", "none", "front", "back"]
+        )
+        int inputs:input = 1 (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (704, 54)
+                    int stackingOrderInSubgraph = 1
+                }
+            }
+        )
+        float inputs:opacity = 0 (
+            customData = {
+                dictionary realitykit = {
+                    float2 positionInSubgraph = (704, 54)
+                    int stackingOrderInSubgraph = 2
+                }
+            }
+        )
+        token outputs:mtlx:surface.connect = </Root/Material_wall/PreviewSurface.outputs:out>
+        token outputs:realitykit:vertex
+        token outputs:surface.connect = </Root/Material_wall/Principled_BSDF.outputs:surface>
+        float2 ui:nodegraph:node:pos = (32.36331, 471.47977)
+        int ui:nodegraph:node:stackingOrder = 1
+        float2 ui:nodegraph:realitykit:subgraphOutputs:pos = (0, 110.5)
+        custom string userProperties:blender:data_name = "Material.004"
+
+        def Shader "Principled_BSDF" (
+            active = true
+        )
+        {
+            uniform token info:id = "UsdPreviewSurface"
+            float inputs:clearcoat = 1
+            float inputs:clearcoatRoughness = 0
+            color3f inputs:diffuseColor = (0.999996, 1, 1) (
+                colorSpace = "srgb_texture"
+            )
+            color3f inputs:emissiveColor = (0, 0, 0) (
+                colorSpace = "srgb_texture"
+            )
+            float inputs:ior = 0
+            float inputs:metallic = 0
+            normal3f inputs:normal = (0, 0, 0)
+            float inputs:occlusion = 1
+            float inputs:opacity = 0
+            float inputs:opacityThreshold = 1
+            float inputs:roughness = 1
+            float inputs:specular = 0
+            token outputs:surface
+        }
+
+        def Shader "PreviewSurface" (
+            active = false
+        )
+        {
+            uniform token info:id = "ND_UsdPreviewSurface_surfaceshader"
+            token outputs:out
+            float2 ui:nodegraph:node:pos = (-255, 105)
         }
     }
 }

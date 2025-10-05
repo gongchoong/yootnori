@@ -22,7 +22,6 @@ struct MainView: View {
         static var gameStatusViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
         static var throwBoardPosition: SIMD3<Float> = [0, -0.5, -0.2]
         static var throwBoardScale: SIMD3<Float> = [0.05, 0.05, 0.05]
-        static var scoreButtonPosition: SIMD3<Float> = [-0.1, 0, -0.1]
         static var rollButtonPosition: SIMD3<Float> = [0, -0.4, 0.4]
         static var scoreButtonPosition: SIMD3<Float> = [0.15, -0.34, -0.1]
     }
