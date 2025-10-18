@@ -17,12 +17,13 @@ struct MainView: View {
         static var gameStatusViewName: String = "GameStatusView"
         static var rollButtonName: String = "RollButton"
         static var scoreButtonName: String = "ScoreButton"
-        static var boardPosition: SIMD3<Float> = [-0.1, 0, -0.1]
-        static var debugViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
+        static var boardPosition: SIMD3<Float> = [-0.1, 0.15, -0.1]
+        static var debugViewPosition: SIMD3<Float> = [0.3, 0.15, -0.1]
         static var gameStatusViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
-        static var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.2]
-        static var throwBoardScale: SIMD3<Float> = [0.15,0.15,0.15]
-        static var scoreButtonPosition: SIMD3<Float> = [-0.1, 0, -0.1]
+        static var throwBoardPosition: SIMD3<Float> = [0, -0.5, -0.2]
+        static var throwBoardScale: SIMD3<Float> = [0.05, 0.05, 0.05]
+        static var rollButtonPosition: SIMD3<Float> = [0, -0.4, 0.4]
+        static var scoreButtonPosition: SIMD3<Float> = [0.15, -0.34, -0.1]
     }
 
     @EnvironmentObject var model: AppModel
@@ -33,7 +34,7 @@ struct MainView: View {
     @State private var subscriptions = [EventSubscription]()
     @State private var yootEntities: [Entity] = []
 
-    private var debugMode = true
+    private var debugMode = false
 
     var body: some View {
         RealityView { content, attachments in
@@ -167,13 +168,13 @@ private extension MainView {
     func createRollButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
         guard let rollButton = attachments.entity(for: Constants.rollButtonName) else { return }
         content.add(rollButton)
-        rollButton.position = [0, -0.4, 0.4]
+        rollButton.position = Constants.rollButtonPosition
     }
 
     func createScoreButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
         guard let scoreButton = attachments.entity(for: Constants.scoreButtonName) else { return }
         content.add(scoreButton)
-        scoreButton.position = [0.15, -0.34, -0.1]
+        scoreButton.position = Constants.scoreButtonPosition
     }
 }
 

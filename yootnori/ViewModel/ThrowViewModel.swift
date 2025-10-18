@@ -30,9 +30,9 @@ protocol RollViewModelDelegate {
 class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
         static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
-        static var xOffset: Float = 0.00005
+        static var xOffset: Float = 0.0001
         static var yOffset: Float = 0.00045
-        static var zOffset: Float = 0.00005
+        static var zOffset: Float = 0.0001
     }
 
     enum YootError: Error {
@@ -81,7 +81,14 @@ class ThrowViewModel: RollViewModel, ObservableObject {
                     let randomZ = Float.random(in: -Constants.zOffset...Constants.zOffset)
 
                     // Apply impulse with random lateral component
-                    let impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
+                    var impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
+
+                    // 💥 Clamp total impulse magnitude to prevent too strong throws
+                    let maxImpulseMagnitude: Float = 0.00055  // adjust this if needed
+                    let magnitude = simd_length(impulse)
+                    if magnitude > maxImpulseMagnitude {
+                        impulse = simd_normalize(impulse) * maxImpulseMagnitude
+                    }
                     await physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
                 }
             }

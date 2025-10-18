@@ -12,7 +12,7 @@ struct FullSpaceView: View {
     @Environment(\.physicalMetrics) var physicalMetrics
     @EnvironmentObject var model: AppModel
     @State private var showIntroduction = true
-    
+
     var body: some View {
         ZStack {
             // Main game view is always present
