@@ -28,7 +28,7 @@
       [
         "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F",
         "Root",
-        "ceiling"
+        "wall_right"
       ],
       {
         "isExpanded" : true,
@@ -37,7 +37,15 @@
       [
         "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F",
         "Root",
-        "wall_back"
+        "ceiling"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
+      },
+      [
+        "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F",
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -55,7 +63,7 @@
       [
         "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F",
         "Root",
-        "wall_right"
+        "wall_back"
       ],
       {
         "isExpanded" : true,
@@ -65,14 +73,6 @@
         "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F",
         "Root",
         "wall_left"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "5FC03312-DCA0-465F-B8D5-5A3C1EE16D9F",
-        "Root"
       ],
       {
         "isExpanded" : true,
@@ -113,8 +113,7 @@
     "objectMetadataList" : [
       [
         "C10F95B4-8C2C-486A-AF93-84B3B5E1E5EA",
-        "Root",
-        "Cylinder"
+        "Root"
       ],
       {
         "isExpanded" : true,
@@ -122,7 +121,8 @@
       },
       [
         "C10F95B4-8C2C-486A-AF93-84B3B5E1E5EA",
-        "Root"
+        "Root",
+        "Cylinder"
       ],
       {
         "isExpanded" : true,
@@ -135,7 +135,7 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Sphere"
+        "Cylinder"
       ],
       {
         "isExpanded" : true,
@@ -153,7 +153,7 @@
       [
         "D66134B1-3681-4A8E-AFE5-29F257229F3B",
         "Root",
-        "Cylinder"
+        "Sphere"
       ],
       {
         "isExpanded" : true,
@@ -194,20 +194,20 @@
     "objectMetadataList" : [
       [
         "E74675DA-53C4-4741-AD1D-B9E2DF70F939",
-        "Root"
-      ],
-      {
-        "isExpanded" : true,
-        "isLocked" : false
-      },
-      [
-        "E74675DA-53C4-4741-AD1D-B9E2DF70F939",
         "Root",
         "Cube"
       ],
       {
         "isExpanded" : true,
         "isLocked" : true
+      },
+      [
+        "E74675DA-53C4-4741-AD1D-B9E2DF70F939",
+        "Root"
+      ],
+      {
+        "isExpanded" : true,
+        "isLocked" : false
       }
     ]
   },
@@ -215,7 +215,8 @@
     "objectMetadataList" : [
       [
         "F8297E3D-0A76-4C12-A183-C6CAB13CDB73",
-        "Root"
+        "Root",
+        "Cylinder"
       ],
       {
         "isExpanded" : true,
@@ -223,8 +224,7 @@
       },
       [
         "F8297E3D-0A76-4C12-A183-C6CAB13CDB73",
-        "Root",
-        "Cylinder"
+        "Root"
       ],
       {
         "isExpanded" : true,

@@ -38,7 +38,7 @@ def Xform "Root"
 
             def RealityKitStruct "Shape"
             {
-                float3 extent = (11.999999, 2.1, 0.6)
+                float3 extent = (11.999999, 2.1, 0.2)
                 token shapeType = "Box"
 
                 def RealityKitStruct "pose"
@@ -52,22 +52,23 @@ def Xform "Root"
         {
             float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
+            float linearDamping = 0.02
 
             def RealityKitStruct "massFrame"
             {
-                float m_mass = 0.6
+                float m_mass = 0.4
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.005, 0)
+                    float3 position = (0, -0.00001, 0)
                 }
             }
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0.6
                 double restitution = 0.1
-                double staticFriction = 1
+                double staticFriction = 0.6
             }
         }
 
@@ -124,7 +125,7 @@ def Xform "Root"
 
             def RealityKitStruct "Shape"
             {
-                float3 extent = (11.999999, 2.1, 0.6)
+                float3 extent = (11.999999, 2.1, 0.2)
                 token shapeType = "Box"
 
                 def RealityKitStruct "pose"
@@ -138,22 +139,23 @@ def Xform "Root"
         {
             float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
+            float linearDamping = 0.02
 
             def RealityKitStruct "massFrame"
             {
-                float m_mass = 0.6
+                float m_mass = 0.4
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.005, 0)
+                    float3 position = (0, -0.00001, 0)
                 }
             }
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0.6
                 double restitution = 0.1
-                double staticFriction = 1
+                double staticFriction = 0.6
             }
         }
 
@@ -195,7 +197,7 @@ def Xform "Root"
 
             def RealityKitStruct "Shape"
             {
-                float3 extent = (11.999999, 2.1, 0.6)
+                float3 extent = (11.999999, 2.1, 0.2)
                 token shapeType = "Box"
 
                 def RealityKitStruct "pose"
@@ -209,22 +211,23 @@ def Xform "Root"
         {
             float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
+            float linearDamping = 0.02
 
             def RealityKitStruct "massFrame"
             {
-                float m_mass = 0.6
+                float m_mass = 0.4
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.005, 0)
+                    float3 position = (0, -0.00001, 0)
                 }
             }
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0.6
                 double restitution = 0.1
-                double staticFriction = 1
+                double staticFriction = 0.6
             }
         }
 
@@ -266,7 +269,7 @@ def Xform "Root"
 
             def RealityKitStruct "Shape"
             {
-                float3 extent = (11.999999, 2.1, 0.6)
+                float3 extent = (11.999999, 2.1, 0.2)
                 token shapeType = "Box"
 
                 def RealityKitStruct "pose"
@@ -280,22 +283,23 @@ def Xform "Root"
         {
             float angularDamping = 1
             uniform token info:id = "RealityKit.RigidBody"
+            float linearDamping = 0.02
 
             def RealityKitStruct "massFrame"
             {
-                float m_mass = 0.6
+                float m_mass = 0.4
 
                 def RealityKitStruct "m_pose"
                 {
-                    float3 position = (0, -0.005, 0)
+                    float3 position = (0, -0.00001, 0)
                 }
             }
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0.6
                 double restitution = 0.1
-                double staticFriction = 1
+                double staticFriction = 0.6
             }
         }
 
@@ -374,9 +378,9 @@ def Xform "Root"
 
             def RealityKitStruct "material"
             {
-                double dynamicFriction = 1
+                double dynamicFriction = 0.2
                 double restitution = 1
-                double staticFriction = 1
+                double staticFriction = 0.2
             }
         }
     }
@@ -744,7 +748,7 @@ def Xform "Root"
             normal3f inputs:normal = (0, 0, 0)
             float inputs:occlusion = 1
             float inputs:opacity = 0
-            float inputs:opacityThreshold = 1
+            float inputs:opacityThreshold
             float inputs:roughness = 1
             float inputs:specular = 0
             token outputs:surface
