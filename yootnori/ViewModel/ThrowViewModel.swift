@@ -30,9 +30,9 @@ protocol RollViewModelDelegate {
 class ThrowViewModel: RollViewModel, ObservableObject {
     enum Constants {
         static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
-        static var xOffset: Float = 0.0001
+        static var xOffset: Float = 0.00009
         static var yOffset: Float = 0.00045
-        static var zOffset: Float = 0.0001
+        static var zOffset: Float = 0.00009
     }
 
     enum YootError: Error {
@@ -179,11 +179,20 @@ private extension ThrowViewModel {
     func resetToOriginalPosition() {
         for yoot in yootEntities {
             if let original = originalTransforms[yoot.name] {
+                // Reset position
                 yoot.transform = original
-                // Also reset velocities if you’re using physics
+
+                // Reset physics
                 if let physics = yoot as? (Entity & HasPhysicsBody & HasPhysicsMotion) {
                     physics.physicsMotion?.linearVelocity = .zero
                     physics.physicsMotion?.angularVelocity = .zero
+                }
+
+                // Randomly flip face down (rotate 180° around X)
+                let shouldFaceDown = Bool.random()
+                if shouldFaceDown {
+                    let flipRotation = simd_quatf(angle: .pi, axis: SIMD3<Float>(1, 0, 0))
+                    yoot.orientation *= flipRotation
                 }
             }
         }
