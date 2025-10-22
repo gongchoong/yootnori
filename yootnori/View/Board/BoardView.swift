@@ -11,11 +11,11 @@ struct BoardView: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.physicalMetrics) var physicalMetrics
     @ObservedObject var boardViewModel: BoardViewModel
-    var boardAction: ((Action) -> Void)
+    var didTapTile: ((Tile) -> Void)
 
-    init(viewModel: BoardViewModel, action: @escaping ((Action) -> Void)) {
+    init(viewModel: BoardViewModel, _ action: @escaping ((Tile) -> Void)) {
         self.boardViewModel = viewModel
-        self.boardAction = action
+        self.didTapTile = action
     }
 
     var body: some View {
@@ -25,7 +25,7 @@ struct BoardView: View {
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, tile in
                             TileView(tile: tile) { tile in
-                                boardAction(.tappedTile(tile))
+                                didTapTile(tile)
                             }
                         }
                     }
@@ -39,7 +39,7 @@ struct BoardView: View {
                     HStack(spacing: 0) {
                         ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, tile in
                             TileView(tile: tile) { tile in
-                                boardAction(.tappedTile(tile))
+                                didTapTile(tile)
                             }
                         }
                     }
@@ -53,6 +53,6 @@ struct BoardView: View {
 
 
 #Preview {
-    BoardView(viewModel: BoardViewModel(), action: {_ in })
+    BoardView(viewModel: BoardViewModel(), {_ in })
 }
 

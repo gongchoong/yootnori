@@ -31,9 +31,8 @@ final class GameStateManager: ObservableObject {
     @Published private(set) var state: GameState = .idle
     @Published private(set) var currentPlayer: Player = .none
     @Published private(set) var playerCanThrowAgain: Bool = false
-    
-        // MARK: - State Transitions
-    
+
+    // MARK: - State Transitions
     func startGame() {
         currentPlayer = .playerA
         transition(to: .waitingForRoll)

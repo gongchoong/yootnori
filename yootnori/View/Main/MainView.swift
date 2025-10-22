@@ -67,15 +67,10 @@ struct MainView: View {
             }
         } attachments: {
             Attachment(id: Constants.boardViewName) {
-                BoardView(viewModel: BoardViewModel(), action: { action in
-                    do {
-                        try model.perform(action: action)
-                    } catch let error as AppModel.MarkerActionError {
-                        error.crashApp()
-                    } catch {
-                        fatalError("Unexpected error: \(error.localizedDescription)")
-                    }
-                })            }
+                BoardView(viewModel: BoardViewModel()) { tile in
+                    model.emitTileTap(tile)
+                }
+            }
 
             Attachment(id: Constants.debugViewName) {
                 DebugMainView { result in
@@ -88,15 +83,16 @@ struct MainView: View {
 
             Attachment(id: Constants.gameStatusViewName) {
                 GameStatusView(players: [.playerA, .playerB]) {
-                    model.handleNewMarkerTap()
+                    model.emitNew()
                 }
             }
 
             Attachment(id: Constants.rollButtonName) {
                 RollButton {
-                    Task { @MainActor in
-                        await model.roll()
-                    }
+//                    Task { @MainActor in
+//                        await model.roll()
+//                    }
+                    model.emitRoll()
                 }
             }
 
@@ -122,7 +118,8 @@ struct MainView: View {
             TapGesture()
                 .targetedToEntity(where: .has(MarkerComponent.self))
                 .onEnded {
-                    handleMarkerTapGesture(marker: $0.entity)
+                    //handleMarkerTapGesture(marker: $0.entity)
+                    model.emitMarkerTap($0.entity)
                 }
         )
         .onDisappear {
@@ -185,7 +182,8 @@ private extension MainView {
         guard let markerComponent = entity.components[MarkerComponent.self] else { return }
         let tag: ObjectIdentifier = entity.id
         let view = MarkerLevelView(tapAction: {
-            handleMarkerTapGesture(marker: entity)
+//            handleMarkerTapGesture(marker: entity)
+            model.emitMarkerTap(entity)
         }, level: markerComponent.level, team: Team(rawValue: markerComponent.team) ?? .black)
             .tag(tag)
 
