@@ -34,9 +34,7 @@ struct TileView: View {
             }
         }
         .onTapGesture {
-            if model.shouldHighlight(for: tile) {
-                didTapTile(tile)
-            }
+            didTapTile(tile)
         }
         .disabled(model.gameState == .animating)
     }

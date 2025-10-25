@@ -39,15 +39,15 @@ struct MainView: View {
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
-            if debugMode {
-                await createDebugView(content, attachments)
-                await createScoreButton(content, attachments)
-            } else {
-                await createGameStatusView(content, attachments)
-                await createYootThrowBoard(content)
-                await createRollButton(content, attachments)
-                await createScoreButton(content, attachments)
-            }
+            #if DEBUG
+            await createDebugView(content, attachments)
+            await createScoreButton(content, attachments)
+            #else
+            await createGameStatusView(content, attachments)
+            await createYootThrowBoard(content)
+            await createRollButton(content, attachments)
+            await createScoreButton(content, attachments)
+            #endif
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
                 createLevelView(for: event.entity)
@@ -172,7 +172,6 @@ private extension MainView {
         guard let markerComponent = entity.components[MarkerComponent.self] else { return }
         let tag: ObjectIdentifier = entity.id
         let view = MarkerLevelView(tapAction: {
-//            handleMarkerTapGesture(marker: entity)
             model.emit(event: .tapMarker(entity))
         }, level: markerComponent.level, team: Team(rawValue: markerComponent.team) ?? .black)
             .tag(tag)

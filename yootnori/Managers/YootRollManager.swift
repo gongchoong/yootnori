@@ -11,23 +11,13 @@ import RealityKitContent
 import SwiftUI
 import Combine
 
-protocol RollViewModel: ObservableObject {
-    func roll() async
-    func discardRoll(for target: TargetNode)
-    func checkForLanding()
-    var delegate: RollViewModelDelegate? { get set }
-    var result: [Yoot] { get set }
-    var resultPublisher: Published<[Yoot]>.Publisher { get }
-    var yootThrowBoard: Entity? { get set }
+protocol YootRollDelegate: AnyObject {
+    func yootRollDidStartRoll()
+    func yootRollDidFinishRoll()
+    func yootRollDidRollDouble()
 }
 
-protocol RollViewModelDelegate {
-    func rollViewModelDidStartRoll()
-    func rollViewModelDidFinishRoll()
-    func rollViewModelDidDetectDouble()
-}
-
-class ThrowViewModel: RollViewModel, ObservableObject {
+class YootRollManager: ObservableObject {
     enum Constants {
         static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
         static var xOffset: Float = 0.00009
@@ -35,14 +25,15 @@ class ThrowViewModel: RollViewModel, ObservableObject {
         static var zOffset: Float = 0.00009
     }
 
-    enum YootError: Error {
+    enum YootRollError: Error {
         case yootBoardNotFound
         case yootEntityNotFound
     }
 
-    var yootThrowBoard: Entity?
-    var delegate: RollViewModelDelegate?
+    weak var yootThrowBoard: Entity?
+    weak var delegate: YootRollDelegate?
     var yootEntities: [Entity] = []
+
     @Published var result: [Yoot] = []
     var resultPublisher: Published<[Yoot]>.Publisher {
         $result
@@ -63,7 +54,7 @@ class ThrowViewModel: RollViewModel, ObservableObject {
     }
 
     func roll() async {
-        delegate?.rollViewModelDidStartRoll()
+        delegate?.yootRollDidStartRoll()
         do {
             landed = false
             isAnimating = true
@@ -122,25 +113,25 @@ class ThrowViewModel: RollViewModel, ObservableObject {
 
             let rollResult = Yoot(rawValue: upsideDownCount) ?? .doe
             if rollResult.canThrowAgain {
-                delegate?.rollViewModelDidDetectDouble()
+                delegate?.yootRollDidRollDouble()
             }
             result.append(rollResult)
-            delegate?.rollViewModelDidFinishRoll()
+            delegate?.yootRollDidFinishRoll()
         }
 
         wasMoving = currentlyMoving
     }
 }
 
-private extension ThrowViewModel {
+private extension YootRollManager {
     func loadYootEntities() throws {
         guard let yootThrowBoard else {
-            throw YootError.yootBoardNotFound
+            throw YootRollError.yootBoardNotFound
         }
 
         for yoot in Constants.yootEntityNames {
             guard let yootEntity = yootThrowBoard.findEntity(named: yoot) else {
-                throw YootError.yootEntityNotFound
+                throw YootRollError.yootEntityNotFound
             }
             yootEntities.append(yootEntity)
             // Store the original transform

@@ -301,11 +301,11 @@ extension Node {
 struct TargetNode: Hashable {
     let name: NodeName
     let yootRoll: Yoot
-    let canScore: Bool
+    let isScoreable: Bool
 
-    init(name: NodeName, yootRoll: Yoot, canScore: Bool = false) {
+    init(name: NodeName, yootRoll: Yoot, isScoreable: Bool = false) {
         self.name = name
         self.yootRoll = yootRoll
-        self.canScore = canScore
+        self.isScoreable = isScoreable
     }
 }

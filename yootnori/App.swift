@@ -20,7 +20,7 @@ struct yootnoriApp: App {
         let sharePlayManager = SharePlayManager()
         #endif
         let appModel = AppModel(
-            rollViewModel: ThrowViewModel(),
+            rollManager: YootRollManager(),
             gameStateManager: GameStateManager(),
             markerManager: MarkerManager(),
             gameEngine: GameEngine(),

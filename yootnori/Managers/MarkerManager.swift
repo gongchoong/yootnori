@@ -16,7 +16,7 @@ enum SelectedMarker: Equatable {
 }
 
 @MainActor
-protocol MarkerManagerProtocol {
+protocol MarkerManagerDelegate: AnyObject {
     func didTapPromotedMarkerLevel(marker: Entity)
 }
 
@@ -33,10 +33,10 @@ class MarkerManager: ObservableObject {
         case selectedMarkerNotFound
     }
 
-    @Published var selectedMarker: SelectedMarker = .none
+    @Published private(set) var selectedMarker: SelectedMarker = .none
     var rootEntity: Entity = Entity()
     let attachmentsProvider: AttachmentsProvider
-    var delegate: MarkerManagerProtocol? = nil
+    weak var delegate: MarkerManagerDelegate?
 
     init() {
         attachmentsProvider = AttachmentsProvider()
@@ -81,7 +81,7 @@ class MarkerManager: ObservableObject {
         } else {
             currentNode = try findNode(for: marker)
         }
-        guard let route = gameEngine.findRoute(from: currentNode, to: destinationNode, startingPoint: currentNode) else {
+        guard let route = try gameEngine.findRoute(from: currentNode, to: destinationNode, startingPoint: currentNode) else {
             throw MarkerError.routeDoesNotExist(from: currentNode, to: destinationNode)
         }
         let filteredRoute = route.filter { $0.name != currentNode.name }
@@ -200,7 +200,8 @@ extension MarkerManager {
         let newLevel = carrierComponent.level + riderComponent.level
         carrierComponent.level = newLevel
         carrier.components[MarkerComponent.self] = carrierComponent
-        attachmentsProvider.attachments[carrier.id] = AnyView(MarkerLevelView(tapAction: {
+        attachmentsProvider.attachments[carrier.id] = AnyView(MarkerLevelView(tapAction: { [weak self] in
+            guard let self else { return }
             self.delegate?.didTapPromotedMarkerLevel(marker: carrier)
         }, level: newLevel, team: Team(rawValue: carrierComponent.team) ?? .black))
     }
