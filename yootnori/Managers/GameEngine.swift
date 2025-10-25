@@ -7,6 +7,10 @@
 import RealityKit
 import Combine
 
+enum GameEngineError: Error {
+    case nodeMissing(NodeName)
+}
+
 class GameEngine {
     @Published var targetNodes: Set<TargetNode> = []
     private var nodes = Set<Node>()
@@ -223,6 +227,7 @@ extension GameEngine {
 // MARK: - Target Nodes
 extension GameEngine {
     func updateTargetNodes(starting: NodeName? = nil, for rolls: [Yoot]) {
+        clearAllTargetNodes()
         targetNodes = calculateTargetNodes(starting: starting, for: rolls)
     }
 

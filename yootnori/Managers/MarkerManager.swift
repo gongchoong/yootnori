@@ -72,7 +72,15 @@ class MarkerManager: ObservableObject {
     }
 
     func move(_ marker: Entity, to destinationNode: Node, using gameEngine: GameEngine) async throws {
-        let currentNode = findNode(for: marker) ?? .bottomRightVertex
+        let currentNode: Node
+        let startingPosition = try Node.bottomRightVertex.index.position()
+        // TODO: Improve new marker detection logic
+        // If marker has just been created (at the starting position)
+        if marker.position == startingPosition {
+            currentNode = .bottomRightVertex
+        } else {
+            currentNode = try findNode(for: marker)
+        }
         guard let route = gameEngine.findRoute(from: currentNode, to: destinationNode, startingPoint: currentNode) else {
             throw MarkerError.routeDoesNotExist(from: currentNode, to: destinationNode)
         }
@@ -220,13 +228,13 @@ extension MarkerManager {
     }
 
     /// For lookup across *all* players (if player is not known)
-    func findNode(for marker: Entity) -> Node? {
+    func findNode(for marker: Entity) throws -> Node {
         for (_, dict) in trackedMarkers {
             if let node = dict.first(where: { $0.value == marker })?.key {
                 return node
             }
         }
-        return nil
+        throw MarkerManager.MarkerError.nodeMissing(entity: marker)
     }
 
     /// For lookup across *all* players (if player is not known)

@@ -34,7 +34,7 @@ struct MainView: View {
     @State private var subscriptions = [EventSubscription]()
     @State private var yootEntities: [Entity] = []
 
-    private var debugMode = false
+    private var debugMode = true
 
     var body: some View {
         RealityView { content, attachments in
@@ -68,43 +68,34 @@ struct MainView: View {
         } attachments: {
             Attachment(id: Constants.boardViewName) {
                 BoardView(viewModel: BoardViewModel()) { tile in
-                    model.emitTileTap(tile)
+                    model.emit(event: .tapTile(tile))
                 }
             }
 
             Attachment(id: Constants.debugViewName) {
                 DebugMainView { result in
-                    model.debugRoll(result: result)
+                    model.emit(event: .tapDebugRoll(result))
                 } markerButtonTapped: {
-                    model.handleNewMarkerTap()
+                    model.emit(event: .tapNew)
                 }
 
             }
 
             Attachment(id: Constants.gameStatusViewName) {
                 GameStatusView(players: [.playerA, .playerB]) {
-                    model.emitNew()
+                    model.emit(event: .tapNew)
                 }
             }
 
             Attachment(id: Constants.rollButtonName) {
                 RollButton {
-//                    Task { @MainActor in
-//                        await model.roll()
-//                    }
-                    model.emitRoll()
+                    model.emit(event: .tapRoll)
                 }
             }
 
             Attachment(id: Constants.scoreButtonName) {
                 ScoreButton {
-                    do {
-                        try model.perform(action: .score)
-                    } catch let error as AppModel.MarkerActionError {
-                        error.crashApp()
-                    } catch {
-                        fatalError("Unexpected error: \(error.localizedDescription)")
-                    }
+                    model.emit(event: .score)
                 }
             }
 
@@ -118,8 +109,7 @@ struct MainView: View {
             TapGesture()
                 .targetedToEntity(where: .has(MarkerComponent.self))
                 .onEnded {
-                    //handleMarkerTapGesture(marker: $0.entity)
-                    model.emitMarkerTap($0.entity)
+                    model.emit(event: .tapMarker($0.entity))
                 }
         )
         .onDisappear {
@@ -183,7 +173,7 @@ private extension MainView {
         let tag: ObjectIdentifier = entity.id
         let view = MarkerLevelView(tapAction: {
 //            handleMarkerTapGesture(marker: entity)
-            model.emitMarkerTap(entity)
+            model.emit(event: .tapMarker(entity))
         }, level: markerComponent.level, team: Team(rawValue: markerComponent.team) ?? .black)
             .tag(tag)
 
@@ -193,13 +183,7 @@ private extension MainView {
     }
 
     func handleMarkerTapGesture(marker: Entity) {
-        do {
-            try model.perform(action: .tappedMarker(marker))
-        } catch let error as AppModel.MarkerActionError {
-            error.crashApp()
-        } catch {
-            fatalError("Unexpected error: \(error.localizedDescription)")
-        }
+        model.emit(event: .tapMarker(marker))
     }
 }
 

@@ -7,6 +7,7 @@
 
 import Foundation
 import RealityKit
+import RealityKitContent
 
 extension Entity {
     static var empty: Entity {
@@ -22,5 +23,12 @@ extension Entity {
             return speed > velocityThreshold
         }
         return false
+    }
+
+    func component() throws -> MarkerComponent {
+        guard let component = components[MarkerComponent.self] else {
+            throw MarkerManager.MarkerError.markerComponentMissing(entity: self)
+        }
+        return component
     }
 }

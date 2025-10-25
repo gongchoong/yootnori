@@ -25,7 +25,7 @@ struct FullSpaceView: View {
             // Popup overlay
             if showIntroduction {
                 IntroductoryView(showIntro: $showIntroduction) {
-                    model.emitStartGame()
+                    model.emit(event: .startGame)
                 }
                 .frame(maxWidth: 1100, maxHeight: 1200)
                 .glassBackgroundEffect()

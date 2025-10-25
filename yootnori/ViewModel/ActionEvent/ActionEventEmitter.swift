@@ -18,6 +18,7 @@ enum ActionEvent {
     case tapTile(Tile)
     case tapNew
     case tapRoll
+    case tapDebugRoll(Yoot)
     case score
 }
 
