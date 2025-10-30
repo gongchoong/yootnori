@@ -26,7 +26,7 @@ struct VertexTileView: View {
                 tileHeight * vertexConstants.verticeOuterHeightConstant * vertexConstants.innerTileConstant
             ZStack {
                 VertexTileBackgroundView(
-                    isHighlighted: model.shouldHighlight(for: tile),
+                    isHighlighted: model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable },
                     circleHeight: tileHeight
                 )
                 TileDecorationView(
@@ -48,7 +48,7 @@ struct VertexTileView: View {
                 tileHeight * vertexConstants.edgeOuterHeightConstant * vertexConstants.innerTileConstant
             ZStack {
                 VertexTileBackgroundView(
-                    isHighlighted: model.shouldHighlight(for: tile),
+                    isHighlighted: model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable },
                     circleHeight: tileHeight
                 )
                 TileDecorationView(
@@ -141,8 +141,8 @@ struct ScoreButton: View {
         }
         .frame(width: 140, height: 60)
         .buttonStyle(.plain) // prevents SwiftUI's default blue highlight
-        .opacity(model.markerCanScore ? 1 : 0)
-        .disabled(!model.markerCanScore)
+        .opacity(model.shouldDisplayScoreButton ? 1 : 0)
+        .disabled(!model.shouldDisplayScoreButton)
     }
 }
 

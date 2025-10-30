@@ -26,7 +26,6 @@
 		540EE1C32C9F74570056F03C /* TileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1C22C9F74570056F03C /* TileView.swift */; };
 		541B8DC62DB21D8E004B9F38 /* RollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC52DB21D8E004B9F38 /* RollView.swift */; };
 		541B8DC82DB21D9B004B9F38 /* BoardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541B8DC72DB21D9B004B9F38 /* BoardViewModel.swift */; };
-		541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */; };
 		541FC5192E35489200E3742E /* GameEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541FC5182E35489100E3742E /* GameEngine.swift */; };
 		541FC51B2E37F62300E3742E /* MarkerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541FC51A2E37F62100E3742E /* MarkerManager.swift */; };
 		541FC51D2E3EABC300E3742E /* GameStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 541FC51C2E3EABC100E3742E /* GameStateManager.swift */; };
@@ -38,7 +37,6 @@
 		5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */; };
 		5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D5112CA0CDC60065A4E3 /* TilePathView.swift */; };
 		544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544044462CE16A3A0023360C /* Entity+Extensions.swift */; };
-		544044492CE16F9B0023360C /* Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544044482CE16F9B0023360C /* Action.swift */; };
 		544B33042CB1DBC100365A68 /* Index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544B33032CB1DBC100365A68 /* Index.swift */; };
 		5451CEC82CBB21B500025081 /* PositionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5451CEC72CBB21B500025081 /* PositionError.swift */; };
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
@@ -52,12 +50,11 @@
 		549AC3922E5B8FEF00150D28 /* Environment+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC3912E5B8FE500150D28 /* Environment+Constants.swift */; };
 		549AC3962E5B937F00150D28 /* VertexTileBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC3952E5B937900150D28 /* VertexTileBackgroundView.swift */; };
 		54B6DA2D2E1BA34C00F32A93 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B6DA2C2E1BA34A00F32A93 /* Player.swift */; };
-		54B6DA2F2E1BA52E00F32A93 /* PlayerTurnMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B6DA2E2E1BA51500F32A93 /* PlayerTurnMonitor.swift */; };
-		54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* ThrowViewModel.swift */; };
+		54BDEE7A2EA83199007D128D /* ActionEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BDEE792EA83192007D128D /* ActionEventEmitter.swift */; };
+		54BE95542E01E369004D66EE /* YootRollManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* YootRollManager.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
 		54D4B1B82E089972009CB19D /* RollButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D4B1B72E08996C009CB19D /* RollButton.swift */; };
-		54DC1F1B2E21C8EC00D8F77C /* PlayerTurnViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DC1F1A2E21C8E800D8F77C /* PlayerTurnViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -81,7 +78,6 @@
 		540EE1C22C9F74570056F03C /* TileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileView.swift; sourceTree = "<group>"; };
 		541B8DC52DB21D8E004B9F38 /* RollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollView.swift; sourceTree = "<group>"; };
 		541B8DC72DB21D9B004B9F38 /* BoardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BoardViewModel.swift; sourceTree = "<group>"; };
-		541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugRollViewModel.swift; sourceTree = "<group>"; };
 		541FC5182E35489100E3742E /* GameEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameEngine.swift; sourceTree = "<group>"; };
 		541FC51A2E37F62100E3742E /* MarkerManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerManager.swift; sourceTree = "<group>"; };
 		541FC51C2E3EABC100E3742E /* GameStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStateManager.swift; sourceTree = "<group>"; };
@@ -93,7 +89,6 @@
 		5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileView.swift; sourceTree = "<group>"; };
 		5436D5112CA0CDC60065A4E3 /* TilePathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilePathView.swift; sourceTree = "<group>"; };
 		544044462CE16A3A0023360C /* Entity+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entity+Extensions.swift"; sourceTree = "<group>"; };
-		544044482CE16F9B0023360C /* Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Action.swift; sourceTree = "<group>"; };
 		544B33032CB1DBC100365A68 /* Index.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Index.swift; sourceTree = "<group>"; };
 		5451CEC72CBB21B500025081 /* PositionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionError.swift; sourceTree = "<group>"; };
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
@@ -108,12 +103,11 @@
 		549AC3952E5B937900150D28 /* VertexTileBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileBackgroundView.swift; sourceTree = "<group>"; };
 		54B5CFFD2E8083C700632AA2 /* yootnori.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yootnori.entitlements; sourceTree = "<group>"; };
 		54B6DA2C2E1BA34A00F32A93 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
-		54B6DA2E2E1BA51500F32A93 /* PlayerTurnMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTurnMonitor.swift; sourceTree = "<group>"; };
-		54BE95532E01E360004D66EE /* ThrowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThrowViewModel.swift; sourceTree = "<group>"; };
+		54BDEE792EA83192007D128D /* ActionEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEventEmitter.swift; sourceTree = "<group>"; };
+		54BE95532E01E360004D66EE /* YootRollManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YootRollManager.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		54D4B1B72E08996C009CB19D /* RollButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollButton.swift; sourceTree = "<group>"; };
-		54DC1F1A2E21C8E800D8F77C /* PlayerTurnViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTurnViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -154,7 +148,6 @@
 				54B5CFFD2E8083C700632AA2 /* yootnori.entitlements */,
 				549AC38E2E5B8F0500150D28 /* Environment */,
 				541FC5172E35488A00E3742E /* Managers */,
-				54B6DA2B2E1BA34100F32A93 /* Gameplay */,
 				546745E22DB422340032C0A6 /* Data */,
 				542702462CF832B4003F017B /* Components */,
 				544044452CE16A300023360C /* Extensions */,
@@ -195,6 +188,7 @@
 			isa = PBXGroup;
 			children = (
 				540A1ECB2E8868EF00012CA3 /* Message.swift */,
+				54B6DA2C2E1BA34A00F32A93 /* Player.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -226,7 +220,7 @@
 		540EE1BF2C9F6F7E0056F03C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				54BE95532E01E360004D66EE /* ThrowViewModel.swift */,
+				54BDEE782EA8318C007D128D /* ActionEvent */,
 				540EE1C02C9F6F860056F03C /* AppModel.swift */,
 			);
 			path = ViewModel;
@@ -236,7 +230,6 @@
 			isa = PBXGroup;
 			children = (
 				548F23032CC5D64D00A50F3F /* DebugMainView.swift */,
-				541DF8082DB6057000BF89D2 /* DebugRollViewModel.swift */,
 			);
 			path = Debug;
 			sourceTree = "<group>";
@@ -248,6 +241,7 @@
 				541FC51C2E3EABC100E3742E /* GameStateManager.swift */,
 				541FC51A2E37F62100E3742E /* MarkerManager.swift */,
 				541FC5182E35489100E3742E /* GameEngine.swift */,
+				54BE95532E01E360004D66EE /* YootRollManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -320,7 +314,6 @@
 				544B33032CB1DBC100365A68 /* Index.swift */,
 				54911FA82CC7551600A9FDDE /* GameRule.swift */,
 				54C879C92CD1E876003B88A6 /* NodeName.swift */,
-				544044482CE16F9B0023360C /* Action.swift */,
 			);
 			path = Enum;
 			sourceTree = "<group>";
@@ -378,14 +371,12 @@
 			path = Environment;
 			sourceTree = "<group>";
 		};
-		54B6DA2B2E1BA34100F32A93 /* Gameplay */ = {
+		54BDEE782EA8318C007D128D /* ActionEvent */ = {
 			isa = PBXGroup;
 			children = (
-				54DC1F1A2E21C8E800D8F77C /* PlayerTurnViewModel.swift */,
-				54B6DA2E2E1BA51500F32A93 /* PlayerTurnMonitor.swift */,
-				54B6DA2C2E1BA34A00F32A93 /* Player.swift */,
+				54BDEE792EA83192007D128D /* ActionEventEmitter.swift */,
 			);
-			path = Gameplay;
+			path = ActionEvent;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -470,23 +461,20 @@
 				54D4B1B82E089972009CB19D /* RollButton.swift in Sources */,
 				5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */,
 				5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */,
-				541DF8092DB6057000BF89D2 /* DebugRollViewModel.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
 				549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */,
 				540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */,
 				541B8DC62DB21D8E004B9F38 /* RollView.swift in Sources */,
-				54DC1F1B2E21C8EC00D8F77C /* PlayerTurnViewModel.swift in Sources */,
 				541FC51B2E37F62300E3742E /* MarkerManager.swift in Sources */,
 				540A1ECC2E8868F000012CA3 /* Message.swift in Sources */,
 				544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */,
-				54B6DA2F2E1BA52E00F32A93 /* PlayerTurnMonitor.swift in Sources */,
 				541FC51D2E3EABC300E3742E /* GameStateManager.swift in Sources */,
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,
 				549AC3922E5B8FEF00150D28 /* Environment+Constants.swift in Sources */,
 				540EE1C32C9F74570056F03C /* TileView.swift in Sources */,
 				540A1ED52E88866400012CA3 /* SharePlayManagerMock.swift in Sources */,
-				544044492CE16F9B0023360C /* Action.swift in Sources */,
+				54BDEE7A2EA83199007D128D /* ActionEventEmitter.swift in Sources */,
 				542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */,
 				540A18F42C9F6CD500291CEF /* ContentView.swift in Sources */,
 				546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */,
@@ -498,7 +486,7 @@
 				5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */,
 				54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */,
 				540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */,
-				54BE95542E01E369004D66EE /* ThrowViewModel.swift in Sources */,
+				54BE95542E01E369004D66EE /* YootRollManager.swift in Sources */,
 				54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */,
 				54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */,
 				541FC5192E35489200E3742E /* GameEngine.swift in Sources */,

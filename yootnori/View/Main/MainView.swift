@@ -10,44 +10,29 @@ import RealityKit
 import RealityKitContent
 
 struct MainView: View {
-    enum Constants {
-        static var boardViewName: String = "Board"
-        static var yootThrowBoardName: String = "YootThrowBoard"
-        static var debugViewName: String = "DebugView"
-        static var gameStatusViewName: String = "GameStatusView"
-        static var rollButtonName: String = "RollButton"
-        static var scoreButtonName: String = "ScoreButton"
-        static var boardPosition: SIMD3<Float> = [-0.1, 0.15, -0.1]
-        static var debugViewPosition: SIMD3<Float> = [0.3, 0.15, -0.1]
-        static var gameStatusViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
-        static var throwBoardPosition: SIMD3<Float> = [0, -0.5, -0.2]
-        static var throwBoardScale: SIMD3<Float> = [0.05, 0.05, 0.05]
-        static var rollButtonPosition: SIMD3<Float> = [0, -0.4, 0.4]
-        static var scoreButtonPosition: SIMD3<Float> = [0.15, -0.34, -0.1]
-    }
-
     @EnvironmentObject var model: AppModel
     @Environment(\.physicalMetrics) var physicalMetrics
+    @Environment(\.mainViewConstants) private var mainViewConstants
     @State private var sceneUpdateSubscription: EventSubscription?
 
     static let runtimeQuery = EntityQuery(where: .has(MarkerRuntimeComponent.self))
     @State private var subscriptions = [EventSubscription]()
     @State private var yootEntities: [Entity] = []
 
-    private var debugMode = false
+    private var debugMode = true
 
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
-            if debugMode {
-                await createDebugView(content, attachments)
-                await createScoreButton(content, attachments)
-            } else {
-                await createGameStatusView(content, attachments)
-                await createYootThrowBoard(content)
-                await createRollButton(content, attachments)
-                await createScoreButton(content, attachments)
-            }
+            #if DEBUG
+            await createDebugView(content, attachments)
+            await createScoreButton(content, attachments)
+            #else
+            await createGameStatusView(content, attachments)
+            await createYootThrowBoard(content)
+            await createRollButton(content, attachments)
+            await createScoreButton(content, attachments)
+            #endif
 
             subscriptions.append(content.subscribe(to: ComponentEvents.DidAdd.self, componentType: MarkerComponent.self, { event in
                 createLevelView(for: event.entity)
@@ -66,49 +51,36 @@ struct MainView: View {
                 attachmentEntity.setPosition([0.0, 0.0, 0.02], relativeTo: entity)
             }
         } attachments: {
-            Attachment(id: Constants.boardViewName) {
-                BoardView(viewModel: BoardViewModel(), action: { action in
-                    do {
-                        try model.perform(action: action)
-                    } catch let error as AppModel.MarkerActionError {
-                        error.crashApp()
-                    } catch {
-                        fatalError("Unexpected error: \(error.localizedDescription)")
-                    }
-                })            }
+            Attachment(id: mainViewConstants.boardViewName) {
+                BoardView(viewModel: BoardViewModel()) { tile in
+                    model.emit(event: .tapTile(tile))
+                }
+            }
 
-            Attachment(id: Constants.debugViewName) {
+            Attachment(id: mainViewConstants.debugViewName) {
                 DebugMainView { result in
-                    model.debugRoll(result: result)
+                    model.emit(event: .tapDebugRoll(result))
                 } markerButtonTapped: {
-                    model.handleNewMarkerTap()
+                    model.emit(event: .tapNew)
                 }
 
             }
 
-            Attachment(id: Constants.gameStatusViewName) {
+            Attachment(id: mainViewConstants.gameStatusViewName) {
                 GameStatusView(players: [.playerA, .playerB]) {
-                    model.handleNewMarkerTap()
+                    model.emit(event: .tapNew)
                 }
             }
 
-            Attachment(id: Constants.rollButtonName) {
+            Attachment(id: mainViewConstants.rollButtonName) {
                 RollButton {
-                    Task { @MainActor in
-                        await model.roll()
-                    }
+                    model.emit(event: .tapRoll)
                 }
             }
 
-            Attachment(id: Constants.scoreButtonName) {
+            Attachment(id: mainViewConstants.scoreButtonName) {
                 ScoreButton {
-                    do {
-                        try model.perform(action: .score)
-                    } catch let error as AppModel.MarkerActionError {
-                        error.crashApp()
-                    } catch {
-                        fatalError("Unexpected error: \(error.localizedDescription)")
-                    }
+                    model.emit(event: .score)
                 }
             }
 
@@ -122,7 +94,7 @@ struct MainView: View {
             TapGesture()
                 .targetedToEntity(where: .has(MarkerComponent.self))
                 .onEnded {
-                    handleMarkerTapGesture(marker: $0.entity)
+                    model.emit(event: .tapMarker($0.entity))
                 }
         )
         .onDisappear {
@@ -139,42 +111,42 @@ struct MainView: View {
 @MainActor
 private extension MainView {
     func createBoard(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let board = attachments.entity(for: Constants.boardViewName) else { return }
+        guard let board = attachments.entity(for: mainViewConstants.boardViewName) else { return }
         model.rootEntity.addChild(board)
         content.add(self.model.rootEntity)
-        model.rootEntity.position = Constants.boardPosition
+        model.rootEntity.position = mainViewConstants.boardPosition
     }
 
     func createDebugView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let debugView = attachments.entity(for: Constants.debugViewName) else { return }
+        guard let debugView = attachments.entity(for: mainViewConstants.debugViewName) else { return }
         content.add(debugView)
-        debugView.position = Constants.debugViewPosition
+        debugView.position = mainViewConstants.debugViewPosition
     }
 
     func createGameStatusView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let gameStatusView = attachments.entity(for: Constants.gameStatusViewName) else { return }
+        guard let gameStatusView = attachments.entity(for: mainViewConstants.gameStatusViewName) else { return }
         content.add(gameStatusView)
-        gameStatusView.position = Constants.gameStatusViewPosition
+        gameStatusView.position = mainViewConstants.gameStatusViewPosition
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
-        guard let board = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
+        guard let board = try? await Entity(named: mainViewConstants.yootThrowBoardName, in: realityKitContentBundle) else { return }
         content.add(board)
-        board.position = Constants.throwBoardPosition
-        board.scale = Constants.throwBoardScale
+        board.position = mainViewConstants.throwBoardPosition
+        board.scale = mainViewConstants.throwBoardScale
         model.setYootThrowBoard(board)
     }
 
     func createRollButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let rollButton = attachments.entity(for: Constants.rollButtonName) else { return }
+        guard let rollButton = attachments.entity(for: mainViewConstants.rollButtonName) else { return }
         content.add(rollButton)
-        rollButton.position = Constants.rollButtonPosition
+        rollButton.position = mainViewConstants.rollButtonPosition
     }
 
     func createScoreButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let scoreButton = attachments.entity(for: Constants.scoreButtonName) else { return }
+        guard let scoreButton = attachments.entity(for: mainViewConstants.scoreButtonName) else { return }
         content.add(scoreButton)
-        scoreButton.position = Constants.scoreButtonPosition
+        scoreButton.position = mainViewConstants.scoreButtonPosition
     }
 }
 
@@ -185,7 +157,7 @@ private extension MainView {
         guard let markerComponent = entity.components[MarkerComponent.self] else { return }
         let tag: ObjectIdentifier = entity.id
         let view = MarkerLevelView(tapAction: {
-            handleMarkerTapGesture(marker: entity)
+            model.emit(event: .tapMarker(entity))
         }, level: markerComponent.level, team: Team(rawValue: markerComponent.team) ?? .black)
             .tag(tag)
 
@@ -195,13 +167,7 @@ private extension MainView {
     }
 
     func handleMarkerTapGesture(marker: Entity) {
-        do {
-            try model.perform(action: .tappedMarker(marker))
-        } catch let error as AppModel.MarkerActionError {
-            error.crashApp()
-        } catch {
-            fatalError("Unexpected error: \(error.localizedDescription)")
-        }
+        model.emit(event: .tapMarker(marker))
     }
 }
 

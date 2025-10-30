@@ -748,7 +748,7 @@ def Xform "Root"
             normal3f inputs:normal = (0, 0, 0)
             float inputs:occlusion = 1
             float inputs:opacity = 0
-            float inputs:opacityThreshold
+            float inputs:opacityThreshold = 1
             float inputs:roughness = 1
             float inputs:specular = 0
             token outputs:surface

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct IntroductoryView: View {
     @Binding var showIntro: Bool
+    @State private var started: Bool = false
     var didTapStartButton: () -> Void
     
     var body: some View {
@@ -68,6 +69,8 @@ struct IntroductoryView: View {
 
             // Start Button
             Button(action: {
+                guard !started else { return }
+                started = true
                 withAnimation(.easeInOut(duration: 0.5)) {
                     showIntro = false
                 }
@@ -91,6 +94,7 @@ struct IntroductoryView: View {
                 .cornerRadius(25)
                 .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
             }
+            .disabled(!showIntro)
             .buttonStyle(.plain)
         }
         .padding(.all, 80)

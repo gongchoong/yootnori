@@ -7,8 +7,12 @@
 import RealityKit
 import Combine
 
-class GameEngine {
-    @Published var targetNodes: Set<TargetNode> = []
+enum GameEngineError: Error {
+    case nodeMissing(NodeName)
+}
+
+class GameEngine: ObservableObject {
+    @Published private(set) var targetNodes: Set<TargetNode> = []
     private var nodes = Set<Node>()
 
     init() {
@@ -27,11 +31,15 @@ class GameEngine {
 
 // MARK: - Node Lookup
 extension GameEngine {
-    /// Finds a node by its name
-    /// - Parameter nodeName: The name of the node to find
-    /// - Returns: The node if found, nil otherwise
-    func findNode(named nodeName: NodeName) -> Node? {
-        nodes.filter { $0.name == nodeName }.first
+    /// Returns the first node that matches the given name.
+    /// - Parameter nodeName: The name of the node to look for.
+    /// - Returns: The matching node.
+    /// - Throws: `GameEngineError.nodeMissing` if no node with the specified name exists.
+    func findNode(named nodeName: NodeName) throws -> Node {
+        guard let node = nodes.filter({ $0.name == nodeName }).first else {
+            throw GameEngineError.nodeMissing(nodeName)
+        }
+        return node
     }
 
     /// Returns the next node names from a given node
@@ -93,14 +101,14 @@ extension GameEngine {
         // Marker cannot move past the starting node
         // Display a score button
         if starting != nil, next == .bottomRightVertex, remainingSteps > 0 {
-            destination.insert(TargetNode(name: .bottomRightVertex, yootRoll: yootRoll, canScore: true))
+            destination.insert(TargetNode(name: .bottomRightVertex, yootRoll: yootRoll, isScoreable: true))
             return
         }
 
         // Marker is sitting on the starting node.
         // Display a starting button
         if starting == .bottomRightVertex, remainingSteps > 0 {
-            destination.insert(TargetNode(name: .bottomRightVertex, yootRoll: yootRoll, canScore: true))
+            destination.insert(TargetNode(name: .bottomRightVertex, yootRoll: yootRoll, isScoreable: true))
             return
         }
 
@@ -169,7 +177,7 @@ extension GameEngine {
         to destination: Node,
         startingPoint: Node,
         visited: Set<Node> = []
-    ) -> [Node]? {
+    ) throws -> [Node]? {
         // Prevent infinite loops
         guard !visited.contains(start) else { return nil }
 
@@ -186,9 +194,9 @@ extension GameEngine {
 
         // Recursively explore each next node
         for nextNodeName in nextSteps {
-            guard let nextNode = findNode(named: nextNodeName) else { continue }
+            let nextNode = try findNode(named: nextNodeName)
 
-            if let path = findRoute(
+            if let path = try findRoute(
                 from: nextNode,
                 to: destination,
                 startingPoint: startingPoint,
@@ -223,6 +231,7 @@ extension GameEngine {
 // MARK: - Target Nodes
 extension GameEngine {
     func updateTargetNodes(starting: NodeName? = nil, for rolls: [Yoot]) {
+        clearAllTargetNodes()
         targetNodes = calculateTargetNodes(starting: starting, for: rolls)
     }
 

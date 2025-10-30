@@ -16,11 +16,11 @@ struct GameStatusView: View {
             ForEach(players, id: \.self) { player in
                 PlayerStatusView(
                     player: player,
-                    rollResult: model.rollResult,
+                    rollResult: model.result,
                     isOutOfThrows: false,
                     isLoading: model.gameState == .animating,
-                    currentTurn: model.currentTurn,
-                    markersLeftToPlace: model.availableMarkerCount(for: player))
+                    currentPlayer: model.currentPlayer,
+                    markersLeftToPlace: model.remainingMarkerCount(for: player))
                 {
                     markerButtonTapped()
                 }
@@ -37,7 +37,7 @@ struct PlayerStatusView: View {
     var rollResult: [Yoot]
     var isOutOfThrows: Bool
     var isLoading: Bool
-    var currentTurn: Player
+    var currentPlayer: Player
     var markersLeftToPlace: Int
     let onMarkerTapped: () -> Void
 
@@ -50,7 +50,7 @@ struct PlayerStatusView: View {
     }
 
     var isPlayerTurn: Bool {
-        player.team == currentTurn.team
+        player.team == currentPlayer.team
     }
 
     var hasMarkersLeftToPlace: Bool {
