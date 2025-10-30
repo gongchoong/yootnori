@@ -10,24 +10,9 @@ import RealityKit
 import RealityKitContent
 
 struct MainView: View {
-    enum Constants {
-        static var boardViewName: String = "Board"
-        static var yootThrowBoardName: String = "YootThrowBoard"
-        static var debugViewName: String = "DebugView"
-        static var gameStatusViewName: String = "GameStatusView"
-        static var rollButtonName: String = "RollButton"
-        static var scoreButtonName: String = "ScoreButton"
-        static var boardPosition: SIMD3<Float> = [-0.1, 0.15, -0.1]
-        static var debugViewPosition: SIMD3<Float> = [0.3, 0.15, -0.1]
-        static var gameStatusViewPosition: SIMD3<Float> = [0.3, 0, -0.1]
-        static var throwBoardPosition: SIMD3<Float> = [0, -0.5, -0.2]
-        static var throwBoardScale: SIMD3<Float> = [0.05, 0.05, 0.05]
-        static var rollButtonPosition: SIMD3<Float> = [0, -0.4, 0.4]
-        static var scoreButtonPosition: SIMD3<Float> = [0.15, -0.34, -0.1]
-    }
-
     @EnvironmentObject var model: AppModel
     @Environment(\.physicalMetrics) var physicalMetrics
+    @Environment(\.mainViewConstants) private var mainViewConstants
     @State private var sceneUpdateSubscription: EventSubscription?
 
     static let runtimeQuery = EntityQuery(where: .has(MarkerRuntimeComponent.self))
@@ -66,13 +51,13 @@ struct MainView: View {
                 attachmentEntity.setPosition([0.0, 0.0, 0.02], relativeTo: entity)
             }
         } attachments: {
-            Attachment(id: Constants.boardViewName) {
+            Attachment(id: mainViewConstants.boardViewName) {
                 BoardView(viewModel: BoardViewModel()) { tile in
                     model.emit(event: .tapTile(tile))
                 }
             }
 
-            Attachment(id: Constants.debugViewName) {
+            Attachment(id: mainViewConstants.debugViewName) {
                 DebugMainView { result in
                     model.emit(event: .tapDebugRoll(result))
                 } markerButtonTapped: {
@@ -81,19 +66,19 @@ struct MainView: View {
 
             }
 
-            Attachment(id: Constants.gameStatusViewName) {
+            Attachment(id: mainViewConstants.gameStatusViewName) {
                 GameStatusView(players: [.playerA, .playerB]) {
                     model.emit(event: .tapNew)
                 }
             }
 
-            Attachment(id: Constants.rollButtonName) {
+            Attachment(id: mainViewConstants.rollButtonName) {
                 RollButton {
                     model.emit(event: .tapRoll)
                 }
             }
 
-            Attachment(id: Constants.scoreButtonName) {
+            Attachment(id: mainViewConstants.scoreButtonName) {
                 ScoreButton {
                     model.emit(event: .score)
                 }
@@ -126,42 +111,42 @@ struct MainView: View {
 @MainActor
 private extension MainView {
     func createBoard(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let board = attachments.entity(for: Constants.boardViewName) else { return }
+        guard let board = attachments.entity(for: mainViewConstants.boardViewName) else { return }
         model.rootEntity.addChild(board)
         content.add(self.model.rootEntity)
-        model.rootEntity.position = Constants.boardPosition
+        model.rootEntity.position = mainViewConstants.boardPosition
     }
 
     func createDebugView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let debugView = attachments.entity(for: Constants.debugViewName) else { return }
+        guard let debugView = attachments.entity(for: mainViewConstants.debugViewName) else { return }
         content.add(debugView)
-        debugView.position = Constants.debugViewPosition
+        debugView.position = mainViewConstants.debugViewPosition
     }
 
     func createGameStatusView(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let gameStatusView = attachments.entity(for: Constants.gameStatusViewName) else { return }
+        guard let gameStatusView = attachments.entity(for: mainViewConstants.gameStatusViewName) else { return }
         content.add(gameStatusView)
-        gameStatusView.position = Constants.gameStatusViewPosition
+        gameStatusView.position = mainViewConstants.gameStatusViewPosition
     }
 
     func createYootThrowBoard(_ content: RealityViewContent) async {
-        guard let board = try? await Entity(named: Constants.yootThrowBoardName, in: realityKitContentBundle) else { return }
+        guard let board = try? await Entity(named: mainViewConstants.yootThrowBoardName, in: realityKitContentBundle) else { return }
         content.add(board)
-        board.position = Constants.throwBoardPosition
-        board.scale = Constants.throwBoardScale
+        board.position = mainViewConstants.throwBoardPosition
+        board.scale = mainViewConstants.throwBoardScale
         model.setYootThrowBoard(board)
     }
 
     func createRollButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let rollButton = attachments.entity(for: Constants.rollButtonName) else { return }
+        guard let rollButton = attachments.entity(for: mainViewConstants.rollButtonName) else { return }
         content.add(rollButton)
-        rollButton.position = Constants.rollButtonPosition
+        rollButton.position = mainViewConstants.rollButtonPosition
     }
 
     func createScoreButton(_ content: RealityViewContent, _ attachments: RealityViewAttachments) async {
-        guard let scoreButton = attachments.entity(for: Constants.scoreButtonName) else { return }
+        guard let scoreButton = attachments.entity(for: mainViewConstants.scoreButtonName) else { return }
         content.add(scoreButton)
-        scoreButton.position = Constants.scoreButtonPosition
+        scoreButton.position = mainViewConstants.scoreButtonPosition
     }
 }
 
