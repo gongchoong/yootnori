@@ -106,7 +106,7 @@ extension AppModel {
         case .tapNew:
             await handleNewMarkerTap()
         case .tapRoll:
-            await roll()
+            try await roll()
         case .tapDebugRoll(let result):
             debugRoll(result)
         case .score:
@@ -121,11 +121,11 @@ extension AppModel {
         gameStateManager.startGame()
     }
 
-    func roll() async {
+    func roll() async throws {
         guard gameStateManager.state == .waitingForRoll ||
                 gameStateManager.state == .waitingForRollOrSelect else { return }
 
-        await rollManager.roll()
+        try await rollManager.roll()
     }
 
     func handleNewMarkerTap() async {

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Yoot: Int, CustomStringConvertible, CaseIterable {
+enum Yoot: Int, CustomStringConvertible, CaseIterable, Codable {
     case doe = 1   // 1 upside down
     case gae = 2   // 2 upside down
     case gull = 3  // 3 upside down
