@@ -54,6 +54,7 @@
 		54BE95542E01E369004D66EE /* YootRollManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* YootRollManager.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
+		54D1F11A2EB6870D00AA6A37 /* YootRollTransformData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D1F1192EB6870700AA6A37 /* YootRollTransformData.swift */; };
 		54D4B1B82E089972009CB19D /* RollButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D4B1B72E08996C009CB19D /* RollButton.swift */; };
 /* End PBXBuildFile section */
 
@@ -107,6 +108,7 @@
 		54BE95532E01E360004D66EE /* YootRollManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YootRollManager.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
+		54D1F1192EB6870700AA6A37 /* YootRollTransformData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YootRollTransformData.swift; sourceTree = "<group>"; };
 		54D4B1B72E08996C009CB19D /* RollButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollButton.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -237,11 +239,11 @@
 		541FC5172E35488A00E3742E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				54D1F1182EB686FF00AA6A37 /* YootRoll */,
 				540A1ED62E888B7700012CA3 /* SharePlay */,
 				541FC51C2E3EABC100E3742E /* GameStateManager.swift */,
 				541FC51A2E37F62100E3742E /* MarkerManager.swift */,
 				541FC5182E35489100E3742E /* GameEngine.swift */,
-				54BE95532E01E360004D66EE /* YootRollManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -379,6 +381,15 @@
 			path = ActionEvent;
 			sourceTree = "<group>";
 		};
+		54D1F1182EB686FF00AA6A37 /* YootRoll */ = {
+			isa = PBXGroup;
+			children = (
+				54D1F1192EB6870700AA6A37 /* YootRollTransformData.swift */,
+				54BE95532E01E360004D66EE /* YootRollManager.swift */,
+			);
+			path = YootRoll;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -477,6 +488,7 @@
 				54BDEE7A2EA83199007D128D /* ActionEventEmitter.swift in Sources */,
 				542702482CF832C0003F017B /* MarkerRuntimeComponent.swift in Sources */,
 				540A18F42C9F6CD500291CEF /* ContentView.swift in Sources */,
+				54D1F11A2EB6870D00AA6A37 /* YootRollTransformData.swift in Sources */,
 				546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */,
 				54B6DA2D2E1BA34C00F32A93 /* Player.swift in Sources */,
 				540A18F22C9F6CD500291CEF /* App.swift in Sources */,
