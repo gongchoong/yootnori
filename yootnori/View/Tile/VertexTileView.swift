@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct VertexTileView: View {
-    @Environment(\.vertexTileViewConstants) private var vertexConstants
     @EnvironmentObject var model: AppModel
 
     private let tile: Tile
@@ -16,52 +15,17 @@ struct VertexTileView: View {
     private let tileHeight: CGFloat
 
     var body: some View {
-        switch tile.location {
-        case .topLeftCorner, .topRightCorner, .bottomLeftCorner, .bottomRightCorner, .center:
-            let innerCircleWidth = tile.type == .edge ?
-                tileHeight * vertexConstants.verticeInnerHeightConstant :
-                tileHeight * vertexConstants.verticeInnerHeightConstant * vertexConstants.innerTileConstant
-            let outerCircleHeight = tile.type == .edge ?
-                tileHeight * vertexConstants.verticeOuterHeightConstant :
-                tileHeight * vertexConstants.verticeOuterHeightConstant * vertexConstants.innerTileConstant
-            ZStack {
-                VertexTileBackgroundView(
-                    isHighlighted: model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable },
-                    circleHeight: tileHeight
-                )
-                TileDecorationView(
-                    tile: tile,
-                    tileWidth: tileWidth,
-                    tileHeight: tileHeight,
-                    innerCircleHeight: innerCircleWidth,
-                    outerCircleHeight: outerCircleHeight,
-                    lineWidth: vertexConstants.verticeOuterLineWidth
-                )
-            }
-
-        case .edgeTop, .edgeBottom, .edgeRight, .edgeLeft, .diagonalTopLeft, .diagonalTopRight, .diagonalBottomLeft, .diagonalBottomRight:
-            let innerCircleWidth = tile.type == .edge ?
-                tileHeight * vertexConstants.edgeInnerHeightConstant :
-                tileHeight * vertexConstants.edgeInnerHeightConstant * vertexConstants.innerTileConstant
-            let outerCircleHeight = tile.type == .edge ?
-                tileHeight * vertexConstants.edgeOuterHeightConstant :
-                tileHeight * vertexConstants.edgeOuterHeightConstant * vertexConstants.innerTileConstant
-            ZStack {
-                VertexTileBackgroundView(
-                    isHighlighted: model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable },
-                    circleHeight: tileHeight
-                )
-                TileDecorationView(
-                    tile: tile,
-                    tileWidth: tileWidth,
-                    tileHeight: tileHeight,
-                    innerCircleHeight: innerCircleWidth,
-                    outerCircleHeight: outerCircleHeight,
-                    lineWidth: vertexConstants.verticeOuterLineWidth
-                )
-            }
-        default:
-            EmptyView()
+        ZStack {
+            VertexTileBackgroundView(
+                tile: tile,
+                isHighlighted: model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable },
+                circleHeight: tileHeight
+            )
+            TileDecorationView(
+                tile: tile,
+                tileWidth: tileWidth,
+                tileHeight: tileHeight
+            )
         }
     }
     
@@ -77,22 +41,45 @@ struct VertexTileView: View {
 }
 
 struct TileDecorationView: View {
+    @Environment(\.vertexTileViewConstants) private var vertexConstants
     @EnvironmentObject var model: AppModel
 
     private let tile: Tile
     private let tileWidth: CGFloat
     private let tileHeight: CGFloat
-    private let innerCircleHeight: CGFloat
-    private let outerCircleHeight: CGFloat
-    private let lineWidth: CGFloat
 
-    init(tile: Tile, tileWidth: CGFloat, tileHeight: CGFloat, innerCircleHeight: CGFloat, outerCircleHeight: CGFloat, lineWidth: CGFloat, didTapScore: (() -> Void)? = nil) {
+    private var innerCircleHeight: CGFloat {
+        let height: CGFloat
+        switch tile.location {
+        case .topLeftCorner, .topRightCorner, .bottomLeftCorner, .bottomRightCorner, .center:
+            height = tileHeight * vertexConstants.verticeInnerHeightConstant
+
+        case .edgeTop, .edgeBottom, .edgeRight, .edgeLeft, .diagonalTopLeft, .diagonalTopRight, .diagonalBottomLeft, .diagonalBottomRight:
+            height = tileHeight * vertexConstants.edgeInnerHeightConstant
+        default:
+            height = 0
+        }
+        return tile.type == .edge ? height : height * vertexConstants.innerTileConstant
+    }
+
+    private var outerCircleHeight: CGFloat {
+        let height: CGFloat
+        switch tile.location {
+        case .topLeftCorner, .topRightCorner, .bottomLeftCorner, .bottomRightCorner, .center:
+            height = tileHeight * vertexConstants.verticeOuterHeightConstant
+
+        case .edgeTop, .edgeBottom, .edgeRight, .edgeLeft, .diagonalTopLeft, .diagonalTopRight, .diagonalBottomLeft, .diagonalBottomRight:
+            height = tileHeight * vertexConstants.edgeOuterHeightConstant
+        default:
+            height = 0
+        }
+        return tile.type == .edge ? height : height * vertexConstants.innerTileConstant
+    }
+
+    init(tile: Tile, tileWidth: CGFloat, tileHeight: CGFloat, didTapScore: (() -> Void)? = nil) {
         self.tile = tile
         self.tileWidth = tileWidth
         self.tileHeight = tileHeight
-        self.innerCircleHeight = innerCircleHeight
-        self.outerCircleHeight = outerCircleHeight
-        self.lineWidth = lineWidth
     }
 
     var body: some View {
@@ -104,7 +91,7 @@ struct TileDecorationView: View {
 
                 Circle()
                     .fill(.clear)
-                    .stroke(.black, lineWidth: lineWidth)
+                    .stroke(.black, lineWidth: vertexConstants.verticeOuterLineWidth)
                     .frame(width: outerCircleHeight, height: outerCircleHeight)
 
                 ForEach(tile.paths ?? [], id: \.self) { path in
@@ -120,33 +107,6 @@ struct TileDecorationView: View {
         }
     }
 }
-
-struct ScoreButton: View {
-    @EnvironmentObject var model: AppModel
-    var action: () -> Void   // closure for button tap
-
-    var body: some View {
-        Button(action: action) {
-            ZStack {
-                Rectangle()
-                    .fill(Color.red)
-                    .aspectRatio(2.8, contentMode: .fit)
-                    .cornerRadius(6) // optional nicer look
-
-                Text("SCORE")
-                    .foregroundColor(.white)
-                    .font(.largeTitle)
-                    .bold()
-            }
-        }
-        .frame(width: 140, height: 60)
-        .buttonStyle(.plain) // prevents SwiftUI's default blue highlight
-        .opacity(model.shouldDisplayScoreButton ? 1 : 0)
-        .disabled(!model.shouldDisplayScoreButton)
-    }
-}
-
-
 
 #Preview {
     VertexTileView(

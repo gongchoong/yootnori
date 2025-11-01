@@ -12,7 +12,7 @@ struct GameStatusView: View {
     var markerButtonTapped: (() -> Void)
 
     var body: some View {
-        VStack(alignment: .center, spacing: 50) {
+        HStack(alignment: .center, spacing: 50) {
             ForEach(players, id: \.self) { player in
                 PlayerStatusView(
                     player: player,
@@ -64,12 +64,6 @@ struct PlayerStatusView: View {
                 .padding(.horizontal, 10)
                 .padding(.vertical, 6)
                 .foregroundColor(.primary)
-            
-            Text(description)
-                .font(.system(size: 40))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .foregroundColor(.secondary)
             
             Button(action: onMarkerTapped) {
                 Text("New Marker \(markersLeftToPlace)")
