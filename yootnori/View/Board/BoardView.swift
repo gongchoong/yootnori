@@ -48,6 +48,7 @@ struct BoardView: View {
             .frame(width: Dimensions.Screen.totalSize(self.physicalMetrics) * 4/6,
                    height: Dimensions.Screen.totalSize(self.physicalMetrics) * 4/6)
         }
+        .glassBackgroundEffect()
     }
 }
 

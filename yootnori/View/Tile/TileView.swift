@@ -29,8 +29,7 @@ struct TileView: View {
                     tileHeight: geometry.size.height
                 )
             case .hidden, .stage:
-                Rectangle()
-                    .fill(boardViewConstants.boardColor)
+                Color.clear
             }
         }
         .onTapGesture {

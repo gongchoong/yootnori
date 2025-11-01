@@ -43,6 +43,7 @@
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
 		546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E32DB4223E0032C0A6 /* NodeConfig.swift */; };
 		546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E52DB4296F0032C0A6 /* TileConfig.swift */; };
+		5473C7572EB6A4A500D5E308 /* ScoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5473C7562EB6A4A300D5E308 /* ScoreButton.swift */; };
 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
 		549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549615B62E109B06000E7C60 /* IntroductoryView.swift */; };
@@ -96,6 +97,7 @@
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
 		546745E32DB4223E0032C0A6 /* NodeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConfig.swift; sourceTree = "<group>"; };
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
+		5473C7562EB6A4A300D5E308 /* ScoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreButton.swift; sourceTree = "<group>"; };
 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
 		549615B62E109B06000E7C60 /* IntroductoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroductoryView.swift; sourceTree = "<group>"; };
@@ -350,6 +352,7 @@
 		546745E72DB43A2A0032C0A6 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				5473C7562EB6A4A300D5E308 /* ScoreButton.swift */,
 				54D4B1B72E08996C009CB19D /* RollButton.swift */,
 				540EE1BA2C9F6EC70056F03C /* MainView.swift */,
 			);
@@ -500,6 +503,7 @@
 				540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */,
 				54BE95542E01E369004D66EE /* YootRollManager.swift in Sources */,
 				54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */,
+				5473C7572EB6A4A500D5E308 /* ScoreButton.swift in Sources */,
 				54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */,
 				541FC5192E35489200E3742E /* GameEngine.swift in Sources */,
 				5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */,
