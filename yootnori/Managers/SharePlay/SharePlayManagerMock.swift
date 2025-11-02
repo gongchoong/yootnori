@@ -5,7 +5,6 @@
 //  Created by David Lee on 9/27/25.
 //
 
-#if MOCK
 import Foundation
 import Combine
 import GroupActivities
@@ -16,6 +15,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
     @Published var sharePlaySession: GroupSessionMock<AppGroupActivityMock>?
     var sharePlayMessenger: GroupSessionMessengerMock?
     var tasks = Set<Task<Void, Never>>()
+    private var subscriptions = Set<AnyCancellable>()
 
     init() {
         // SharePlayMockManager.enable(webSocketUrl: "ws://[ip_address]:8080/endpoint")
@@ -67,15 +67,16 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                     }
                 )
 
-//                session.$activeParticipants
-//                    .sink {
-//                        let newParticipants = $0.subtracting(session.activeParticipants)
-//                        Task { @MainActor in
+                session.$activeParticipants
+                    .sink {
+                        let newParticipants = $0.subtracting(session.activeParticipants)
+                        Task { @MainActor in
 //                            try? await messenger.send(EnlargeMessage(enlarged: self.enlarged),
 //                                                      to: .only(newParticipants))
-//                        }
-//                    }
-//                    .store(in: &self.subscriptions)
+                            print("Participants \(newParticipants)")
+                        }
+                    }
+                    .store(in: &self.subscriptions)
 //
 //                session.$state
 //                    .sink {
@@ -95,4 +96,3 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
         }
     }
 }
-#endif

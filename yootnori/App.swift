@@ -13,7 +13,7 @@ struct yootnoriApp: App {
     @StateObject private var model: AppModel
 
     init() {
-        #if MOCK
+        #if SHAREPLAY_MOCK
         print("BUILD SETTING: MOCK")
         let sharePlayManager = SharePlayManagerMock()
         #else
