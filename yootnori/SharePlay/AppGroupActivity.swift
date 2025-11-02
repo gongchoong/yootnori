@@ -17,7 +17,6 @@ struct AppGroupActivity: GroupActivity {
     }
 }
 
-#if MOCK
 class AppGroupActivityMock: GroupActivityMock {
 
     typealias ActivityType = AppGroupActivityMock.Activity
@@ -37,4 +36,3 @@ class AppGroupActivityMock: GroupActivityMock {
         }
     }
 }
-#endif

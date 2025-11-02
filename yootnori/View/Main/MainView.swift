@@ -24,7 +24,7 @@ struct MainView: View {
     var body: some View {
         RealityView { content, attachments in
             await createBoard(content, attachments)
-            #if DEBUG
+            #if DEBUG_MODE
             await createDebugView(content, attachments)
             await createScoreButton(content, attachments)
             #else

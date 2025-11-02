@@ -1,0 +1,17 @@
+//
+//  Environments.xcconfig
+//  yootnori
+//
+//  Created by David Lee on 11/1/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
+
+SHAREPLAY_MOCK = YES
+SWIFT_ACTIVE_COMPILATION_CONDITIONS_SHAREPLAY_MOCK_YES = $(inherited) SHAREPLAY_MOCK
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_SHAREPLAY_MOCK_$(SHAREPLAY_MOCK))
+
+DEBUG_MODE = YES
+SWIFT_ACTIVE_COMPILATION_CONDITIONS_DEBUG_MODE_YES = $(inherited) DEBUG_MODE
+SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_DEBUG_MODE_$(DEBUG_MODE))
