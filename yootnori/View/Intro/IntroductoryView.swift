@@ -11,7 +11,8 @@ struct IntroductoryView: View {
     @Binding var showIntro: Bool
     @State private var started: Bool = false
     var didTapStartButton: () -> Void
-    
+    var didTapSharePlayButton: () -> Void
+
     var body: some View {
         VStack(spacing: 25) {
             
@@ -67,35 +68,47 @@ struct IntroductoryView: View {
                 }
             }
 
-            // Start Button
-            Button(action: {
-                guard !started else { return }
-                started = true
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    showIntro = false
-                }
-                didTapStartButton()
-            }) {
-                HStack {
-                    Image(systemName: "play.fill")
-                        .font(.title2)
-                    Text("Start Game")
-                        .font(.system(size: 36, weight: .semibold))
-                }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, minHeight: 80)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.blue, Color.purple]),
-                        startPoint: .leading,
-                        endPoint: .trailing
+            HStack {
+                // Start Button
+                Button(action: {
+                    guard !started else { return }
+                    started = true
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showIntro = false
+                    }
+                    didTapStartButton()
+                }) {
+                    HStack {
+                        Image(systemName: "play.fill")
+                            .font(.title2)
+                        Text("Start Game")
+                            .font(.system(size: 36, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity, minHeight: 80)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.blue, Color.purple]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
                     )
-                )
-                .cornerRadius(25)
-                .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
+                    .cornerRadius(25)
+                    .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
+                }
+                .disabled(!showIntro)
+                .buttonStyle(.plain)
+
+                Button {
+                    didTapSharePlayButton()
+                } label: {
+                    Image(systemName: "shareplay")
+                        .imageScale(.large)
+                        .foregroundStyle(Color.accentColor)
+                }
+                .frame(width: 80, height: 80)
+                .buttonStyle(.plain)
             }
-            .disabled(!showIntro)
-            .buttonStyle(.plain)
         }
         .padding(.all, 80)
     }
@@ -117,5 +130,5 @@ struct IntroductoryView: View {
 }
 
 #Preview {
-    IntroductoryView(showIntro: .constant(true), didTapStartButton: {})
+    IntroductoryView(showIntro: .constant(true), didTapStartButton: {}, didTapSharePlayButton: {})
 }

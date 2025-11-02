@@ -26,6 +26,8 @@ struct FullSpaceView: View {
             if showIntroduction {
                 IntroductoryView(showIntro: $showIntroduction) {
                     model.emit(event: .startGame)
+                } didTapSharePlayButton: {
+                    model.startSharePlay()
                 }
                 .frame(maxWidth: 1100, maxHeight: 1200)
                 .glassBackgroundEffect()

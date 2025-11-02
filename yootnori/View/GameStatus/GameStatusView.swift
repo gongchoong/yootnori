@@ -19,7 +19,7 @@ struct GameStatusView: View {
                     rollResult: model.result,
                     isOutOfThrows: false,
                     isLoading: model.gameState == .animating,
-                    currentPlayer: model.currentPlayer,
+                    currentTurn: model.currentTurn,
                     markersLeftToPlace: model.remainingMarkerCount(for: player))
                 {
                     markerButtonTapped()
@@ -37,7 +37,7 @@ struct PlayerStatusView: View {
     var rollResult: [Yoot]
     var isOutOfThrows: Bool
     var isLoading: Bool
-    var currentPlayer: Player
+    var currentTurn: Player
     var markersLeftToPlace: Int
     let onMarkerTapped: () -> Void
 
@@ -50,7 +50,7 @@ struct PlayerStatusView: View {
     }
 
     var isPlayerTurn: Bool {
-        player.team == currentPlayer.team
+        player.team == currentTurn.team
     }
 
     var hasMarkersLeftToPlace: Bool {

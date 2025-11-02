@@ -29,12 +29,12 @@ enum GameAction {
 @MainActor
 final class GameStateManager: ObservableObject {
     @Published private(set) var state: GameState = .idle
-    @Published private(set) var currentPlayer: Player = .none
+    @Published private(set) var currentTurn: Player = .none
     @Published private(set) var playerCanThrowAgain: Bool = false
 
     // MARK: - State Transitions
     func startGame() {
-        currentPlayer = .playerA
+        currentTurn = .playerA
         transition(to: .waitingForRoll)
     }
     
@@ -86,7 +86,7 @@ final class GameStateManager: ObservableObject {
 
     func switchTurn() {
         guard state == .turnEnded else { return }
-        currentPlayer = currentPlayer == .playerA ? .playerB : .playerA
+        currentTurn = currentTurn.opponent
         transition(to: .waitingForRoll)
     }
 

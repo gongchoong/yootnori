@@ -18,7 +18,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
     private var subscriptions = Set<AnyCancellable>()
 
     init() {
-        // SharePlayMockManager.enable(webSocketUrl: "ws://[ip_address]:8080/endpoint")
+        SharePlayMockManager.enable(webSocketUrl: "ws://192.168.4.22:8080/endpoint")
     }
 
     func startSharePlay() {
@@ -73,7 +73,9 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                         Task { @MainActor in
 //                            try? await messenger.send(EnlargeMessage(enlarged: self.enlarged),
 //                                                      to: .only(newParticipants))
-                            print("Participants \(newParticipants)")
+                            for participant in newParticipants {
+                                print("Participant \(participant)")
+                            }
                         }
                     }
                     .store(in: &self.subscriptions)
