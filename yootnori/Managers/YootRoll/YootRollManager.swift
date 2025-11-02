@@ -21,6 +21,7 @@ class YootRollManager: ObservableObject {
     enum YootRollError: Error {
         case yootBoardNotFound
         case yootEntityNotFound
+        case unableToDiscardRoll
     }
 
     enum Constants {
@@ -123,11 +124,12 @@ class YootRollManager: ObservableObject {
         wasMoving = currentlyMoving
     }
 
-    func discardRoll(for target: TargetNode) {
+    func discardRoll(for target: TargetNode) throws {
         guard let index = result.firstIndex(of: target.yootRoll) else {
-            return
+            throw YootRollError.unableToDiscardRoll
         }
         result.remove(at: index)
+        print("Roll discarded in YootRollManager \(result)")
     }
 }
 

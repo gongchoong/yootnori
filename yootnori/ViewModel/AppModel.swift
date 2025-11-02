@@ -53,7 +53,9 @@ class AppModel: ObservableObject {
     @Published private(set) var targetNodes: Set<TargetNode> = []
     @Published private(set) var currentPlayer: Player = .none
     @Published private(set) var selectedMarker: SelectedMarker = .none
-    @Published private(set) var result: [Yoot] = []
+    var result: [Yoot] {
+        rollManager.result
+    }
 
     private func observe() {
         Task { @MainActor in
@@ -83,10 +85,6 @@ class AppModel: ObservableObject {
         markerManager.$selectedMarker
             .receive(on: RunLoop.main)
             .assign(to: &$selectedMarker)
-
-        rollManager.resultPublisher
-            .receive(on: RunLoop.main)
-            .assign(to: &$result)
     }
 }
 
@@ -148,11 +146,11 @@ extension AppModel {
         case .existing(let entity):
             await markerManager.drop(entity)
             markerManager.setSelectedMarker(.new)
-            gameEngine.updateTargetNodes(for: result)
+            gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .none:
             markerManager.setSelectedMarker(.new)
-            gameEngine.updateTargetNodes(for: result)
+            gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .new:
             markerManager.setSelectedMarker(.none)
@@ -256,7 +254,7 @@ private extension AppModel {
 
                 // Show valid target tiles based on this marker's position.
                 let node = try markerManager.findNode(for: destinationMarker)
-                gameEngine.updateTargetNodes(starting: node.name, for: result)
+                gameEngine.updateTargetNodes(starting: node.name, for: rollManager.result)
                 updateGameState(actionResult: .lift)
             }
         }
@@ -264,6 +262,9 @@ private extension AppModel {
 
     func handleTileTap(_ tile: Tile) async throws {
         let destinationNode = try gameEngine.findNode(named: tile.nodeName)
+        // Proceed only when user tapped a tile that's a target node.
+        // Else, return.
+        guard onTargetNode(destinationNode) else { return }
         switch selectedMarker {
         case .new:
             guard remainingMarkerCount(for: currentPlayer) > 0 else { return }
@@ -374,6 +375,11 @@ extension AppModel {
         return gameEngine.targetNodes.contains { $0.name == node.name }
     }
 
+    // User can only tap tiles that are target nodes.
+    private func onTargetNode(_ node: Node) -> Bool {
+        return gameEngine.targetNodes.contains { $0.name == node.name }
+    }
+
     func checkForLanding() {
         rollManager.checkForLanding()
     }
@@ -401,14 +407,14 @@ extension AppModel {
         guard let targetNode = self.gameEngine.getTargetNode(nodeName: destinationNode.name) else {
             throw MarkerActionError.targetNodeMissing(node: destinationNode)
         }
-        rollManager.discardRoll(for: targetNode)
+        try rollManager.discardRoll(for: targetNode)
     }
 
     func discardRoll(name: NodeName) throws {
         guard let targetNode = self.gameEngine.getTargetNode(nodeName: name) else {
             throw MarkerActionError.targetNodeMissing(node: .bottomRightVertex)
         }
-        rollManager.discardRoll(for: targetNode)
+        try rollManager.discardRoll(for: targetNode)
     }
 }
 
@@ -437,7 +443,7 @@ private extension AppModel {
 
         case .capture:
             gameStateManager.setCanThrowAgain()
-            if result.isEmpty {
+            if rollManager.result.isEmpty {
                 gameStateManager.canRollAgain()
             } else {
                 gameStateManager.canRollOrMove()
@@ -457,13 +463,13 @@ private extension AppModel {
 
     func handlePostMoveOrScore() {
         if gameStateManager.playerCanThrowAgain {
-            if result.isEmpty {
+            if rollManager.result.isEmpty {
                 gameStateManager.canRollAgain()
             } else {
                 gameStateManager.canRollOrMove()
             }
         } else {
-            if result.isEmpty {
+            if rollManager.result.isEmpty {
                 gameStateManager.finishTurn()
                 gameStateManager.switchTurn()
             } else {
@@ -489,7 +495,7 @@ extension AppModel {
 
 extension AppModel: MarkerManagerDelegate {
     func didTapPromotedMarkerLevel(marker: Entity) {
-        if !result.isEmpty {
+        if !rollManager.result.isEmpty {
             self.emit(event: .tapMarker(marker))
         }
     }
