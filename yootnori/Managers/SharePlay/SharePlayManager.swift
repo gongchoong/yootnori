@@ -8,18 +8,14 @@
 import Foundation
 import Combine
 import GroupActivities
-
-protocol SharePlayManagerProtocol {
-    func startSharePlay()
-    func configureGroupSessions()
-    func sendMessage(_ message: GroupMessage)
-}
+import SharePlayMock
 
 class SharePlayManager: SharePlayManagerProtocol {
-
+    var sharePlayMessenger: SharePlayMock.GroupSessionMessengerMock?
     @Published var sharePlaySession: GroupSession<AppGroupActivity>?
-    var sharePlayMessenger: GroupSessionMessenger?
+    // var sharePlayMessenger: GroupSessionMessenger?
     var tasks = Set<Task<Void, Never>>()
+    weak var delegate: SharePlayManagerDelegate?
 
     func startSharePlay() {
         Task {
@@ -51,7 +47,7 @@ class SharePlayManager: SharePlayManagerProtocol {
             for await session in AppGroupActivity.sessions() {
                 self.sharePlaySession = session
                 let messenger = GroupSessionMessenger(session: session)
-                self.sharePlayMessenger = messenger
+                // self.sharePlayMessenger = messenger
 
                 self.tasks.insert(
                     Task {

@@ -5,14 +5,14 @@
 //  Created by David Lee on 9/29/24.
 //
 
-enum TileType {
+enum TileType: Codable {
     case edge
     case hidden
     case inner
     case stage
 }
 
-enum TileLocation {
+enum TileLocation: Codable {
     case topLeftCorner
     case topRightCorner
     case bottomRightCorner
@@ -28,7 +28,7 @@ enum TileLocation {
     case diagonalBottomLeft
 }
 
-enum TilePath {
+enum TilePath: Codable {
     case top
     case left
     case right

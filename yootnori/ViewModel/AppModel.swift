@@ -26,17 +26,18 @@ class AppModel: ObservableObject {
 
     // Dependencies
     private let rollManager: YootRollManager
-    private var gameStateManager: GameStateManager
+    private var gameStateManager: SharePlayGameStateManager
     private let markerManager: MarkerManager
     private var gameEngine: GameEngine
-    private let sharePlayManager: SharePlayManagerProtocol
+    private var sharePlayManager: SharePlayManagerProtocol
 
-    init(rollManager: YootRollManager, gameStateManager: GameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, sharePlayManager: SharePlayManagerProtocol) {
+    init(rollManager: YootRollManager, gameStateManager: SharePlayGameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, sharePlayManager: SharePlayManagerProtocol) {
         self.rollManager = rollManager
         self.gameStateManager = gameStateManager
         self.markerManager = markerManager
         self.gameEngine = gameEngine
         self.sharePlayManager = sharePlayManager
+        self.sharePlayManager.delegate = self
         self.rollManager.delegate = self
         self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
@@ -54,6 +55,7 @@ class AppModel: ObservableObject {
     @Published private(set) var currentTurn: Player = .none
     @Published private(set) var selectedMarker: SelectedMarker = .none
     @Published private(set) var result: [Yoot] = []
+    @Published private(set) var isMyTurn: Bool = false
 
     private func observe() {
         Task { @MainActor in
@@ -87,6 +89,10 @@ class AppModel: ObservableObject {
         rollManager.resultPublisher
             .receive(on: RunLoop.main)
             .assign(to: &$result)
+
+        gameStateManager.$isMyTurn
+            .receive(on: RunLoop.main)
+            .assign(to: &$isMyTurn)
     }
 }
 
@@ -527,7 +533,19 @@ extension AppModel {
     }
 
     func sendMessage() {
-        let message = GroupMessage(id: .init(), message: "Test message \(Date.now)")
-        self.sharePlayManager.sendMessage(message)
+//        let message = GroupMessage(id: .init(), message: "Test message \(Date.now)")
+//        self.sharePlayManager.sendMessage(message)
     }
+}
+
+extension AppModel: @preconcurrency SharePlayManagerDelegate {
+    func didReceivePlayerAssignmentMessage(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) {
+        do {
+            try gameStateManager.assignPlayer(participantIDs: participantIDs, localParticipantID: localParticipantID, seed: seed)
+        } catch {
+            fatalError("\(error)")
+        }
+        gameStateManager.establishSharePlay()
+    }
+
 }

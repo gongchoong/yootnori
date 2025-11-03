@@ -21,7 +21,7 @@ struct yootnoriApp: App {
         #endif
         let appModel = AppModel(
             rollManager: YootRollManager(),
-            gameStateManager: GameStateManager(),
+            gameStateManager: SharePlayGameStateManager(),
             markerManager: MarkerManager(),
             gameEngine: GameEngine(),
             sharePlayManager: sharePlayManager
