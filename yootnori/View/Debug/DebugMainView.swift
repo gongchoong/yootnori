@@ -12,6 +12,14 @@ struct DebugMainView: View {
     var rollButtonTapped: ((Yoot) -> Void)
     var markerButtonTapped: (() -> Void)
 
+    private var shouldDisableRollButton: Bool {
+        !(model.isMyTurn || [.waitingForSelect, .waitingForRollOrSelect].contains(model.gameState))
+    }
+
+    private var shouldDisableNewMarkerButton: Bool {
+        !(model.isMyTurn || [.waitingForSelect, .waitingForRollOrSelect, .waitingForMove].contains(model.gameState))
+    }
+
     var body: some View {
         VStack(spacing: 10) {
             Text(String(describing: model.currentTurn.team.name))
@@ -25,8 +33,8 @@ struct DebugMainView: View {
                         .font(.system(size: 40))
                         .fontWeight(.bold)
                 }
+                disabled(shouldDisableRollButton)
             }
-            .disabled(model.gameState != .waitingForRoll && model.gameState != .waitingForRollOrSelect)
 
             Text(String(describing: model.result.map { "\($0.steps)" }))
                 .font(.system(size: 40))
@@ -41,16 +49,7 @@ struct DebugMainView: View {
             .background(model.selectedMarker == .new ? Color.white : Color.accentColor)
             .clipShape(Capsule())
             .animation(.easeInOut, value: model.selectedMarker == .new)
-            .disabled(model.gameState != .waitingForSelect && model.gameState != .waitingForRollOrSelect && model.gameState != .waitingForMove)
-
-//            Button {
-//                model.startSharePlay()
-//            } label: {
-//                Image(systemName: "shareplay")
-//                    .imageScale(.large)
-//                    .foregroundStyle(Color.accentColor)
-//            }
-//            .buttonStyle(.plain)
+            disabled(shouldDisableNewMarkerButton)
         }
     }
 }

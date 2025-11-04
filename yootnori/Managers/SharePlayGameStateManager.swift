@@ -13,7 +13,7 @@ enum GameStateManagerError: Error {
 @MainActor
 final class SharePlayGameStateManager: ObservableObject {
     @Published private(set) var state: GameState = .idle
-    @Published private(set) var currentTurn: Player = .playerA
+    @Published private(set) var currentTurn: Player = .none
     @Published private(set) var playerCanThrowAgain: Bool = false
     @Published private(set) var isMyTurn: Bool = false
     private(set) var myPlayer: Player = .none {
