@@ -14,7 +14,7 @@ struct DebugMainView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Text(String(describing: model.currentPlayer.team.name))
+            Text(String(describing: model.currentTurn.team.name))
                 .font(.system(size: 40))
                 .fontWeight(.bold)
             ForEach(Yoot.allCases, id: \.self) { roll in
@@ -34,7 +34,7 @@ struct DebugMainView: View {
             Button {
                 markerButtonTapped()
             } label: {
-                Text("\(model.remainingMarkerCount(for: model.currentPlayer))x")
+                Text("\(model.remainingMarkerCount(for: model.currentTurn))x")
                     .font(.system(size: 40))
             }
             .foregroundStyle(model.selectedMarker == .new ? Color.accentColor : .white)

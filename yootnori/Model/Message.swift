@@ -7,7 +7,12 @@
 
 import Foundation
 
+enum TempActionEvent: Codable {
+    case assignPlayer(_ seed: UInt64)
+}
+
 struct GroupMessage: Codable {
     let id: UUID
     let message: String
+    let tempActionEvent: TempActionEvent
 }
