@@ -18,15 +18,11 @@ struct DebugMainView: View {
                 .font(.system(size: 40))
                 .fontWeight(.bold)
             ForEach(Yoot.allCases, id: \.self) { roll in
-                Button {
-                    rollButtonTapped(roll)
-                } label: {
-                    Text("Roll \(roll.steps)")
-                        .font(.system(size: 40))
-                        .fontWeight(.bold)
+                DebugYootButton(yoot: roll) { result in
+                    rollButtonTapped(result)
                 }
             }
-            .disabled(model.gameState != .waitingForRoll && model.gameState != .waitingForRollOrSelect)
+            .disabled(model.gameState != .waitingForRoll && model.gameState != .waitingForRollOrSelect && !model.isMyTurn)
 
             Text(String(describing: model.result.map { "\($0.steps)" }))
                 .font(.system(size: 40))
@@ -42,15 +38,21 @@ struct DebugMainView: View {
             .clipShape(Capsule())
             .animation(.easeInOut, value: model.selectedMarker == .new)
             .disabled(model.gameState != .waitingForSelect && model.gameState != .waitingForRollOrSelect && model.gameState != .waitingForMove)
+        }
+    }
+}
 
-//            Button {
-//                model.startSharePlay()
-//            } label: {
-//                Image(systemName: "shareplay")
-//                    .imageScale(.large)
-//                    .foregroundStyle(Color.accentColor)
-//            }
-//            .buttonStyle(.plain)
+struct DebugYootButton: View {
+    var yoot: Yoot
+    var buttonTapped: ((Yoot) -> Void)
+
+    var body: some View {
+        Button {
+            buttonTapped(yoot)
+        } label: {
+            Text("Roll \(yoot.steps)")
+                .font(.system(size: 40))
+                .fontWeight(.bold)
         }
     }
 }

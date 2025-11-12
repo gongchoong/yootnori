@@ -20,6 +20,8 @@ protocol SharePlayManagerProtocol {
 
 protocol SharePlayManagerDelegate: AnyObject {
     func didReceivePlayerAssignmentMessage(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64)
+    func didEstablishSharePlayFromOpponent()
+    func didReceiveDebugRollMessage(result: Yoot, turn: Player)
 }
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
@@ -76,13 +78,17 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                 self.tasks.insert(
                     Task {
                         for await (message, _) in messenger.messages(of: GroupMessage.self) {
-                            switch message.tempActionEvent {
+                            switch message.sharePlayActionEvent {
                             case .assignPlayer(let seed):
                                 delegate?.didReceivePlayerAssignmentMessage(
                                     participantIDs: session.activeParticipants.map(\.id),
                                     localParticipantID: session.localParticipant.id,
                                     seed: seed
                                 )
+                            case .established:
+                                delegate?.didEstablishSharePlayFromOpponent()
+                            case .debugRoll(let result, let turn):
+                                delegate?.didReceiveDebugRollMessage(result: result, turn: turn)
                             }
                         }
                     }
@@ -98,7 +104,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                         Task { @MainActor in
                             let seed = UInt64.random(in: 0..<UInt64.max)
                             try? await self.sharePlayMessenger?.send(
-                                GroupMessage(id: UUID(), message: "Game Started", tempActionEvent: .assignPlayer(seed))
+                                GroupMessage(id: UUID(), sharePlayActionEvent: .assignPlayer(seed))
                             )
                         }
                     }

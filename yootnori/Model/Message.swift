@@ -7,12 +7,13 @@
 
 import Foundation
 
-enum TempActionEvent: Codable {
+enum SharePlayActionEvent: Codable {
     case assignPlayer(_ seed: UInt64)
+    case established
+    case debugRoll(_ result: Yoot, _ turn: Player)
 }
 
 struct GroupMessage: Codable {
     let id: UUID
-    let message: String
-    let tempActionEvent: TempActionEvent
+    let sharePlayActionEvent: SharePlayActionEvent
 }

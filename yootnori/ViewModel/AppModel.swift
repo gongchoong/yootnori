@@ -117,6 +117,8 @@ extension AppModel {
             debugRoll(result)
         case .score:
             try await handleScore()
+        default:
+            return
         }
     }
 }
@@ -540,13 +542,24 @@ extension AppModel {
         self.sharePlayManager.configureGroupSessions()
     }
 
-    func sendMessage() {
+    func sendMessage(_ event: ActionEvent) {
 //        let message = GroupMessage(id: .init(), message: "Test message \(Date.now)")
 //        self.sharePlayManager.sendMessage(message)
+        switch event {
+        case .tapDebugRoll(let result):
+            let message = GroupMessage(id: UUID(), sharePlayActionEvent: .debugRoll(result, currentTurn))
+            self.sharePlayManager.sendMessage(message)
+        case .establishedSharePlay:
+            let message = GroupMessage(id: UUID(), sharePlayActionEvent: .established)
+            self.sharePlayManager.sendMessage(message)
+        default:
+            return
+        }
     }
 }
 
 extension AppModel: @preconcurrency SharePlayManagerDelegate {
+
     func didReceivePlayerAssignmentMessage(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) {
         do {
             try gameStateManager.assignPlayer(participantIDs: participantIDs, localParticipantID: localParticipantID, seed: seed)
@@ -554,6 +567,15 @@ extension AppModel: @preconcurrency SharePlayManagerDelegate {
             fatalError("\(error)")
         }
         gameStateManager.establishSharePlay()
+        sendMessage(.establishedSharePlay)
+    }
+
+    func didEstablishSharePlayFromOpponent() {
+        gameStateManager.establishSharePlay()
+    }
+
+    func didReceiveDebugRollMessage(result: Yoot, turn: Player) {
+        debugRoll(result)
     }
 
 }
