@@ -12,6 +12,20 @@ struct DebugMainView: View {
     var rollButtonTapped: ((Yoot) -> Void)
     var markerButtonTapped: (() -> Void)
 
+    /// Indicates whether the Yoot roll buttons should be disabled.
+    /// Enabled only when it is the local player's turn **and** the current game state
+    /// expects a roll (e.g., `.waitingForRoll` or `.waitingForRollOrSelect`).
+    var yootButtonDisabled: Bool {
+        model.isMyTurn ? ![.waitingForRoll, .waitingForRollOrSelect].contains(model.gameState) : true
+    }
+
+    /// Indicates whether the “new marker” button should be disabled.
+    /// Enabled only when it is the local player's turn **and** the game state allows
+    /// selecting or placing a new marker (e.g., `.waitingForSelect`, `.waitingForRollOrSelect`, `.waitingForMove`).
+    var newMarkerButtonDisabled: Bool {
+        model.isMyTurn ? ![.waitingForSelect, .waitingForRollOrSelect, .waitingForMove].contains(model.gameState) : true
+    }
+
     var body: some View {
         VStack(spacing: 10) {
             Text(String(describing: model.currentTurn.team.name))
@@ -22,7 +36,7 @@ struct DebugMainView: View {
                     rollButtonTapped(result)
                 }
             }
-            .disabled(model.gameState != .waitingForRoll && model.gameState != .waitingForRollOrSelect && !model.isMyTurn)
+            .disabled(yootButtonDisabled)
 
             Text(String(describing: model.result.map { "\($0.steps)" }))
                 .font(.system(size: 40))
@@ -37,7 +51,7 @@ struct DebugMainView: View {
             .background(model.selectedMarker == .new ? Color.white : Color.accentColor)
             .clipShape(Capsule())
             .animation(.easeInOut, value: model.selectedMarker == .new)
-            .disabled(model.gameState != .waitingForSelect && model.gameState != .waitingForRollOrSelect && model.gameState != .waitingForMove)
+            .disabled(newMarkerButtonDisabled)
         }
     }
 }

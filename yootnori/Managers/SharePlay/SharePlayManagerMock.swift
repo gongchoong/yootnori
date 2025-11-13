@@ -19,9 +19,33 @@ protocol SharePlayManagerProtocol {
 }
 
 protocol SharePlayManagerDelegate: AnyObject {
-    func didReceivePlayerAssignmentMessage(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64)
-    func didEstablishSharePlayFromOpponent()
-    func didReceiveDebugRollMessage(result: Yoot, turn: Player)
+    /// Called when the SharePlay manager assigns player identities for the session.
+    ///
+    /// - Parameters:
+    ///   - participantIDs: The ordered list of all participant IDs in the session.
+    ///   - localParticipantID: The ID representing the local participant.
+    ///   - seed: A seed value used to synchronize deterministic state (e.g., RNG).
+    func sharePlayManager(
+        didAssignPlayersWith participantIDs: [UUID],
+        localParticipantID: UUID,
+        seed: UInt64
+    )
+
+    /// Called when an opponent successfully establishes a SharePlay connection with the local device.
+    func sharePlayManagerDidEstablishConnectionFromOpponent()
+
+    /// Called when a debug roll result is received during development/testing.
+    ///
+    /// - Parameters:
+    ///   - result: The debug-generated `Yoot` roll value.
+    ///   - turn: The player whose turn this roll corresponds to.
+    func sharePlayManager(
+        didReceiveDebugRollResult result: Yoot,
+        forTurn turn: Player
+    )
+
+    /// Called when the SharePlay session signals that gameplay should begin.
+    func sharePlayManagerDidInitiateGameStart()
 }
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
@@ -80,15 +104,17 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                         for await (message, _) in messenger.messages(of: GroupMessage.self) {
                             switch message.sharePlayActionEvent {
                             case .assignPlayer(let seed):
-                                delegate?.didReceivePlayerAssignmentMessage(
-                                    participantIDs: session.activeParticipants.map(\.id),
+                                delegate?.sharePlayManager(
+                                    didAssignPlayersWith: session.activeParticipants.map(\.id),
                                     localParticipantID: session.localParticipant.id,
                                     seed: seed
                                 )
                             case .established:
-                                delegate?.didEstablishSharePlayFromOpponent()
+                                delegate?.sharePlayManagerDidEstablishConnectionFromOpponent()
+                            case .startGame:
+                                delegate?.sharePlayManagerDidInitiateGameStart()
                             case .debugRoll(let result, let turn):
-                                delegate?.didReceiveDebugRollMessage(result: result, turn: turn)
+                                delegate?.sharePlayManager(didReceiveDebugRollResult: result, forTurn: turn)
                             }
                         }
                     }
@@ -109,19 +135,6 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                         }
                     }
                     .store(in: &self.subscriptions)
-//
-//                session.$state
-//                    .sink {
-//                        if case .invalidated = $0 {
-//                            self.sharePlayMessenger = nil
-//                            self.tasks.forEach { $0.cancel() }
-//                            self.tasks = []
-//                            self.subscriptions = []
-//                            self.sharePlaySession = nil
-//                            self.sharePlayEnabled = false
-//                        }
-//                    }
-//                    .store(in: &self.subscriptions)
 
                 session.join()
             }

@@ -103,8 +103,11 @@ extension AppModel {
 
     private func handleActionEvent(_ actionEvent: ActionEvent) async throws {
         switch actionEvent {
+        case .startSharePlay:
+            startSharePlay()
         case .startGame:
             startGame()
+            sendSharePlayMessage(.startGame)
         case .tapMarker(let marker):
             try await handleMarkerTap(marker)
         case .tapTile(let tile):
@@ -125,6 +128,10 @@ extension AppModel {
 
 // MARK: Button tap
 extension AppModel {
+    func startSharePlay() {
+        self.sharePlayManager.startSharePlay()
+    }
+
     func startGame() {
         gameStateManager.startGame()
     }
@@ -534,23 +541,20 @@ extension AppModel {
 
 // MARK: - Group Activity
 extension AppModel {
-    func startSharePlay() {
-        self.sharePlayManager.startSharePlay()
-    }
-
     func configureGroupSessions() {
         self.sharePlayManager.configureGroupSessions()
     }
 
-    func sendMessage(_ event: ActionEvent) {
-//        let message = GroupMessage(id: .init(), message: "Test message \(Date.now)")
-//        self.sharePlayManager.sendMessage(message)
+    func sendSharePlayMessage(_ event: ActionEvent) {
         switch event {
         case .tapDebugRoll(let result):
             let message = GroupMessage(id: UUID(), sharePlayActionEvent: .debugRoll(result, currentTurn))
             self.sharePlayManager.sendMessage(message)
-        case .establishedSharePlay:
+        case .opponentEstablishedSharePlay:
             let message = GroupMessage(id: UUID(), sharePlayActionEvent: .established)
+            self.sharePlayManager.sendMessage(message)
+        case .startGame:
+            let message = GroupMessage(id: UUID(), sharePlayActionEvent: .startGame)
             self.sharePlayManager.sendMessage(message)
         default:
             return
@@ -558,24 +562,28 @@ extension AppModel {
     }
 }
 
-extension AppModel: @preconcurrency SharePlayManagerDelegate {
+extension AppModel: @MainActor SharePlayManagerDelegate {
 
-    func didReceivePlayerAssignmentMessage(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) {
+    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) {
         do {
             try gameStateManager.assignPlayer(participantIDs: participantIDs, localParticipantID: localParticipantID, seed: seed)
         } catch {
             fatalError("\(error)")
         }
         gameStateManager.establishSharePlay()
-        sendMessage(.establishedSharePlay)
+        sendSharePlayMessage(.opponentEstablishedSharePlay)
     }
 
-    func didEstablishSharePlayFromOpponent() {
+    func sharePlayManagerDidEstablishConnectionFromOpponent() {
         gameStateManager.establishSharePlay()
     }
 
-    func didReceiveDebugRollMessage(result: Yoot, turn: Player) {
+    func sharePlayManager(didReceiveDebugRollResult result: Yoot, forTurn turn: Player) {
         debugRoll(result)
+    }
+
+    func sharePlayManagerDidInitiateGameStart() {
+        gameStateManager.startGame()
     }
 
 }

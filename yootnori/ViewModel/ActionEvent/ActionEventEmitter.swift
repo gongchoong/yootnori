@@ -21,7 +21,8 @@ enum ActionEvent {
     case tapDebugRoll(Yoot)
     case score
 
-    case establishedSharePlay
+    case startSharePlay
+    case opponentEstablishedSharePlay
 }
 
 final class ActionEventEmitter {

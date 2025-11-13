@@ -9,7 +9,6 @@ import SwiftUI
 
 struct IntroductoryView: View {
     @EnvironmentObject var model: AppModel
-    @Binding var showIntro: Bool
     @State private var started: Bool = false
     var didTapStartButton: () -> Void
     var didTapSharePlayButton: () -> Void
@@ -84,12 +83,9 @@ struct IntroductoryView: View {
                 IntroductoryViewActionButton(image: Image(systemName: "play.fill"), title: startButtonTitle) {
                     guard !started else { return }
                     started = true
-                    withAnimation(.easeInOut(duration: 0.5)) {
-                        showIntro = false
-                    }
                     didTapStartButton()
                 }
-                .disabled(!(showIntro && model.gameState == .establishedSharePlay && model.isMyTurn))
+                .disabled(!(model.gameState == .establishedSharePlay && model.isMyTurn))
                 .opacity(model.gameState == .establishedSharePlay && model.isMyTurn ? 1 : 0.5)
 
                 #if SHAREPLAY_MOCK
@@ -153,5 +149,5 @@ fileprivate struct IntroductoryViewActionButton: View {
 }
 
 #Preview {
-    IntroductoryView(showIntro: .constant(true), didTapStartButton: {}, didTapSharePlayButton: {})
+    IntroductoryView(didTapStartButton: {}, didTapSharePlayButton: {})
 }
