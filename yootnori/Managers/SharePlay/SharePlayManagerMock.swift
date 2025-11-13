@@ -38,14 +38,12 @@ protocol SharePlayManagerDelegate: AnyObject {
     ///
     /// - Parameters:
     ///   - result: The debug-generated `Yoot` roll value.
-    ///   - turn: The player whose turn this roll corresponds to.
-    func sharePlayManager(
-        didReceiveDebugRollResult result: Yoot,
-        forTurn turn: Player
-    )
+    func sharePlayManager(didReceiveDebugRollResult result: Yoot)
 
     /// Called when the SharePlay session signals that gameplay should begin.
     func sharePlayManagerDidInitiateGameStart()
+
+    func sharePlayManagerDidTapNewMarkerButton()
 }
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
@@ -113,8 +111,10 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                                 delegate?.sharePlayManagerDidEstablishConnectionFromOpponent()
                             case .startGame:
                                 delegate?.sharePlayManagerDidInitiateGameStart()
-                            case .debugRoll(let result, let turn):
-                                delegate?.sharePlayManager(didReceiveDebugRollResult: result, forTurn: turn)
+                            case .newMarkerButtonTap:
+                                delegate?.sharePlayManagerDidTapNewMarkerButton()
+                            case .debugRoll(let result):
+                                delegate?.sharePlayManager(didReceiveDebugRollResult: result)
                             }
                         }
                     }

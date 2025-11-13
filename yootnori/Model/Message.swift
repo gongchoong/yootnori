@@ -11,7 +11,8 @@ enum SharePlayActionEvent: Codable {
     case assignPlayer(_ seed: UInt64)
     case established
     case startGame
-    case debugRoll(_ result: Yoot, _ turn: Player)
+    case newMarkerButtonTap
+    case debugRoll(_ result: Yoot)
 }
 
 struct GroupMessage: Codable {

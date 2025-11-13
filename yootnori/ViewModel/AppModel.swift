@@ -114,14 +114,14 @@ extension AppModel {
             try await handleTileTap(tile)
         case .tapNew:
             await handleNewMarkerTap()
+            sendSharePlayMessage(.newMarkerButtonTap)
         case .tapRoll:
             try await roll()
         case .tapDebugRoll(let result):
             debugRoll(result)
+            sendSharePlayMessage(.debugRoll(result))
         case .score:
             try await handleScore()
-        default:
-            return
         }
     }
 }
@@ -545,20 +545,9 @@ extension AppModel {
         self.sharePlayManager.configureGroupSessions()
     }
 
-    func sendSharePlayMessage(_ event: ActionEvent) {
-        switch event {
-        case .tapDebugRoll(let result):
-            let message = GroupMessage(id: UUID(), sharePlayActionEvent: .debugRoll(result, currentTurn))
-            self.sharePlayManager.sendMessage(message)
-        case .opponentEstablishedSharePlay:
-            let message = GroupMessage(id: UUID(), sharePlayActionEvent: .established)
-            self.sharePlayManager.sendMessage(message)
-        case .startGame:
-            let message = GroupMessage(id: UUID(), sharePlayActionEvent: .startGame)
-            self.sharePlayManager.sendMessage(message)
-        default:
-            return
-        }
+    func sendSharePlayMessage(_ event: SharePlayActionEvent) {
+        let message = GroupMessage(id: UUID(), sharePlayActionEvent: event)
+        self.sharePlayManager.sendMessage(message)
     }
 }
 
@@ -571,19 +560,29 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
             fatalError("\(error)")
         }
         gameStateManager.establishSharePlay()
-        sendSharePlayMessage(.opponentEstablishedSharePlay)
+        sendSharePlayMessage(.established)
     }
 
     func sharePlayManagerDidEstablishConnectionFromOpponent() {
         gameStateManager.establishSharePlay()
     }
 
-    func sharePlayManager(didReceiveDebugRollResult result: Yoot, forTurn turn: Player) {
-        debugRoll(result)
+    func sharePlayManager(didReceiveDebugRollResult result: Yoot) {
+        if !isMyTurn {
+            debugRoll(result)
+        }
     }
 
     func sharePlayManagerDidInitiateGameStart() {
         gameStateManager.startGame()
+    }
+
+    func sharePlayManagerDidTapNewMarkerButton() {
+        if !isMyTurn {
+            Task {
+                await handleNewMarkerTap()
+            }
+        }
     }
 
 }

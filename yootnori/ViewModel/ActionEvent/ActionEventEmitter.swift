@@ -13,6 +13,7 @@ enum ActionEventError: Error {
 }
 
 enum ActionEvent {
+    case startSharePlay
     case startGame
     case tapMarker(Marker)
     case tapTile(Tile)
@@ -20,9 +21,6 @@ enum ActionEvent {
     case tapRoll
     case tapDebugRoll(Yoot)
     case score
-
-    case startSharePlay
-    case opponentEstablishedSharePlay
 }
 
 final class ActionEventEmitter {
