@@ -32,7 +32,7 @@ protocol SharePlayManagerDelegate: AnyObject {
     )
 
     /// Called when an opponent successfully establishes a SharePlay connection with the local device.
-    func sharePlayManagerDidEstablishConnectionFromOpponent()
+    func sharePlayManagerDidEstablish()
 
     /// Called when a debug roll result is received during development/testing.
     ///
@@ -44,6 +44,8 @@ protocol SharePlayManagerDelegate: AnyObject {
     func sharePlayManagerDidInitiateGameStart()
 
     func sharePlayManagerDidTapNewMarkerButton()
+
+    func sharePlayManager(didTapTile tile: Tile)
 }
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
@@ -51,12 +53,13 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
     @Published var sharePlaySession: GroupSessionMock<AppGroupActivityMock>?
     var sharePlayMessenger: GroupSessionMessengerMock?
     weak var delegate: SharePlayManagerDelegate?
-    var tasks = Set<Task<Void, Never>>()
+
+    private var tasks = Set<Task<Void, Never>>()
     private var subscriptions = Set<AnyCancellable>()
     private var gameStarted: Bool = false
 
     init() {
-        SharePlayMockManager.enable(webSocketUrl: "ws://192.168.4.22:8080/endpoint")
+        SharePlayMockManager.enable(webSocketUrl: "ws://[ip]/endpoint")
     }
 
     func startSharePlay() {
@@ -108,13 +111,15 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                                     seed: seed
                                 )
                             case .established:
-                                delegate?.sharePlayManagerDidEstablishConnectionFromOpponent()
+                                delegate?.sharePlayManagerDidEstablish()
                             case .startGame:
                                 delegate?.sharePlayManagerDidInitiateGameStart()
                             case .newMarkerButtonTap:
                                 delegate?.sharePlayManagerDidTapNewMarkerButton()
                             case .debugRoll(let result):
                                 delegate?.sharePlayManager(didReceiveDebugRollResult: result)
+                            case .tapTile(let tile):
+                                delegate?.sharePlayManager(didTapTile: tile)
                             }
                         }
                     }

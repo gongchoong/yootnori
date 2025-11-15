@@ -101,9 +101,11 @@ struct MainView: View {
             sceneUpdateSubscription?.cancel()
         }
         .disabled(model.gameState == .animating)
+        #if SHAREPLAY_MOCK
         .task {
             model.configureGroupSessions()
         }
+        #endif
         .environmentObject(model)
     }
 }

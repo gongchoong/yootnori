@@ -14,6 +14,7 @@ struct IntroductoryView: View {
     var didTapSharePlayButton: () -> Void
 
     private var startButtonTitle: String {
+        #if SHAREPLAY_MOCK
         switch model.gameState {
         case .idle:
             return "Waiting for SharePlay"
@@ -22,6 +23,9 @@ struct IntroductoryView: View {
         default:
             return ""
         }
+        #else
+        "Start Game"
+        #endif
     }
 
     var body: some View {
@@ -85,8 +89,10 @@ struct IntroductoryView: View {
                     started = true
                     didTapStartButton()
                 }
+                #if SHAREPLAY_MOCK
                 .disabled(!(model.gameState == .establishedSharePlay && model.isMyTurn))
                 .opacity(model.gameState == .establishedSharePlay && model.isMyTurn ? 1 : 0.5)
+                #endif
 
                 #if SHAREPLAY_MOCK
                 IntroductoryViewActionButton(image: Image(systemName: "shareplay"), title: "Share Play") {

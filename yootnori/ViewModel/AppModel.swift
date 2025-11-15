@@ -104,22 +104,33 @@ extension AppModel {
     private func handleActionEvent(_ actionEvent: ActionEvent) async throws {
         switch actionEvent {
         case .startSharePlay:
+            #if SHAREPLAY_MOCK
             startSharePlay()
+            #endif
         case .startGame:
             startGame()
+            #if SHAREPLAY_MOCK
             sendSharePlayMessage(.startGame)
+            #endif
         case .tapMarker(let marker):
             try await handleMarkerTap(marker)
         case .tapTile(let tile):
             try await handleTileTap(tile)
+            #if SHAREPLAY_MOCK
+            sendSharePlayMessage(.tapTile(tile))
+            #endif
         case .tapNew:
             await handleNewMarkerTap()
+            #if SHAREPLAY_MOCK
             sendSharePlayMessage(.newMarkerButtonTap)
+            #endif
         case .tapRoll:
             try await roll()
         case .tapDebugRoll(let result):
             debugRoll(result)
+            #if SHAREPLAY_MOCK
             sendSharePlayMessage(.debugRoll(result))
+            #endif
         case .score:
             try await handleScore()
         }
@@ -163,10 +174,12 @@ extension AppModel {
         case .existing(let entity):
             await markerManager.drop(entity)
             markerManager.setSelectedMarker(.new)
+            guard isMyTurn else { return }
             gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .none:
             markerManager.setSelectedMarker(.new)
+            guard isMyTurn else { return }
             gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .new:
@@ -293,7 +306,6 @@ private extension AppModel {
             self.gameStateManager.startAnimating()
             let sourceMarker = try await self.markerManager.create(at: .bottomRightVertex, for: self.currentTurn)
             try await self.markerManager.move(sourceMarker, to: destinationNode, using: self.gameEngine)
-
 
             if let destinationMarker = self.markerManager.findMarker(for: destinationNode) {
                 // If a marker already exists on the selected tile, find which player
@@ -563,7 +575,7 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
         sendSharePlayMessage(.established)
     }
 
-    func sharePlayManagerDidEstablishConnectionFromOpponent() {
+    func sharePlayManagerDidEstablish() {
         gameStateManager.establishSharePlay()
     }
 
@@ -585,4 +597,11 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
         }
     }
 
+    func sharePlayManager(didTapTile tile: Tile) {
+        if !isMyTurn {
+            Task {
+                try await handleTileTap(tile)
+            }
+        }
+    }
 }

@@ -33,7 +33,11 @@ struct FullSpaceView: View {
                 .glassBackgroundEffect()
                 .cornerRadius(20)
                 .scaleEffect(showIntroduction ? 1.0 : 0.8)
+                #if SHAREPLAY_MOCK
                 .opacity([.idle, .establishedSharePlay].contains(model.gameState) ? 1.0 : 0.0)
+                #else
+                .opacity([.idle].contains(model.gameState) ? 1.0 : 0.0)
+                #endif
                 .transition(.asymmetric(
                     insertion: .scale.combined(with: .opacity),
                     removal: .scale.combined(with: .opacity)

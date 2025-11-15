@@ -30,7 +30,7 @@ class Player: Equatable, Hashable, Codable {
 }
 
 extension Player {
-    var opponent: Player {
+    var next: Player {
         switch self {
         case .playerA:
             return .playerB
