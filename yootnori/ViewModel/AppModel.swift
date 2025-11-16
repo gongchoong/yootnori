@@ -136,6 +136,9 @@ extension AppModel {
             #endif
             debugRoll(result)
         case .score:
+            #if SHAREPLAY_MOCK
+            sendSharePlayMessage(.tapScore)
+            #endif
             try await handleScore()
         }
     }
@@ -612,6 +615,14 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
             Task {
                 guard let marker = markerManager.findMarker(for: node) else { return }
                 try await handleMarkerTap(marker)
+            }
+        }
+    }
+
+    func sharePlayManagerDidTapScore() {
+        if !isMyTurn {
+            Task {
+                try await handleScore()
             }
         }
     }

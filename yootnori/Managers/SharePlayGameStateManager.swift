@@ -93,6 +93,7 @@ final class SharePlayGameStateManager: ObservableObject {
 
     func endGame(winner: Player) {
         transition(to: .gameOver(winner: winner))
+        print("GameOver: Winner -> \(currentTurn.team)")
     }
 
     // MARK: - Helpers

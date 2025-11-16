@@ -48,6 +48,8 @@ protocol SharePlayManagerDelegate: AnyObject {
     func sharePlayManager(didTapTile tile: Tile)
 
     func sharePlayManager(didTapMarker node: Node)
+
+    func sharePlayManagerDidTapScore()
 }
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
@@ -61,7 +63,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
     private var gameStarted: Bool = false
 
     init() {
-        SharePlayMockManager.enable(webSocketUrl: "ws://[ip]:8080/endpoint")
+        SharePlayMockManager.enable(webSocketUrl: "ws://192.168.4.22:8080/endpoint")
     }
 
     func startSharePlay() {
@@ -124,6 +126,8 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                                 delegate?.sharePlayManager(didTapTile: tile)
                             case .tapMarker(let node):
                                 delegate?.sharePlayManager(didTapMarker: node)
+                            case .tapScore:
+                                delegate?.sharePlayManagerDidTapScore()
                             }
                         }
                     }
