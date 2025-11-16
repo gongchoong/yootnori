@@ -108,29 +108,33 @@ extension AppModel {
             startSharePlay()
             #endif
         case .startGame:
-            startGame()
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.startGame)
             #endif
+            startGame()
         case .tapMarker(let marker):
+            #if SHAREPLAY_MOCK
+            let node = try markerManager.findNode(for: marker)
+            sendSharePlayMessage(.tapMarker(on: node))
+            #endif
             try await handleMarkerTap(marker)
         case .tapTile(let tile):
-            try await handleTileTap(tile)
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.tapTile(tile))
             #endif
+            try await handleTileTap(tile)
         case .tapNew:
-            await handleNewMarkerTap()
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.newMarkerButtonTap)
             #endif
+            await handleNewMarkerTap()
         case .tapRoll:
             try await roll()
         case .tapDebugRoll(let result):
-            debugRoll(result)
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.debugRoll(result))
             #endif
+            debugRoll(result)
         case .score:
             try await handleScore()
         }
@@ -174,12 +178,10 @@ extension AppModel {
         case .existing(let entity):
             await markerManager.drop(entity)
             markerManager.setSelectedMarker(.new)
-            guard isMyTurn else { return }
             gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .none:
             markerManager.setSelectedMarker(.new)
-            guard isMyTurn else { return }
             gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .new:
@@ -601,6 +603,15 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
         if !isMyTurn {
             Task {
                 try await handleTileTap(tile)
+            }
+        }
+    }
+
+    func sharePlayManager(didTapMarker node: Node) {
+        if !isMyTurn {
+            Task {
+                guard let marker = markerManager.findMarker(for: node) else { return }
+                try await handleMarkerTap(marker)
             }
         }
     }

@@ -13,14 +13,14 @@ enum GameStateManagerError: Error {
 @MainActor
 final class SharePlayGameStateManager: ObservableObject {
     @Published private(set) var state: GameState = .idle
-    @Published private(set) var currentTurn: Player = .none
-    @Published private(set) var playerCanThrowAgain: Bool = false
-    @Published private(set) var isMyTurn: Bool = false
-    private(set) var myPlayer: Player = .none {
+    @Published private(set) var currentTurn: Player = .none {
         didSet {
             isMyTurn = currentTurn == myPlayer
         }
     }
+    @Published private(set) var playerCanThrowAgain: Bool = false
+    @Published private(set) var isMyTurn: Bool = false
+    private(set) var myPlayer: Player = .none
 
     // MARK: - State Transitions
     func establishSharePlay() {
@@ -32,7 +32,6 @@ final class SharePlayGameStateManager: ObservableObject {
         #if !SHAREPLAY_MOCK
         myPlayer = .playerA
         #endif
-        currentTurn = .playerA
         transition(to: .waitingForRoll)
     }
 
@@ -84,10 +83,11 @@ final class SharePlayGameStateManager: ObservableObject {
 
     func switchTurn() {
         guard state == .turnEnded else { return }
-        currentTurn = currentTurn.next
         #if !SHAREPLAY_MOCK
         myPlayer = currentTurn
         #endif
+        currentTurn = currentTurn.next
+        print("GameState: Turn Changed -> \(currentTurn.team)")
         transition(to: .waitingForRoll)
     }
 
@@ -141,5 +141,6 @@ extension SharePlayGameStateManager {
         }
 
         self.myPlayer = player
+        self.currentTurn = .playerA
     }
 }

@@ -14,6 +14,7 @@ enum SharePlayActionEvent: Codable {
     case newMarkerButtonTap
     case debugRoll(_ result: Yoot)
     case tapTile(_ tile: Tile)
+    case tapMarker(on: Node)
 }
 
 struct GroupMessage: Codable {

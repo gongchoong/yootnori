@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Node: Hashable {
+struct Node: Hashable, Codable {
     let name: NodeName
     let index: Index
     let next: [NodeName]
