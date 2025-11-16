@@ -8,7 +8,7 @@
 // Configuration settings file format documentation can be found at:
 // https://developer.apple.com/documentation/xcode/adding-a-build-configuration-file-to-your-project
 
-SHAREPLAY_MOCK = YES
+SHAREPLAY_MOCK = NO
 SWIFT_ACTIVE_COMPILATION_CONDITIONS_SHAREPLAY_MOCK_YES = $(inherited) SHAREPLAY_MOCK
 SWIFT_ACTIVE_COMPILATION_CONDITIONS = $(inherited) $(SWIFT_ACTIVE_COMPILATION_CONDITIONS_SHAREPLAY_MOCK_$(SHAREPLAY_MOCK))
 

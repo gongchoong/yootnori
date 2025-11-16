@@ -31,6 +31,7 @@ final class SharePlayGameStateManager: ObservableObject {
     func startGame() {
         #if !SHAREPLAY_MOCK
         myPlayer = .playerA
+        currentTurn = myPlayer
         #endif
         transition(to: .waitingForRoll)
     }
@@ -83,10 +84,12 @@ final class SharePlayGameStateManager: ObservableObject {
 
     func switchTurn() {
         guard state == .turnEnded else { return }
-        #if !SHAREPLAY_MOCK
-        myPlayer = currentTurn
-        #endif
+        #if SHAREPLAY_MOCK
         currentTurn = currentTurn.next
+        #else
+        myPlayer = currentTurn.next
+        currentTurn = myPlayer
+        #endif
         print("GameState: Turn Changed -> \(currentTurn.team)")
         transition(to: .waitingForRoll)
     }
