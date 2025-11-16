@@ -40,6 +40,8 @@ protocol SharePlayManagerDelegate: AnyObject {
     ///   - result: The debug-generated `Yoot` roll value.
     func sharePlayManager(didReceiveDebugRollResult result: Yoot)
 
+    func sharePlayManager(didReceiveBufferFrame bufferFrame: [ThrowFrame], result: Yoot) async
+
     /// Called when the SharePlay session signals that gameplay should begin.
     func sharePlayManagerDidInitiateGameStart()
 
@@ -63,7 +65,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
     private var gameStarted: Bool = false
 
     init() {
-        SharePlayMockManager.enable(webSocketUrl: "ws://192.168.4.22:8080/endpoint")
+        SharePlayMockManager.enable(webSocketUrl: "ws://[ip]:8080/endpoint")
     }
 
     func startSharePlay() {
@@ -120,6 +122,8 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                                 delegate?.sharePlayManagerDidInitiateGameStart()
                             case .newMarkerButtonTap:
                                 delegate?.sharePlayManagerDidTapNewMarkerButton()
+                            case .roll(let bufferFrame, let result):
+                                await delegate?.sharePlayManager(didReceiveBufferFrame: bufferFrame, result: result)
                             case .debugRoll(let result):
                                 delegate?.sharePlayManager(didReceiveDebugRollResult: result)
                             case .tapTile(let tile):

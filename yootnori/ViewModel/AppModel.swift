@@ -86,7 +86,7 @@ class AppModel: ObservableObject {
             .receive(on: RunLoop.main)
             .assign(to: &$selectedMarker)
 
-        rollManager.resultPublisher
+        rollManager.$result
             .receive(on: RunLoop.main)
             .assign(to: &$result)
 
@@ -536,7 +536,8 @@ extension AppModel: MarkerManagerDelegate {
 }
 
 @MainActor
-extension AppModel: @preconcurrency YootRollDelegate {
+extension AppModel: YootRollDelegate {
+
     func yootRollDidStartRoll() {
         gameStateManager.startRolling()
     }
@@ -545,8 +546,17 @@ extension AppModel: @preconcurrency YootRollDelegate {
         gameStateManager.finishRolling()
     }
 
+    func yootRollDidFinishRoll(with buffer: [ThrowFrame], result: Yoot) {
+        sendSharePlayMessage(.roll(bufferFrame: buffer, result: result))
+        gameStateManager.finishRolling()
+    }
+
     func yootRollDidRollDouble() {
         gameStateManager.setCanThrowAgain()
+    }
+
+    func yootRollDidRollSingle() {
+        gameStateManager.unsetCanThrowAgain()
     }
 }
 
@@ -582,6 +592,22 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
 
     func sharePlayManagerDidEstablish() {
         gameStateManager.establishSharePlay()
+    }
+
+    func sharePlayManager(didReceiveBufferFrame bufferFrame: [ThrowFrame], result: Yoot) async {
+        if !isMyTurn {
+            do {
+                try await rollManager.replayThrowFromNetwork(bufferFrame: bufferFrame)
+            } catch {
+                fatalError("\(error)")
+            }
+            if result.canThrowAgain {
+                gameStateManager.setCanThrowAgain()
+            } else {
+                gameStateManager.unsetCanThrowAgain()
+            }
+            rollManager.result.append(result)
+        }
     }
 
     func sharePlayManager(didReceiveDebugRollResult result: Yoot) {
