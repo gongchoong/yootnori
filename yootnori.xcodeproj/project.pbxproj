@@ -58,6 +58,7 @@
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
 		54D1F11A2EB6870D00AA6A37 /* YootRollTransformData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D1F1192EB6870700AA6A37 /* YootRollTransformData.swift */; };
 		54D4B1B82E089972009CB19D /* RollButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54D4B1B72E08996C009CB19D /* RollButton.swift */; };
+		54DADF272ED24E7D009A6388 /* SharePlayMessageProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54DADF262ED24E7B009A6388 /* SharePlayMessageProcessor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -115,6 +116,7 @@
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
 		54D1F1192EB6870700AA6A37 /* YootRollTransformData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YootRollTransformData.swift; sourceTree = "<group>"; };
 		54D4B1B72E08996C009CB19D /* RollButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RollButton.swift; sourceTree = "<group>"; };
+		54DADF262ED24E7B009A6388 /* SharePlayMessageProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayMessageProcessor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -204,6 +206,7 @@
 		540A1ED62E888B7700012CA3 /* SharePlay */ = {
 			isa = PBXGroup;
 			children = (
+				54DADF262ED24E7B009A6388 /* SharePlayMessageProcessor.swift */,
 				540A1ED42E88864B00012CA3 /* SharePlayManagerMock.swift */,
 				540A1EC82E88666900012CA3 /* SharePlayManager.swift */,
 			);
@@ -500,6 +503,7 @@
 				546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */,
 				54B6DA2D2E1BA34C00F32A93 /* Player.swift in Sources */,
 				540A18F22C9F6CD500291CEF /* App.swift in Sources */,
+				54DADF272ED24E7D009A6388 /* SharePlayMessageProcessor.swift in Sources */,
 				549AC3902E5B8FB800150D28 /* Constants.swift in Sources */,
 				546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */,
 				540A1EC92E88666C00012CA3 /* SharePlayManager.swift in Sources */,

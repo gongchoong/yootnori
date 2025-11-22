@@ -58,6 +58,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
 
     @Published var sharePlaySession: GroupSessionMock<AppGroupActivityMock>?
     var sharePlayMessenger: GroupSessionMessengerMock?
+    private let messageProcessor = SharePlayMessageProcessor()
     weak var delegate: SharePlayManagerDelegate?
 
     private var tasks = Set<Task<Void, Never>>()
@@ -105,6 +106,7 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                 self.sharePlaySession = session
                 let messenger = GroupSessionMessengerMock(session: session)
                 self.sharePlayMessenger = messenger
+                await messageProcessor.setDelegate(self.delegate)
 
                 self.tasks.insert(
                     Task { @MainActor in
@@ -115,36 +117,16 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                             default:
                                 print("Serialization Received \(message.sharePlayActionEvent)")
                             }
-//                            try? await Task.sleep(for: .seconds(2))
-//                            print("Serialization slept for 2 seconds")
+
                             do {
-                                switch message.sharePlayActionEvent {
-                                case .assignPlayer(let seed):
-                                    await delegate?.sharePlayManager(
-                                        didAssignPlayersWith: session.activeParticipants.map(\.id),
-                                        localParticipantID: session.localParticipant.id,
-                                        seed: seed
-                                    )
-                                case .established:
-                                    await delegate?.sharePlayManagerDidEstablish()
-                                case .startGame:
-                                    await delegate?.sharePlayManagerDidInitiateGameStart()
-                                case .newMarkerButtonTap:
-                                    await delegate?.sharePlayManagerDidTapNewMarkerButton()
-                                case .roll(let bufferFrame, let result):
-                                    await delegate?.sharePlayManager(didReceiveBufferFrame: bufferFrame, result: result)
-                                case .debugRoll(let result):
-                                    await delegate?.sharePlayManager(didReceiveDebugRollResult: result)
-                                case .tapTile(let tile):
-                                    try await delegate?.sharePlayManager(didTapTile: tile)
-                                case .tapMarker(let node):
-                                    try await delegate?.sharePlayManager(didTapMarker: node)
-                                case .tapScore:
-                                    try await delegate?.sharePlayManagerDidTapScore()
-                                }
+                                try await messageProcessor.processMessage(
+                                    message.sharePlayActionEvent,
+                                    session: session
+                                )
                             } catch {
-                                fatalError("\(error)")
+                                print("Message processing error: \(error)")
                             }
+
                             switch message.sharePlayActionEvent {
                             case .roll:
                                 print("Serialization Finished roll")
