@@ -111,7 +111,7 @@ extension AppModel {
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.startGame)
             #endif
-            startGame()
+            await startGame()
         case .tapMarker(let marker):
             #if SHAREPLAY_MOCK
             let node = try markerManager.findNode(for: marker)
@@ -134,7 +134,7 @@ extension AppModel {
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.debugRoll(result))
             #endif
-            debugRoll(result)
+            await debugRoll(result)
         case .score:
             #if SHAREPLAY_MOCK
             sendSharePlayMessage(.tapScore)
@@ -150,7 +150,7 @@ extension AppModel {
         self.sharePlayManager.startSharePlay()
     }
 
-    func startGame() {
+    func startGame() async {
         gameStateManager.startGame()
     }
 
@@ -308,7 +308,7 @@ private extension AppModel {
             gameEngine.clearAllTargetNodes()
             markerManager.setSelectedMarker(.none)
 
-            self.gameStateManager.startAnimating()
+            gameStateManager.startAnimating()
             let sourceMarker = try await self.markerManager.create(at: .bottomRightVertex, for: self.currentTurn)
             try await self.markerManager.move(sourceMarker, to: destinationNode, using: self.gameEngine)
 
@@ -321,19 +321,19 @@ private extension AppModel {
                 // If on the same team, piggyback.
                 if player.team == self.currentTurn.team {
                     try await self.markerManager.piggyBack(rider: sourceMarker, carrier: destinationMarker)
-                    self.updateGameState(actionResult: .piggyback)
+                    updateGameState(actionResult: .piggyback)
                 } else {
                     // If not on the same team, capture.
                     await markerManager.capture(capturing: sourceMarker, captured: destinationMarker)
 
                     // Assign the new marker to the destination node.
                     markerManager.assign(marker: sourceMarker, to: destinationNode, player: currentTurn)
-                    self.updateGameState(actionResult: .capture)
+                    updateGameState(actionResult: .capture)
                 }
             } else {
                 // If no marker is on the tile, just move.
                 self.markerManager.assign(marker: sourceMarker, to: destinationNode, player: self.currentTurn)
-                self.updateGameState(actionResult: .move)
+                updateGameState(actionResult: .move)
             }
         case .existing(let sourceMarker):
             // Locate the current position of the selected marker.
@@ -390,7 +390,7 @@ private extension AppModel {
             try self.markerManager.handleScore(player: self.currentTurn)
 
             markerManager.setSelectedMarker(.none)
-            self.updateGameState(actionResult: .score)
+            updateGameState(actionResult: .score)
         default:
             throw MarkerActionError.invalidSelectedMarker(selectedMarker)
         }
@@ -421,7 +421,7 @@ extension AppModel {
 
 // MARK: - Debug
 extension AppModel {
-    func debugRoll(_ result: Yoot) {
+    func debugRoll(_ result: Yoot) async {
         gameStateManager.startRolling()
 
         if result.canThrowAgain {
@@ -580,7 +580,7 @@ extension AppModel {
 
 extension AppModel: @MainActor SharePlayManagerDelegate {
 
-    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) {
+    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) async {
         do {
             try gameStateManager.assignPlayer(participantIDs: participantIDs, localParticipantID: localParticipantID, seed: seed)
         } catch {
@@ -590,7 +590,7 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
         sendSharePlayMessage(.established)
     }
 
-    func sharePlayManagerDidEstablish() {
+    func sharePlayManagerDidEstablish() async {
         gameStateManager.establishSharePlay()
     }
 
@@ -610,46 +610,38 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
         }
     }
 
-    func sharePlayManager(didReceiveDebugRollResult result: Yoot) {
+    func sharePlayManager(didReceiveDebugRollResult result: Yoot) async {
         if !isMyTurn {
-            debugRoll(result)
+            await debugRoll(result)
         }
     }
 
-    func sharePlayManagerDidInitiateGameStart() {
+    func sharePlayManagerDidInitiateGameStart() async {
         gameStateManager.startGame()
     }
 
-    func sharePlayManagerDidTapNewMarkerButton() {
+    func sharePlayManagerDidTapNewMarkerButton() async {
         if !isMyTurn {
-            Task {
-                await handleNewMarkerTap()
-            }
+            await handleNewMarkerTap()
         }
     }
 
-    func sharePlayManager(didTapTile tile: Tile) {
+    func sharePlayManager(didTapTile tile: Tile) async throws {
         if !isMyTurn {
-            Task {
-                try await handleTileTap(tile)
-            }
+            try await handleTileTap(tile)
         }
     }
 
-    func sharePlayManager(didTapMarker node: Node) {
+    func sharePlayManager(didTapMarker node: Node) async throws {
         if !isMyTurn {
-            Task {
-                guard let marker = markerManager.findMarker(for: node) else { return }
-                try await handleMarkerTap(marker)
-            }
+            guard let marker = markerManager.findMarker(for: node) else { return }
+            try await handleMarkerTap(marker)
         }
     }
 
-    func sharePlayManagerDidTapScore() {
+    func sharePlayManagerDidTapScore() async throws {
         if !isMyTurn {
-            Task {
-                try await handleScore()
-            }
+            try await handleScore()
         }
     }
 }

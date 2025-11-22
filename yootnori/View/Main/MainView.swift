@@ -94,6 +94,7 @@ struct MainView: View {
             TapGesture()
                 .targetedToEntity(where: .has(MarkerComponent.self))
                 .onEnded {
+                    guard model.isMyTurn else { return }
                     model.emit(event: .tapMarker($0.entity))
                 }
         )
@@ -159,6 +160,7 @@ private extension MainView {
         guard let markerComponent = entity.components[MarkerComponent.self] else { return }
         let tag: ObjectIdentifier = entity.id
         let view = MarkerLevelView(tapAction: {
+            guard model.isMyTurn else { return }
             model.emit(event: .tapMarker(entity))
         }, level: markerComponent.level, team: Team(rawValue: markerComponent.team) ?? .black)
             .tag(tag)
@@ -166,10 +168,6 @@ private extension MainView {
         entity.components[MarkerRuntimeComponent.self] = MarkerRuntimeComponent(attachmentTag: entity.id)
 
         model.attachmentsProvider.attachments[tag] = AnyView(view)
-    }
-
-    func handleMarkerTapGesture(marker: Entity) {
-        model.emit(event: .tapMarker(marker))
     }
 }
 

@@ -34,7 +34,7 @@ struct MainViewConstants {
     var debugViewPosition: SIMD3<Float> = [0.4, 0.15, 0.3]
     var throwBoardScale: SIMD3<Float> = [0.05, 0.05, 0.05]
     var rollButtonPosition: SIMD3<Float> = [0, -0.42, 0.5]
-    var scoreButtonPosition: SIMD3<Float> = [0.25, -0.33, 0]
+    var scoreButtonPosition: SIMD3<Float> = [0.25, -0.33, 0.3]
 }
 
 struct YootRollManagerConstants {

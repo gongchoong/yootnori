@@ -29,29 +29,29 @@ protocol SharePlayManagerDelegate: AnyObject {
         didAssignPlayersWith participantIDs: [UUID],
         localParticipantID: UUID,
         seed: UInt64
-    )
+    ) async
 
     /// Called when an opponent successfully establishes a SharePlay connection with the local device.
-    func sharePlayManagerDidEstablish()
+    func sharePlayManagerDidEstablish() async
 
     /// Called when a debug roll result is received during development/testing.
     ///
     /// - Parameters:
     ///   - result: The debug-generated `Yoot` roll value.
-    func sharePlayManager(didReceiveDebugRollResult result: Yoot)
+    func sharePlayManager(didReceiveDebugRollResult result: Yoot) async
 
     func sharePlayManager(didReceiveBufferFrame bufferFrame: [ThrowFrame], result: Yoot) async
 
     /// Called when the SharePlay session signals that gameplay should begin.
-    func sharePlayManagerDidInitiateGameStart()
+    func sharePlayManagerDidInitiateGameStart() async
 
-    func sharePlayManagerDidTapNewMarkerButton()
+    func sharePlayManagerDidTapNewMarkerButton() async
 
-    func sharePlayManager(didTapTile tile: Tile)
+    func sharePlayManager(didTapTile tile: Tile) async throws
 
-    func sharePlayManager(didTapMarker node: Node)
+    func sharePlayManager(didTapMarker node: Node) async throws
 
-    func sharePlayManagerDidTapScore()
+    func sharePlayManagerDidTapScore() async throws
 }
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
@@ -100,38 +100,56 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
 
     func configureGroupSessions() {
         print("Start SharePlay mock")
-        Task {
+        Task { @MainActor in
             for await session in AppGroupActivityMock.sessions() {
                 self.sharePlaySession = session
                 let messenger = GroupSessionMessengerMock(session: session)
                 self.sharePlayMessenger = messenger
 
                 self.tasks.insert(
-                    Task {
+                    Task { @MainActor in
                         for await (message, _) in messenger.messages(of: GroupMessage.self) {
                             switch message.sharePlayActionEvent {
-                            case .assignPlayer(let seed):
-                                delegate?.sharePlayManager(
-                                    didAssignPlayersWith: session.activeParticipants.map(\.id),
-                                    localParticipantID: session.localParticipant.id,
-                                    seed: seed
-                                )
-                            case .established:
-                                delegate?.sharePlayManagerDidEstablish()
-                            case .startGame:
-                                delegate?.sharePlayManagerDidInitiateGameStart()
-                            case .newMarkerButtonTap:
-                                delegate?.sharePlayManagerDidTapNewMarkerButton()
-                            case .roll(let bufferFrame, let result):
-                                await delegate?.sharePlayManager(didReceiveBufferFrame: bufferFrame, result: result)
-                            case .debugRoll(let result):
-                                delegate?.sharePlayManager(didReceiveDebugRollResult: result)
-                            case .tapTile(let tile):
-                                delegate?.sharePlayManager(didTapTile: tile)
-                            case .tapMarker(let node):
-                                delegate?.sharePlayManager(didTapMarker: node)
-                            case .tapScore:
-                                delegate?.sharePlayManagerDidTapScore()
+                            case .roll:
+                                print("Serialization Received roll")
+                            default:
+                                print("Serialization Received \(message.sharePlayActionEvent)")
+                            }
+//                            try? await Task.sleep(for: .seconds(2))
+//                            print("Serialization slept for 2 seconds")
+                            do {
+                                switch message.sharePlayActionEvent {
+                                case .assignPlayer(let seed):
+                                    await delegate?.sharePlayManager(
+                                        didAssignPlayersWith: session.activeParticipants.map(\.id),
+                                        localParticipantID: session.localParticipant.id,
+                                        seed: seed
+                                    )
+                                case .established:
+                                    await delegate?.sharePlayManagerDidEstablish()
+                                case .startGame:
+                                    await delegate?.sharePlayManagerDidInitiateGameStart()
+                                case .newMarkerButtonTap:
+                                    await delegate?.sharePlayManagerDidTapNewMarkerButton()
+                                case .roll(let bufferFrame, let result):
+                                    await delegate?.sharePlayManager(didReceiveBufferFrame: bufferFrame, result: result)
+                                case .debugRoll(let result):
+                                    await delegate?.sharePlayManager(didReceiveDebugRollResult: result)
+                                case .tapTile(let tile):
+                                    try await delegate?.sharePlayManager(didTapTile: tile)
+                                case .tapMarker(let node):
+                                    try await delegate?.sharePlayManager(didTapMarker: node)
+                                case .tapScore:
+                                    try await delegate?.sharePlayManagerDidTapScore()
+                                }
+                            } catch {
+                                fatalError("\(error)")
+                            }
+                            switch message.sharePlayActionEvent {
+                            case .roll:
+                                print("Serialization Finished roll")
+                            default:
+                                print("Serialization Finished \(message.sharePlayActionEvent)")
                             }
                         }
                     }
