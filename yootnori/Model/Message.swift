@@ -9,7 +9,6 @@ import Foundation
 
 enum SharePlayActionEvent: Codable {
     case assignPlayer(_ seed: UInt64)
-    case established
     case startGame
     case newMarkerButtonTap
     case debugRoll(_ result: Yoot)
@@ -19,7 +18,32 @@ enum SharePlayActionEvent: Codable {
     case roll(bufferFrame: [ThrowFrame], result: Yoot)
 }
 
+struct GameStateSnapshot: Codable {
+    let state: GameState
+    let currentTurn: Player
+    let shouldRollAgain: Bool
+}
+
+extension GameStateSnapshot {
+    static let `default` = GameStateSnapshot(
+        state: .idle,
+        currentTurn: .none,
+        shouldRollAgain: false
+    )
+}
+
 struct GroupMessage: Codable {
     let id: UUID
     let sharePlayActionEvent: SharePlayActionEvent
+    let gameStateSnapshot: GameStateSnapshot
+
+    init(
+        id: UUID,
+        sharePlayActionEvent: SharePlayActionEvent,
+        gameStateSnapshot: GameStateSnapshot = .default
+    ) {
+        self.id = id
+        self.sharePlayActionEvent = sharePlayActionEvent
+        self.gameStateSnapshot = gameStateSnapshot
+    }
 }

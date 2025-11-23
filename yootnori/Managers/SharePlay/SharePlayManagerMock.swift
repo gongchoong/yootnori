@@ -19,40 +19,51 @@ protocol SharePlayManagerProtocol {
 }
 
 protocol SharePlayManagerDelegate: AnyObject {
-    /// Called when the SharePlay manager assigns player identities for the session.
-    ///
+    /// Notifies the delegate that player identities have been assigned.
     /// - Parameters:
-    ///   - participantIDs: The ordered list of all participant IDs in the session.
-    ///   - localParticipantID: The ID representing the local participant.
-    ///   - seed: A seed value used to synchronize deterministic state (e.g., RNG).
-    func sharePlayManager(
-        didAssignPlayersWith participantIDs: [UUID],
-        localParticipantID: UUID,
-        seed: UInt64
-    ) async
+    ///   - participantIDs: Ordered list of all participant IDs.
+    ///   - localParticipantID: The local participant’s ID.
+    ///   - seed: Seed for synchronizing deterministic state.
+    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) async throws
 
-    /// Called when an opponent successfully establishes a SharePlay connection with the local device.
-    func sharePlayManagerDidEstablish() async
-
-    /// Called when a debug roll result is received during development/testing.
-    ///
+    /// Notifies the delegate of a debug roll result for testing.
     /// - Parameters:
-    ///   - result: The debug-generated `Yoot` roll value.
-    func sharePlayManager(didReceiveDebugRollResult result: Yoot) async
+    ///   - result: The debug-generated `Yoot` roll result.
+    ///   - snapshot: The corresponding game state.
+    func sharePlayManager(didReceiveDebugRollResult result: Yoot, snapshot: GameStateSnapshot) async throws
 
-    func sharePlayManager(didReceiveBufferFrame bufferFrame: [ThrowFrame], result: Yoot) async
+    /// Notifies the delegate of a buffer frame result.
+    /// - Parameters:
+    ///   - bufferFrame: The resolved throw frames.
+    ///   - result: The resulting `Yoot`.
+    ///   - snapshot: The updated game state.
+    func sharePlayManager(didReceiveBufferFrame bufferFrame: [ThrowFrame], result: Yoot, snapshot: GameStateSnapshot) async throws
 
-    /// Called when the SharePlay session signals that gameplay should begin.
-    func sharePlayManagerDidInitiateGameStart() async
+    /// Notifies the delegate to start the game.
+    /// - Parameter snapshot: The initial game state.
+    func sharePlayManagerDidInitiateGameStart(snapshot: GameStateSnapshot) async throws
 
-    func sharePlayManagerDidTapNewMarkerButton() async
+    /// Notifies the delegate that the "New Marker" button was tapped.
+    /// - Parameter snapshot: The game state at the time.
+    func sharePlayManagerDidTapNewMarkerButton(snapshot: GameStateSnapshot) async throws
 
-    func sharePlayManager(didTapTile tile: Tile) async throws
+    /// Notifies the delegate that a tile was tapped.
+    /// - Parameters:
+    ///   - tile: The tapped tile.
+    ///   - snapshot: The current game state.
+    func sharePlayManager(didTapTile tile: Tile, snapshot: GameStateSnapshot) async throws
 
-    func sharePlayManager(didTapMarker node: Node) async throws
+    /// Notifies the delegate that a marker node was tapped.
+    /// - Parameters:
+    ///   - node: The tapped node.
+    ///   - snapshot: The current game state.
+    func sharePlayManager(didTapMarker node: Node, snapshot: GameStateSnapshot) async throws
 
-    func sharePlayManagerDidTapScore() async throws
+    /// Notifies the delegate that the score area was tapped.
+    /// - Parameter snapshot: The current game state.
+    func sharePlayManagerDidTapScore(snapshot: GameStateSnapshot) async throws
 }
+
 
 class SharePlayManagerMock: SharePlayManagerProtocol {
 
@@ -111,28 +122,15 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                 self.tasks.insert(
                     Task { @MainActor in
                         for await (message, _) in messenger.messages(of: GroupMessage.self) {
-                            switch message.sharePlayActionEvent {
-                            case .roll:
-                                print("Serialization Received roll")
-                            default:
-                                print("Serialization Received \(message.sharePlayActionEvent)")
-                            }
-
                             do {
                                 try await messageProcessor.processMessage(
-                                    message.sharePlayActionEvent,
+                                    message,
                                     session: session
                                 )
                             } catch {
                                 print("Message processing error: \(error)")
                             }
 
-                            switch message.sharePlayActionEvent {
-                            case .roll:
-                                print("Serialization Finished roll")
-                            default:
-                                print("Serialization Finished \(message.sharePlayActionEvent)")
-                            }
                         }
                     }
                 )

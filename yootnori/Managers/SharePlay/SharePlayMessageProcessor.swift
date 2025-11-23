@@ -16,42 +16,39 @@ actor SharePlayMessageProcessor {
 
     /// Process a message completely before allowing the next one
     func processMessage(
-        _ event: SharePlayActionEvent,
+        _ message: GroupMessage,
         session: GroupSessionMock<AppGroupActivityMock>
     ) async throws {
         guard let delegate = delegate else { return }
 
-        switch event {
+        switch message.sharePlayActionEvent {
         case .assignPlayer(let seed):
-            await delegate.sharePlayManager(
+            try await delegate.sharePlayManager(
                 didAssignPlayersWith: session.activeParticipants.map(\.id),
                 localParticipantID: session.localParticipant.id,
                 seed: seed
             )
 
-        case .established:
-            await delegate.sharePlayManagerDidEstablish()
-
         case .startGame:
-            await delegate.sharePlayManagerDidInitiateGameStart()
+            try await delegate.sharePlayManagerDidInitiateGameStart(snapshot: message.gameStateSnapshot)
 
         case .newMarkerButtonTap:
-            await delegate.sharePlayManagerDidTapNewMarkerButton()
+            try await delegate.sharePlayManagerDidTapNewMarkerButton(snapshot: message.gameStateSnapshot)
 
         case .roll(let bufferFrame, let result):
-            await delegate.sharePlayManager(didReceiveBufferFrame: bufferFrame, result: result)
+            try await delegate.sharePlayManager(didReceiveBufferFrame: bufferFrame, result: result, snapshot: message.gameStateSnapshot)
 
         case .debugRoll(let result):
-            await delegate.sharePlayManager(didReceiveDebugRollResult: result)
+            try await delegate.sharePlayManager(didReceiveDebugRollResult: result, snapshot: message.gameStateSnapshot)
 
         case .tapTile(let tile):
-            try await delegate.sharePlayManager(didTapTile: tile)
+            try await delegate.sharePlayManager(didTapTile: tile, snapshot: message.gameStateSnapshot)
 
         case .tapMarker(let node):
-            try await delegate.sharePlayManager(didTapMarker: node)
+            try await delegate.sharePlayManager(didTapMarker: node, snapshot: message.gameStateSnapshot)
 
         case .tapScore:
-            try await delegate.sharePlayManagerDidTapScore()
+            try await delegate.sharePlayManagerDidTapScore(snapshot: message.gameStateSnapshot)
         }
     }
 }

@@ -8,6 +8,7 @@ import Foundation
 
 enum GameStateManagerError: Error {
     case playerRoleNotFound
+    case invalidState(String, GameState)
 }
 
 @MainActor
@@ -18,17 +19,19 @@ final class SharePlayGameStateManager: ObservableObject {
             isMyTurn = currentTurn == myPlayer
         }
     }
-    @Published private(set) var playerCanThrowAgain: Bool = false
+    @Published private(set) var shouldRollAgain: Bool = false
     @Published private(set) var isMyTurn: Bool = false
     private(set) var myPlayer: Player = .none
 
     // MARK: - State Transitions
-    func establishSharePlay() {
-        guard state == .idle else { return }
+    func establishSharePlay() throws {
+        guard state == .idle else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .establishedSharePlay)
+        currentTurn = .playerA
     }
 
-    func startGame() {
+    func startGame() throws {
+        guard state == .establishedSharePlay else { throw GameStateManagerError.invalidState(#function, state) }
         #if !SHAREPLAY_MOCK
         myPlayer = .playerA
         currentTurn = myPlayer
@@ -36,54 +39,55 @@ final class SharePlayGameStateManager: ObservableObject {
         transition(to: .waitingForRoll)
     }
 
-    func startRolling() {
-        guard state == .waitingForRoll || state == .waitingForRollOrSelect else { return }
-        playerCanThrowAgain = false
+    func startRolling() throws {
+        guard [.waitingForRoll, .waitingForRollOrSelect].contains(state) else { throw GameStateManagerError.invalidState(#function, state) }
+        shouldRollAgain = false
         transition(to: .rolling)
     }
 
-    func finishRolling() {
-        guard state == .rolling else { return }
-        transition(to: playerCanThrowAgain ? .waitingForRollOrSelect : .waitingForSelect)
+    func finishRolling() throws {
+        guard state == .rolling else { throw GameStateManagerError.invalidState(#function, state) }
+        transition(to: shouldRollAgain ? .waitingForRollOrSelect : .waitingForSelect)
     }
 
-    func selectMarker() {
-        guard state == .waitingForSelect || state == .waitingForRollOrSelect else { return }
+    func selectMarker() throws {
+        guard [.waitingForSelect, .waitingForRollOrSelect].contains(state) else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .waitingForMove)
     }
 
-    func startAnimating() {
-        guard state == .waitingForMove else { return }
+    func startAnimating() throws {
+        guard state == .waitingForMove else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .animating)
     }
 
-    func canRollAgain() {
-        guard state == .animating else { return }
+    func canRollAgain() throws {
+        guard state == .animating else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .waitingForRoll)
     }
 
-    func canMoveAgain() {
-        guard state == .animating else { return }
+    func canMoveAgain() throws {
+        guard state == .animating else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .waitingForSelect)
     }
 
-    func canRollOrMove() {
-        guard state == .animating || state == .waitingForMove else { return }
+    func canRollOrMove() throws {
+        guard [.animating, .waitingForMove].contains(state) else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .waitingForRollOrSelect)
     }
 
-    func unselectMarker() {
-        guard state == .waitingForMove else { return }
+    func unselectMarker() throws {
+        guard state == .waitingForMove else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .waitingForSelect)
     }
 
-    func finishTurn() {
-        guard state == .animating else { return }
+    func finishTurn() throws {
+        guard state == .animating else { throw GameStateManagerError.invalidState(#function, state) }
         transition(to: .turnEnded)
+        print("GameState: Turn finished")
     }
 
-    func switchTurn() {
-        guard state == .turnEnded else { return }
+    func switchTurn() throws {
+        guard state == .turnEnded else { throw GameStateManagerError.invalidState(#function, state) }
         #if SHAREPLAY_MOCK
         currentTurn = currentTurn.next
         #else
@@ -116,16 +120,35 @@ final class SharePlayGameStateManager: ObservableObject {
         self.state = newState
     }
 
-    func setCanThrowAgain() {
-        playerCanThrowAgain = true
+    func updateShouldRollAgain(_ result: Yoot) {
+        shouldRollAgain = result.shouldRollAgain
     }
 
-    func unsetCanThrowAgain() {
-        playerCanThrowAgain = false
+    func updateShouldRollAgain(_ shouldRollAgain: Bool) {
+        self.shouldRollAgain = shouldRollAgain
     }
 }
 
 extension SharePlayGameStateManager {
+
+    func createSnapshot() -> GameStateSnapshot {
+        GameStateSnapshot(
+            state: state,
+            currentTurn: currentTurn,
+            shouldRollAgain: shouldRollAgain
+        )
+    }
+
+    func applySnapshot(_ snapshot: GameStateSnapshot) {
+        self.state = snapshot.state
+        self.currentTurn = snapshot.currentTurn
+        self.shouldRollAgain = snapshot.shouldRollAgain
+        self.isMyTurn = currentTurn == myPlayer
+    }
+
+    func validateState(_ expected: GameState) -> Bool {
+        return state == expected
+    }
 
     func assignPlayer(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) throws {
         // Sort IDs so both devices see the same order
@@ -145,6 +168,5 @@ extension SharePlayGameStateManager {
         }
 
         self.myPlayer = player
-        self.currentTurn = .playerA
     }
 }

@@ -44,7 +44,7 @@ enum Yoot: Int, CustomStringConvertible, CaseIterable, Codable {
         }
     }
 
-    var canThrowAgain: Bool {
+    var shouldRollAgain: Bool {
         switch self {
         case .yoot, .mo:
             return true

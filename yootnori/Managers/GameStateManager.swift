@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum GameState: Equatable {
+enum GameState: Equatable, Codable {
     case idle
     case establishedSharePlay
     case waitingForRoll
@@ -31,7 +31,7 @@ enum GameAction {
 final class GameStateManager: ObservableObject {
     @Published private(set) var state: GameState = .idle
     @Published private(set) var currentTurn: Player = .none
-    @Published private(set) var playerCanThrowAgain: Bool = false
+    @Published private(set) var shouldRollAgain: Bool = false
 
     // MARK: - State Transitions
     func startGame() {
@@ -41,13 +41,13 @@ final class GameStateManager: ObservableObject {
     
     func startRolling() {
         guard state == .waitingForRoll || state == .waitingForRollOrSelect else { return }
-        playerCanThrowAgain = false
+        shouldRollAgain = false
         transition(to: .rolling)
     }
     
     func finishRolling() {
         guard state == .rolling else { return }
-        transition(to: playerCanThrowAgain ? .waitingForRollOrSelect : .waitingForSelect)
+        transition(to: shouldRollAgain ? .waitingForRollOrSelect : .waitingForSelect)
     }
     
     func selectMarker() {
@@ -112,11 +112,7 @@ final class GameStateManager: ObservableObject {
         self.state = newState
     }
 
-    func setCanThrowAgain() {
-        playerCanThrowAgain = true
-    }
-
-    func unsetCanThrowAgain() {
-        playerCanThrowAgain = false
+    func updateShouldRollAgain(_ result: Yoot) {
+        shouldRollAgain = result.shouldRollAgain
     }
 }
