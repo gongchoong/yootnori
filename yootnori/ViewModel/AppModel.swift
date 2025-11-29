@@ -640,9 +640,9 @@ extension AppModel {
 
 extension AppModel: @MainActor SharePlayManagerDelegate {
 
-    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) async throws {
+    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID) async throws {
         guard gameStateManager.myPlayer == .none else { return }
-        try gameStateManager.assignPlayer(participantIDs: participantIDs, localParticipantID: localParticipantID, seed: seed)
+        try gameStateManager.assignPlayer(participantIDs: participantIDs, localParticipantID: localParticipantID)
         try gameStateManager.establishSharePlay()
     }
 

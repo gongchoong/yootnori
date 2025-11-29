@@ -9,6 +9,7 @@ import Foundation
 enum GameStateManagerError: Error {
     case playerRoleNotFound
     case invalidState(String, GameState)
+    case invalidParticipantCount
 }
 
 @MainActor
@@ -150,23 +151,11 @@ extension SharePlayGameStateManager {
         return state == expected
     }
 
-    func assignPlayer(participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) throws {
-        // Sort IDs so both devices see the same order
-        let sorted = participantIDs.sorted { $0.uuidString < $1.uuidString }
-
-        // Randomly decide who becomes playerA/playerB
-        let flip = (seed % 2 == 0)
-
-        var assignment: [UUID: Player] = [:]
-        if sorted.count >= 2 {
-            assignment[sorted[0]] = flip ? .playerA : .playerB
-            assignment[sorted[1]] = flip ? .playerB : .playerA
+    func assignPlayer(participantIDs: [UUID], localParticipantID: UUID) throws {
+        guard participantIDs.count == 2 else {
+            throw GameStateManagerError.invalidParticipantCount
         }
 
-        guard let player = assignment[localParticipantID] else {
-            throw GameStateManagerError.playerRoleNotFound
-        }
-
-        self.myPlayer = player
+        self.myPlayer = localParticipantID == participantIDs.first ? .playerA : .playerB
     }
 }

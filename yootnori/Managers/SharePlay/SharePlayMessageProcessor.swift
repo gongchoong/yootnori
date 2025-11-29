@@ -22,11 +22,14 @@ actor SharePlayMessageProcessor {
         guard let delegate = delegate else { return }
 
         switch message.sharePlayActionEvent {
-        case .assignPlayer(let seed):
+        case .assignPlayer:
+            let participantIDs = session.activeParticipants
+                    .map(\.id)
+                    .sorted { $0.uuidString < $1.uuidString }
+
             try await delegate.sharePlayManager(
-                didAssignPlayersWith: session.activeParticipants.map(\.id),
-                localParticipantID: session.localParticipant.id,
-                seed: seed
+                didAssignPlayersWith: participantIDs,
+                localParticipantID: session.localParticipant.id
             )
 
         case .startGame:

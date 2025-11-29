@@ -23,8 +23,7 @@ protocol SharePlayManagerDelegate: AnyObject {
     /// - Parameters:
     ///   - participantIDs: Ordered list of all participant IDs.
     ///   - localParticipantID: The local participant’s ID.
-    ///   - seed: Seed for synchronizing deterministic state.
-    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID, seed: UInt64) async throws
+    func sharePlayManager(didAssignPlayersWith participantIDs: [UUID], localParticipantID: UUID) async throws
 
     /// Notifies the delegate of a debug roll result for testing.
     /// - Parameters:
@@ -143,9 +142,8 @@ class SharePlayManagerMock: SharePlayManagerProtocol {
                         self.gameStarted = true
 
                         Task { @MainActor in
-                            let seed = UInt64.random(in: 0..<UInt64.max)
                             try? await self.sharePlayMessenger?.send(
-                                GroupMessage(id: UUID(), sharePlayActionEvent: .assignPlayer(seed))
+                                GroupMessage(id: UUID(), sharePlayActionEvent: .assignPlayer)
                             )
                         }
                     }
