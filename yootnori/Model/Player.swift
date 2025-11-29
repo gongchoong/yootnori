@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-class Player: Equatable, Hashable {
+class Player: Equatable, Hashable, Codable {
     let name: String
     let team: Team
     var score: Int = 4
@@ -30,7 +30,7 @@ class Player: Equatable, Hashable {
 }
 
 extension Player {
-    var opponent: Player {
+    var next: Player {
         switch self {
         case .playerA:
             return .playerB
@@ -53,7 +53,7 @@ extension Player {
     }
 }
 
-enum Team: Int {
+enum Team: Int, Codable {
     case black
     case white
 

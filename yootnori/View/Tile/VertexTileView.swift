@@ -14,11 +14,15 @@ struct VertexTileView: View {
     private let tileWidth: CGFloat
     private let tileHeight: CGFloat
 
+    private var isHighlighted: Bool {
+        model.isMyTurn && model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable }
+    }
+
     var body: some View {
         ZStack {
             VertexTileBackgroundView(
                 tile: tile,
-                isHighlighted: model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable },
+                isHighlighted: isHighlighted,
                 circleHeight: tileHeight
             )
             TileDecorationView(

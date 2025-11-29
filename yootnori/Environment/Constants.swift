@@ -28,13 +28,13 @@ struct MainViewConstants {
     var gameStatusViewName: String = "GameStatusView"
     var rollButtonName: String = "RollButton"
     var scoreButtonName: String = "ScoreButton"
-    var boardPosition: SIMD3<Float> = [0, 0, 0]
-    var gameStatusViewPosition: SIMD3<Float> = [0, 0.38, 0]
-    var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0]
-    var debugViewPosition: SIMD3<Float> = [0.4, 0.15, -0.1]
+    var boardPosition: SIMD3<Float> = [0, 0, 0.3]
+    var gameStatusViewPosition: SIMD3<Float> = [0, 0.38, 0.3]
+    var throwBoardPosition: SIMD3<Float> = [0, -0.5, 0.25]
+    var debugViewPosition: SIMD3<Float> = [0.4, 0.15, 0.3]
     var throwBoardScale: SIMD3<Float> = [0.05, 0.05, 0.05]
-    var rollButtonPosition: SIMD3<Float> = [0, -0.45, 0.4]
-    var scoreButtonPosition: SIMD3<Float> = [0.25, -0.33, 0]
+    var rollButtonPosition: SIMD3<Float> = [0, -0.42, 0.5]
+    var scoreButtonPosition: SIMD3<Float> = [0.25, -0.33, 0.3]
 }
 
 struct YootRollManagerConstants {

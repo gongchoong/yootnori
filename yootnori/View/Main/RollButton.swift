@@ -11,7 +11,8 @@ struct RollButton: View {
     @EnvironmentObject var model: AppModel
     var didTapButton: () -> Void
     var buttonEnabled: Bool {
-        model.gameState == .waitingForRoll || model.gameState == .waitingForRollOrSelect
+        guard model.isMyTurn else { return false }
+        return model.gameState == .waitingForRoll || model.gameState == .waitingForRollOrSelect
     }
 
     var body: some View {

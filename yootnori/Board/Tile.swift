@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Tile: Hashable {
+struct Tile: Hashable, Codable {
     let type: TileType
     let location: TileLocation?
     let paths: [TilePath]?

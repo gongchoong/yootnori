@@ -11,7 +11,7 @@ struct FullSpaceView: View {
     @Environment(\.dismissImmersiveSpace) var dismissImmersiveSpace
     @Environment(\.physicalMetrics) var physicalMetrics
     @EnvironmentObject var model: AppModel
-    @State private var showIntroduction = true
+    private var showIntroduction = true
 
     var body: some View {
         ZStack {
@@ -24,14 +24,20 @@ struct FullSpaceView: View {
 
             // Popup overlay
             if showIntroduction {
-                IntroductoryView(showIntro: $showIntroduction) {
+                IntroductoryView() {
                     model.emit(event: .startGame)
+                } didTapSharePlayButton: {
+                    model.emit(event: .startSharePlay)
                 }
                 .frame(maxWidth: 1100, maxHeight: 1200)
                 .glassBackgroundEffect()
                 .cornerRadius(20)
                 .scaleEffect(showIntroduction ? 1.0 : 0.8)
-                .opacity(showIntroduction ? 1.0 : 0.0)
+                #if SHAREPLAY_MOCK
+                .opacity([.idle, .establishedSharePlay].contains(model.gameState) ? 1.0 : 0.0)
+                #else
+                .opacity([.idle].contains(model.gameState) ? 1.0 : 0.0)
+                #endif
                 .transition(.asymmetric(
                     insertion: .scale.combined(with: .opacity),
                     removal: .scale.combined(with: .opacity)

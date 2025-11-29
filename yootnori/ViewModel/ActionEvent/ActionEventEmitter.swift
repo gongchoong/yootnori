@@ -13,6 +13,7 @@ enum ActionEventError: Error {
 }
 
 enum ActionEvent {
+    case startSharePlay
     case startGame
     case tapMarker(Marker)
     case tapTile(Tile)

@@ -8,10 +8,26 @@
 import SwiftUI
 
 struct IntroductoryView: View {
-    @Binding var showIntro: Bool
+    @EnvironmentObject var model: AppModel
     @State private var started: Bool = false
     var didTapStartButton: () -> Void
-    
+    var didTapSharePlayButton: () -> Void
+
+    private var startButtonTitle: String {
+        #if SHAREPLAY_MOCK
+        switch model.gameState {
+        case .idle:
+            return "Waiting for SharePlay"
+        case .establishedSharePlay:
+            return model.isMyTurn ? "Start Game" : "Waiting for opponent.."
+        default:
+            return ""
+        }
+        #else
+        "Start Game"
+        #endif
+    }
+
     var body: some View {
         VStack(spacing: 25) {
             
@@ -67,35 +83,26 @@ struct IntroductoryView: View {
                 }
             }
 
-            // Start Button
-            Button(action: {
-                guard !started else { return }
-                started = true
-                withAnimation(.easeInOut(duration: 0.5)) {
-                    showIntro = false
+            VStack(spacing: 15) {
+                IntroductoryViewActionButton(image: Image(systemName: "play.fill"), title: startButtonTitle) {
+                    guard !started else { return }
+                    started = true
+                    didTapStartButton()
                 }
-                didTapStartButton()
-            }) {
-                HStack {
-                    Image(systemName: "play.fill")
-                        .font(.title2)
-                    Text("Start Game")
-                        .font(.system(size: 36, weight: .semibold))
+                #if SHAREPLAY_MOCK
+                .disabled(!(model.gameState == .establishedSharePlay && model.isMyTurn))
+                .opacity(model.gameState == .establishedSharePlay && model.isMyTurn ? 1 : 0.5)
+                #endif
+
+                #if SHAREPLAY_MOCK
+                IntroductoryViewActionButton(image: Image(systemName: "shareplay"), title: "Share Play") {
+                    didTapSharePlayButton()
                 }
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, minHeight: 80)
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [Color.blue, Color.purple]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .cornerRadius(25)
-                .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
+                .disabled(model.gameState == .establishedSharePlay)
+                .opacity(model.gameState != .establishedSharePlay ? 1 : 0.5)
+                #endif
             }
-            .disabled(!showIntro)
-            .buttonStyle(.plain)
+            .padding(.top, 20)
         }
         .padding(.all, 80)
     }
@@ -116,6 +123,37 @@ struct IntroductoryView: View {
     }
 }
 
+fileprivate struct IntroductoryViewActionButton: View {
+    var image: Image
+    var title: String
+    var didTapButton: () -> Void
+
+    var body: some View {
+        Button(action: {
+            didTapButton()
+        }) {
+            HStack {
+                image
+                    .font(.title2)
+                Text(title)
+                    .font(.system(size: 36, weight: .semibold))
+            }
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, minHeight: 80)
+            .background(
+                LinearGradient(
+                    gradient: Gradient(colors: [Color.blue, Color.purple]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(25)
+            .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 3)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 #Preview {
-    IntroductoryView(showIntro: .constant(true), didTapStartButton: {})
+    IntroductoryView(didTapStartButton: {}, didTapSharePlayButton: {})
 }

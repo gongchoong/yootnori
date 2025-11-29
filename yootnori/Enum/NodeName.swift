@@ -19,7 +19,7 @@ import Foundation
 //  LN4    LBD2                     RBD2    RN1
 //   |   /                                \  |
 //  BLV --- BN1 --- BN2 --- BN3 --- BN4 --- BRV
-enum NodeName: String, Equatable, CaseIterable {
+enum NodeName: String, Equatable, CaseIterable, Codable {
     case bottomRightVertex
     case rightNode1
     case rightNode2

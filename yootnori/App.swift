@@ -13,15 +13,10 @@ struct yootnoriApp: App {
     @StateObject private var model: AppModel
 
     init() {
-        #if SHAREPLAY_MOCK
-        print("BUILD SETTING: MOCK")
         let sharePlayManager = SharePlayManagerMock()
-        #else
-        let sharePlayManager = SharePlayManager()
-        #endif
         let appModel = AppModel(
             rollManager: YootRollManager(),
-            gameStateManager: GameStateManager(),
+            gameStateManager: SharePlayGameStateManager(),
             markerManager: MarkerManager(),
             gameEngine: GameEngine(),
             sharePlayManager: sharePlayManager

@@ -11,10 +11,19 @@ import RealityKitContent
 import SwiftUI
 import Combine
 
+@MainActor
 protocol YootRollDelegate: AnyObject {
-    func yootRollDidStartRoll()
-    func yootRollDidFinishRoll()
-    func yootRollDidRollDouble()
+    /// Called when a roll animation or logic begins.
+    func yootRollDidStartRoll() throws
+
+    /// Called when a roll completes without any detailed result.
+    func yootRollDidFinishRoll() throws
+
+    /// Called when a roll completes with resolved results.
+    /// - Parameters:
+    ///   - buffer: The sequence of throw frames that occurred during the roll.
+    ///   - result: The final `Yoot` result of the roll.
+    func yootRollDidFinishRoll(with buffer: [ThrowFrame], result: Yoot) throws
 }
 
 class YootRollManager: ObservableObject {
@@ -35,8 +44,14 @@ class YootRollManager: ObservableObject {
     weak var delegate: YootRollDelegate?
     var yootEntities: [Entity] = []
 
-    @Published var result: [Yoot] = []
-    var resultPublisher: Published<[Yoot]>.Publisher { $result }
+    @Published var result: [Yoot] = [] {
+        didSet {
+            if let newYoot = result.last {
+                print("New Yoot result added: \(newYoot)")
+                // You can perform additional logic here if needed
+            }
+        }
+    }
 
     private var originalTransforms: [String: Transform] = [:]
     private var wasMoving = false
@@ -58,18 +73,23 @@ class YootRollManager: ObservableObject {
         return true
     }
 
+    private var upsideDownCount: Int {
+        yootEntities.filter { isEntityUpsideDown($0) }.count
+    }
+
     func roll() async throws {
-        delegate?.yootRollDidStartRoll()
+        // Find yoot entities from the YootThrowBoard entity
+        if yootEntities.isEmpty {
+            try loadYootEntities()
+        }
+
+        try await delegate?.yootRollDidStartRoll()
 
         landed = false
         isAnimating = true
 
         startRecording()
 
-        // Find yoot entities from the YootThrowBoard entity
-        if yootEntities.isEmpty {
-            try loadYootEntities()
-        }
         // Center all the yoots before starting the throw animation
         resetToOriginalPosition()
 
@@ -93,7 +113,7 @@ class YootRollManager: ObservableObject {
         }
     }
 
-    func checkForLanding() {
+    @MainActor func checkForLanding() throws {
         guard shouldStartCheckingForLanding else { return }
         var currentlyMoving = false
 
@@ -109,16 +129,16 @@ class YootRollManager: ObservableObject {
         // Detect landing (transition from moving to stopped)
         if wasMoving && !currentlyMoving && !landed {
             landed = true
-            let upsideDownCount = yootEntities.filter { isEntityUpsideDown($0) }.count
 
             let rollResult = Yoot(rawValue: upsideDownCount) ?? .doe
-            if rollResult.canThrowAgain {
-                delegate?.yootRollDidRollDouble()
-            }
             result.append(rollResult)
 
             endRecording()
+            #if SHAREPLAY_MOCK
+            try delegate?.yootRollDidFinishRoll(with: frameBuffer, result: rollResult)
+            #else
             delegate?.yootRollDidFinishRoll()
+            #endif
         }
 
         wasMoving = currentlyMoving
@@ -212,6 +232,7 @@ private extension YootRollManager {
 // Includes frame sampling during physics simulation and interpolated frame-based animation for replays.
 extension YootRollManager {
     func startRecording() {
+        frameBuffer.removeAll()
         isRecording = true
         currentThrowID = UUID()
     }
@@ -237,20 +258,24 @@ extension YootRollManager {
     }
 
 /// Non-host peers call this when they receive a replay package from SharePlay
-    func replayThrowFromNetwork() async {
-
+    @MainActor
+    func replayThrowFromNetwork(bufferFrame: [ThrowFrame]) async throws {
+        try delegate?.yootRollDidStartRoll()
         // Play back the captured frames
-        await playFrameSequence()
+        try await playFrameSequence(bufferFrame: bufferFrame)
+        try delegate?.yootRollDidFinishRoll()
     }
 
     @MainActor
-    func playFrameSequence() async {
-        guard frameBuffer.count >= 2 else { return }
+    func playFrameSequence(bufferFrame: [ThrowFrame]) async throws {
+        if yootEntities.isEmpty {
+            try loadYootEntities()
+        }
 
         // Assume frames are sorted by timestamp ascending
-        for i in 0..<(frameBuffer.count - 1) {
-            let f0 = frameBuffer[i]
-            let f1 = frameBuffer[i+1]
+        for i in 0..<(bufferFrame.count - 1) {
+            let f0 = bufferFrame[i]
+            let f1 = bufferFrame[i+1]
 
             // How long between these two samples (in seconds)
             let segmentDuration = max(f1.timestamp - f0.timestamp, 0.016)
