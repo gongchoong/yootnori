@@ -8,7 +8,7 @@
 import Foundation
 
 enum SharePlayActionEvent: Codable {
-    case assignPlayer(_ seed: UInt64)
+    case assignPlayer
     case startGame
     case newMarkerButtonTap
     case debugRoll(_ result: Yoot)
