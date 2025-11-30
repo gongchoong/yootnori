@@ -134,11 +134,7 @@ class YootRollManager: ObservableObject {
             result.append(rollResult)
 
             endRecording()
-            #if SHAREPLAY_MOCK
             try delegate?.yootRollDidFinishRoll(with: frameBuffer, result: rollResult)
-            #else
-            delegate?.yootRollDidFinishRoll()
-            #endif
         }
 
         wasMoving = currentlyMoving

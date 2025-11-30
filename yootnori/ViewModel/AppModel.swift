@@ -50,6 +50,7 @@ class AppModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let actionEventEmitter = ActionEventEmitter()
 
+    @Published var playMode: PlayMode = .singlePlay
     @Published private(set) var gameState: GameState = .idle
     @Published private(set) var targetNodes: Set<TargetNode> = []
     @Published private(set) var currentTurn: Player = .none
@@ -108,55 +109,87 @@ extension AppModel {
             startSharePlay()
             #endif
         case .startGame:
+            playMode = .sharePlay
             #if SHAREPLAY_MOCK
             try await startGame()
             sendSharePlayMessage(.startGame)
-            #else
-            await startGame()
             #endif
+        case .startSinglePlay:
+            playMode = .singlePlay
+            try await startSinglePlay()
         case .tapMarker(let marker):
+            try await handleTapMarker(marker)
+        case .tapTile(let tile):
+            try await handleTapTile(tile)
+        case .tapNew:
+            try await handleTapNewMarker()
+        case .tapRoll:
+            try await roll()
+        case .tapDebugRoll(let result):
+            try await handleTapDebugRoll(result)
+        case .score:
+            try await handleTapScore()
+        }
+    }
+
+    private func handleTapMarker(_ marker: Entity) async throws {
+        if playMode == .sharePlay {
             #if SHAREPLAY_MOCK
             let node = try markerManager.findNode(for: marker)
             try await handleMarkerTap(marker, updateState: true)
 
             sendSharePlayMessage(.tapMarker(on: node))
-            #else
-            try await handleMarkerTap(marker, updateState: true)
             #endif
-        case .tapTile(let tile):
+        } else {
+            try await handleMarkerTap(marker, updateState: true)
+        }
+    }
+
+    private func handleTapTile(_ tile: Tile) async throws {
+        if playMode == .sharePlay {
             #if SHAREPLAY_MOCK
             try await handleTileTap(tile, updateState: true)
 
             sendSharePlayMessage(.tapTile(tile))
-            #else
-            try await handleTileTap(tile, updateState: true)
             #endif
-        case .tapNew:
+        } else {
+            try await handleTileTap(tile, updateState: true)
+        }
+    }
+
+    private func handleTapNewMarker() async throws {
+        if playMode == .sharePlay {
             #if SHAREPLAY_MOCK
             try await handleNewMarkerTap(updateState: true)
 
             sendSharePlayMessage(.newMarkerButtonTap)
-            #else
-            await handleNewMarkerTap()
             #endif
-        case .tapRoll:
-            try await roll()
-        case .tapDebugRoll(let result):
+        } else {
+            try await handleNewMarkerTap(updateState: true)
+        }
+    }
+
+    private func handleTapDebugRoll(_ result: Yoot) async throws {
+        if playMode == .sharePlay {
             #if SHAREPLAY_MOCK
             try await debugRoll(result, updateState: true)
 
             sendSharePlayMessage(.debugRoll(result))
-            #else
-            await debugRoll(result)
             #endif
-        case .score:
+        } else {
+            try await debugRoll(result, updateState: true)
+        }
+    }
+
+    private func handleTapScore() async throws {
+        if playMode == .sharePlay {
             #if SHAREPLAY_MOCK
             try await handleScore(updateState: true)
 
             sendSharePlayMessage(.tapScore)
-            #else
-            try await handleScore(updateState: true)
             #endif
+        } else {
+            try await handleScore(updateState: true)
         }
     }
 }
@@ -169,6 +202,10 @@ extension AppModel {
 
     func startGame() async throws {
         try gameStateManager.startGame()
+    }
+
+    func startSinglePlay() async throws {
+        try gameStateManager.startSinglePlay()
     }
 
     func roll() async throws {
@@ -571,7 +608,7 @@ private extension AppModel {
         } else {
             if rollManager.result.isEmpty {
                 try gameStateManager.finishTurn()
-                try gameStateManager.switchTurn()
+                try gameStateManager.switchTurn(playMode)
             } else {
                 try gameStateManager.canMoveAgain()
             }
@@ -616,7 +653,9 @@ extension AppModel: YootRollDelegate {
         gameStateManager.updateShouldRollAgain(result)
         try gameStateManager.finishRolling()
 
-        sendSharePlayMessage(.roll(bufferFrame: buffer, result: result))
+        if playMode == .sharePlay {
+            sendSharePlayMessage(.roll(bufferFrame: buffer, result: result))
+        }
     }
 }
 

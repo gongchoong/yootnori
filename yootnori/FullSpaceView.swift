@@ -28,6 +28,8 @@ struct FullSpaceView: View {
                     model.emit(event: .startGame)
                 } didTapSharePlayButton: {
                     model.emit(event: .startSharePlay)
+                } didTapSinglePlayButton: {
+                    model.emit(event: .startSinglePlay)
                 }
                 .frame(maxWidth: 1100, maxHeight: 1200)
                 .glassBackgroundEffect()

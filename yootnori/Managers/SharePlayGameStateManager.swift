@@ -33,10 +33,13 @@ final class SharePlayGameStateManager: ObservableObject {
 
     func startGame() throws {
         guard state == .establishedSharePlay else { throw GameStateManagerError.invalidState(#function, state) }
-        #if !SHAREPLAY_MOCK
+        transition(to: .waitingForRoll)
+    }
+
+    func startSinglePlay() throws {
+        guard state == .idle else { throw GameStateManagerError.invalidState(#function, state) }
         myPlayer = .playerA
         currentTurn = myPlayer
-        #endif
         transition(to: .waitingForRoll)
     }
 
@@ -87,14 +90,19 @@ final class SharePlayGameStateManager: ObservableObject {
         print("GameState: Turn finished")
     }
 
-    func switchTurn() throws {
+    func switchTurn(_ playMode: PlayMode) throws {
         guard state == .turnEnded else { throw GameStateManagerError.invalidState(#function, state) }
-        #if SHAREPLAY_MOCK
-        currentTurn = currentTurn.next
-        #else
-        myPlayer = currentTurn.next
-        currentTurn = myPlayer
-        #endif
+
+        switch playMode {
+        case .singlePlay:
+            myPlayer = currentTurn.next
+            currentTurn = myPlayer
+        case .sharePlay:
+            #if SHAREPLAY_MOCK
+            currentTurn = currentTurn.next
+            #endif
+        }
+
         print("GameState: Turn Changed -> \(currentTurn.team)")
         transition(to: .waitingForRoll)
     }

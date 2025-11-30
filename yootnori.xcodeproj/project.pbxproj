@@ -42,6 +42,7 @@
 		5451CEC82CBB21B500025081 /* PositionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5451CEC72CBB21B500025081 /* PositionError.swift */; };
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
+		5463B8D42EDBCDBC008889D8 /* PlayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5463B8D32EDBCDBB008889D8 /* PlayMode.swift */; };
 		546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E32DB4223E0032C0A6 /* NodeConfig.swift */; };
 		546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E52DB4296F0032C0A6 /* TileConfig.swift */; };
 		5473C7572EB6A4A500D5E308 /* ScoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5473C7562EB6A4A300D5E308 /* ScoreButton.swift */; };
@@ -98,6 +99,7 @@
 		5451CEC72CBB21B500025081 /* PositionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionError.swift; sourceTree = "<group>"; };
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
+		5463B8D32EDBCDBB008889D8 /* PlayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayMode.swift; sourceTree = "<group>"; };
 		546745E32DB4223E0032C0A6 /* NodeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConfig.swift; sourceTree = "<group>"; };
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
 		5473C7562EB6A4A300D5E308 /* ScoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreButton.swift; sourceTree = "<group>"; };
@@ -321,6 +323,7 @@
 		5457F5AE2CA9F25F00C5EFB7 /* Enum */ = {
 			isa = PBXGroup;
 			children = (
+				5463B8D32EDBCDBB008889D8 /* PlayMode.swift */,
 				5457F5AF2CA9F27300C5EFB7 /* TileType.swift */,
 				5408E1B72CAB4BA800580E82 /* Dimensions.swift */,
 				544B33032CB1DBC100365A68 /* Index.swift */,
@@ -483,6 +486,7 @@
 				54D4B1B82E089972009CB19D /* RollButton.swift in Sources */,
 				5427024A2CF83318003F017B /* AttachmentsProvider.swift in Sources */,
 				5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */,
+				5463B8D42EDBCDBC008889D8 /* PlayMode.swift in Sources */,
 				540EE1C12C9F6F860056F03C /* AppModel.swift in Sources */,
 				5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */,
 				549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */,

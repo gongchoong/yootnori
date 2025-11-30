@@ -12,6 +12,7 @@ struct IntroductoryView: View {
     @State private var started: Bool = false
     var didTapStartButton: () -> Void
     var didTapSharePlayButton: () -> Void
+    var didTapSinglePlayButton: () -> Void
 
     private var startButtonTitle: String {
         #if SHAREPLAY_MOCK
@@ -84,23 +85,25 @@ struct IntroductoryView: View {
             }
 
             VStack(spacing: 15) {
+                #if SHAREPLAY_MOCK
                 IntroductoryViewActionButton(image: Image(systemName: "play.fill"), title: startButtonTitle) {
                     guard !started else { return }
                     started = true
                     didTapStartButton()
                 }
-                #if SHAREPLAY_MOCK
                 .disabled(!(model.gameState == .establishedSharePlay && model.isMyTurn))
                 .opacity(model.gameState == .establishedSharePlay && model.isMyTurn ? 1 : 0.5)
-                #endif
 
-                #if SHAREPLAY_MOCK
                 IntroductoryViewActionButton(image: Image(systemName: "shareplay"), title: "Share Play") {
                     didTapSharePlayButton()
                 }
                 .disabled(model.gameState == .establishedSharePlay)
                 .opacity(model.gameState != .establishedSharePlay ? 1 : 0.5)
                 #endif
+
+                IntroductoryViewActionButton(image: Image(systemName: "play.fill"), title: "Single Play") {
+                    didTapSinglePlayButton()
+                }
             }
             .padding(.top, 20)
         }
@@ -155,5 +158,5 @@ fileprivate struct IntroductoryViewActionButton: View {
 }
 
 #Preview {
-    IntroductoryView(didTapStartButton: {}, didTapSharePlayButton: {})
+    IntroductoryView(didTapStartButton: {}, didTapSharePlayButton: {}, didTapSinglePlayButton: {})
 }
