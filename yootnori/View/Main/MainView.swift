@@ -40,7 +40,9 @@ struct MainView: View {
 
             // Subscribe to scene update events
             sceneUpdateSubscription = content.subscribe(to: SceneEvents.Update.self) { event in
-                model.checkForLanding()
+                Task { @MainActor in
+                    await model.checkForLanding()
+                }
             }
         } update: { content, attachments in
             model.rootEntity.scene?.performQuery(Self.runtimeQuery).forEach { entity in
@@ -52,7 +54,7 @@ struct MainView: View {
             }
         } attachments: {
             Attachment(id: mainViewConstants.boardViewName) {
-                BoardView(viewModel: BoardViewModel()) { tile in
+                BoardView { tile in
                     model.emit(event: .tapTile(tile))
                 }
             }

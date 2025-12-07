@@ -24,23 +24,40 @@ class AppModel: ObservableObject {
         case invalidSelectedMarker(SelectedMarker)
     }
 
+    enum ComputerActionError: Error {
+        case unableToFindTile(NodeName)
+    }
+
     // Dependencies
     private let rollManager: YootRollManager
     private var gameStateManager: SharePlayGameStateManager
-    private let markerManager: MarkerManager
-    private var gameEngine: GameEngine
+    let markerManager: MarkerManager
+    var gameEngine: GameEngine
     private var sharePlayManager: SharePlayManagerProtocol
+    private var boardViewModel: BoardViewModel
+    private var computerAgent: ComputerAgent
 
-    init(rollManager: YootRollManager, gameStateManager: SharePlayGameStateManager, markerManager: MarkerManager, gameEngine: GameEngine, sharePlayManager: SharePlayManagerProtocol) {
+    init(
+        rollManager: YootRollManager,
+        gameStateManager: SharePlayGameStateManager,
+        markerManager: MarkerManager,
+        gameEngine: GameEngine,
+        sharePlayManager: SharePlayManagerProtocol,
+        boardViewModel: BoardViewModel
+    ) {
         self.rollManager = rollManager
         self.gameStateManager = gameStateManager
         self.markerManager = markerManager
         self.gameEngine = gameEngine
         self.sharePlayManager = sharePlayManager
+        self.boardViewModel = boardViewModel
+        self.computerAgent = ComputerAgent()
         self.sharePlayManager.delegate = self
         self.rollManager.delegate = self
         self.markerManager.rootEntity = rootEntity
         self.markerManager.delegate = self
+        self.computerAgent.delegate = self
+        self.computerAgent.model = self
 
         observe()
         subscribe()
@@ -49,6 +66,7 @@ class AppModel: ObservableObject {
     private(set) var rootEntity = Entity()
     private var cancellables = Set<AnyCancellable>()
     private let actionEventEmitter = ActionEventEmitter()
+    private let playerTurnEmitter = PlayerTurnEmitter()
 
     @Published var playMode: PlayMode = .singlePlay
     @Published private(set) var gameState: GameState = .idle
@@ -57,6 +75,7 @@ class AppModel: ObservableObject {
     @Published private(set) var isMyTurn: Bool = false
     @Published private(set) var selectedMarker: SelectedMarker = .none
     @Published private(set) var result: [Yoot] = []
+    @Published private(set) var trackedMarkers: [Player: [Node: Entity]] = [:]
 
     private func observe() {
         Task { @MainActor in
@@ -68,32 +87,42 @@ class AppModel: ObservableObject {
                 }
             }
         }
+
+        Task { @MainActor in
+            for await player in playerTurnEmitter.stream {
+                guard self.playMode == .singlePlay else { continue }
+                if player == .computer {
+                    computerAgent.startComputerTurn()
+                }
+            }
+        }
     }
 
     private func subscribe() {
         gameStateManager.$state
-            .receive(on: RunLoop.main)
             .assign(to: &$gameState)
 
         gameStateManager.$currentTurn
-            .receive(on: RunLoop.main)
-            .assign(to: &$currentTurn)
+            .sink { [weak self] turn in
+                self?.currentTurn = turn
+                self?.playerTurnEmitter.emit(turn)
+            }
+            .store(in: &cancellables)
 
         gameEngine.$targetNodes
-            .receive(on: RunLoop.main)
             .assign(to: &$targetNodes)
 
         markerManager.$selectedMarker
-            .receive(on: RunLoop.main)
             .assign(to: &$selectedMarker)
 
         rollManager.$result
-            .receive(on: RunLoop.main)
             .assign(to: &$result)
 
         gameStateManager.$isMyTurn
-            .receive(on: RunLoop.main)
             .assign(to: &$isMyTurn)
+
+        markerManager.$trackedMarkers
+            .assign(to: &$trackedMarkers)
     }
 }
 
@@ -517,7 +546,7 @@ extension AppModel {
         return gameEngine.targetNodes.contains { $0.name == node.name }
     }
 
-    func checkForLanding() {
+    func checkForLanding() async {
         do {
             try rollManager.checkForLanding()
         } catch {
@@ -638,6 +667,33 @@ extension AppModel: MarkerManagerDelegate {
     }
 }
 
+// MARK: - BoardViewModel
+extension AppModel {
+    var edgeTiles: [[Tile]] {
+        boardViewModel.edgeTiles
+    }
+
+    var innerTiles: [[Tile]] {
+        boardViewModel.innerTiles
+    }
+
+    func getTile(for nodeName: NodeName) throws -> Tile {
+        for row in edgeTiles {
+            if let tile = row.first(where: { $0.nodeName == nodeName }) {
+                return tile
+            }
+        }
+
+        for row in innerTiles {
+            if let tile = row.first(where: { $0.nodeName == nodeName }) {
+                return tile
+            }
+        }
+
+        throw ComputerActionError.unableToFindTile(nodeName)
+    }
+}
+
 @MainActor
 extension AppModel: YootRollDelegate {
 
@@ -655,6 +711,10 @@ extension AppModel: YootRollDelegate {
 
         if playMode == .sharePlay {
             sendSharePlayMessage(.roll(bufferFrame: buffer, result: result))
+        }
+
+        if currentTurn == .computer {
+            computerAgent.notifyRollComplete()
         }
     }
 }
@@ -741,5 +801,24 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
 
             gameStateManager.applySnapshot(snapshot)
         }
+    }
+}
+
+extension AppModel: @MainActor ComputerAgentDelegate {
+
+    func computerRoll() async throws {
+        try await roll()
+    }
+
+    func computerNewMarkerTap() async throws {
+        try await handleNewMarkerTap(updateState: true)
+    }
+
+    func computerExistingMarkerTap(marker: Entity) async throws {
+        try await handleMarkerTap(marker, updateState: true)
+    }
+
+    func computerHandleMove(tile: Tile) async throws {
+        try await handleTapTile(tile)
     }
 }

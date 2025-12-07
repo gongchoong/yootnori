@@ -41,3 +41,21 @@ final class ActionEventEmitter {
         continuation?.finish()
     }
 }
+
+final class PlayerTurnEmitter {
+    private var continuation: AsyncStream<Player>.Continuation?
+
+    lazy var stream: AsyncStream<Player> = {
+        AsyncStream { continuation in
+            self.continuation = continuation
+        }
+    }()
+
+    func emit(_ player: Player) {
+        continuation?.yield(player)
+    }
+
+    func finish() {
+        continuation?.finish()
+    }
+}

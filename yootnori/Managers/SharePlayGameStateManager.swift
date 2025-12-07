@@ -95,8 +95,7 @@ final class SharePlayGameStateManager: ObservableObject {
 
         switch playMode {
         case .singlePlay:
-            myPlayer = currentTurn.next
-            currentTurn = myPlayer
+            currentTurn = currentTurn == myPlayer ? .computer : myPlayer
         case .sharePlay:
             #if SHAREPLAY_MOCK
             currentTurn = currentTurn.next
