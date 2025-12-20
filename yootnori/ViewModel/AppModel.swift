@@ -264,11 +264,11 @@ extension AppModel {
         case .existing(let entity):
             await markerManager.drop(entity)
             markerManager.setSelectedMarker(.new)
-            gameEngine.updateTargetNodes(for: rollManager.result)
+            try gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .none:
             markerManager.setSelectedMarker(.new)
-            gameEngine.updateTargetNodes(for: rollManager.result)
+            try gameEngine.updateTargetNodes(for: rollManager.result)
 
         case .new:
             markerManager.setSelectedMarker(.none)
@@ -391,7 +391,7 @@ private extension AppModel {
 
                 // Show valid target tiles based on this marker's position.
                 let node = try markerManager.findNode(for: destinationMarker)
-                gameEngine.updateTargetNodes(starting: node.name, for: rollManager.result)
+                try gameEngine.updateTargetNodes(starting: node.name, for: rollManager.result)
 
                 if updateState {
                     try updateGameState(actionResult: .lift)

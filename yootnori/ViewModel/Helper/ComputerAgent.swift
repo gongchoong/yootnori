@@ -70,7 +70,7 @@ class ComputerAgent {
             do {
                 try await runTurn()
             } catch {
-                print("Computer turn error: \(error)")
+                fatalError("Computer turn error: \(error)")
             }
             isRunning = false
         }
@@ -232,6 +232,17 @@ class ComputerAgent {
                 }
             }
 
+            // If no capture, or piggyback available, select the furthest existing marker on the board.
+            let furtestExistingMarker = trackedMarkers.max(by: { $0.key.name.rawValue < $1.key.name.rawValue })?.value
+            guard let furtestExistingMarker else {
+                throw ComputerActionError.noValidTargetForMarkerSelection
+            }
+
+            // If there's no available new marker, select the furtest existing marker
+            if model.remainingMarkerCount(for: .computer) < 1 {
+                return .tapExisting(furtestExistingMarker)
+            }
+
             // Calcuate target nodes for new marker
             let targetNodes = model.gameEngine.calculateTargetNodes(starting: nil, for: result)
 
@@ -245,11 +256,6 @@ class ComputerAgent {
                 return .placeNewMarker
             }
 
-            // If no capture, or piggyback available, select the furthest existing marker on the board.
-            let furtestExistingMarker = trackedMarkers.max(by: { $0.key.name.rawValue < $1.key.name.rawValue })?.value
-            guard let furtestExistingMarker else {
-                throw ComputerActionError.noValidTargetForMarkerSelection
-            }
             return .tapExisting(furtestExistingMarker)
 
         }

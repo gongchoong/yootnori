@@ -9,6 +9,8 @@ import Combine
 
 enum GameEngineError: Error {
     case nodeMissing(NodeName)
+    case rollsEmpty
+    case targetNodesEmpty
 }
 
 class GameEngine: ObservableObject {
@@ -230,9 +232,16 @@ extension GameEngine {
 
 // MARK: - Target Nodes
 extension GameEngine {
-    func updateTargetNodes(starting: NodeName? = nil, for rolls: [Yoot]) {
+    func updateTargetNodes(starting: NodeName? = nil, for rolls: [Yoot]) throws {
+        guard !rolls.isEmpty else {
+            throw GameEngineError.rollsEmpty
+        }
         clearAllTargetNodes()
         targetNodes = calculateTargetNodes(starting: starting, for: rolls)
+
+        guard !targetNodes.isEmpty else {
+            throw GameEngineError.targetNodesEmpty
+        }
     }
 
     // For markers in scoring position
