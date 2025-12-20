@@ -18,15 +18,35 @@ enum ComputerAction: Equatable {
 }
 
 enum ComputerActionError: Error {
-    case generalError
+    /// No existing computer marker is available on the board to select or move.
+    case missingExistingMarker
+
+    /// Failed to determine the furthest valid move target for an existing marker.
+    case noValidTargetForExistingMarker
+
+    /// Failed to determine the furthest valid move target for a new marker.
+    case noValidTargetForNewMarker
+
+    /// Failed to determine a valid target when choosing between placing a new marker or selecting an existing one.
+    case noValidTargetForMarkerSelection
 }
 
 @MainActor
 protocol ComputerAgentDelegate: AnyObject {
-    func computerRoll() async throws
-    func computerNewMarkerTap() async throws
-    func computerExistingMarkerTap(marker: Entity) async throws
-    func computerHandleMove(tile: Tile) async throws
+    /// Triggers the UI or game logic to roll the dice/yut.
+    func performComputerRoll() async throws
+
+    /// Taps the "place new marker" UI, used when introducing a new marker onto the board.
+    func tapToPlaceNewComputerMarker() async throws
+
+    /// Taps an existing marker that belongs to the computer player, preparing it for movement.
+    func tapExistingComputerMarker(marker: Entity) async throws
+
+    /// Executes a move to the given tile for the current computer-selected marker.
+    func moveComputerMarker(to tile: Tile) async throws
+
+    /// Handles the computer's score action when scoring is available.
+    func performComputerScore() async throws
 }
 
 @MainActor
@@ -73,25 +93,25 @@ class ComputerAgent {
                 await withCheckedContinuation { continuation in
                     self.rollCompletionContinuation = continuation
                     Task {
-                        try await self.delegate?.computerRoll()
+                        try await self.delegate?.performComputerRoll()
                     }
                 }
                 print("Roll completed")
 
             case .placeNewMarker:
-                try await delegate?.computerNewMarkerTap()
+                try await delegate?.tapToPlaceNewComputerMarker()
                 print("New marker placed")
 
             case .tapExisting(let marker):
-                try await delegate?.computerExistingMarkerTap(marker: marker)
+                try await delegate?.tapExistingComputerMarker(marker: marker)
                 print("Tapped existing marker")
 
             case .move(let tile):
-                try await delegate?.computerHandleMove(tile: tile)
+                try await delegate?.moveComputerMarker(to: tile)
                 print("Move completed")
 
             case .score:
-                // Score logic here
+                try await delegate?.performComputerScore()
                 print("Scored")
 
             case .endTurn:
@@ -141,16 +161,24 @@ class ComputerAgent {
                     return .move(try model.getTile(for: piggytbackableNode.name))
                 }
 
-                // TODO: fix
-                // If no capture or piggy back, just move the marker. Move to the furthest target node.
-                // 1. Check if existing marker can move to corners or center
+                // If no capture or piggy back, just move the marker.
+                // 1. Check if marker can move to corners or center
                 // 2. If not, move to the furthest target node.
                 let targetNodes = model.targetNodes
-                return .move(try model.getTile(for: targetNodes.first!.name))
+                let prioritizedTargetNode = targetNodes.first { $0.name.isCenterNode } ?? targetNodes.first { $0.name.isCornerNode }
+                if let prioritizedTargetNode {
+                    return .move(try model.getTile(for: prioritizedTargetNode.name))
+                }
+
+                guard let furtestTargetNode = targetNodes.max(by: { $0.yootRoll.steps < $1.yootRoll.steps }) else {
+                    // Cannot find the furtest target node
+                    throw ComputerActionError.noValidTargetForExistingMarker
+                }
+                return .move(try model.getTile(for: furtestTargetNode.name))
 
             }
 
-            throw ComputerActionError.generalError
+            throw ComputerActionError.missingExistingMarker
         }
 
         func moveNewMarker() throws -> ComputerAction {
@@ -164,12 +192,20 @@ class ComputerAgent {
                 return .move(try model.getTile(for: piggytbackableNode.name))
             }
 
-            // TODO: fix
-            // If no capture or piggy back, just move the marker. Move to the furthest target node.
-            // 1. Check if existing marker can move to corners or center
+            // If no capture or piggy back, just move the marker.
+            // 1. Check if marker can move to corners or center
             // 2. If not, move to the furthest target node.
             let targetNodes = model.targetNodes
-            return .move(try model.getTile(for: targetNodes.first!.name))
+            let prioritizedTargetNode = targetNodes.first { $0.name.isCenterNode } ?? targetNodes.first { $0.name.isCornerNode }
+            if let prioritizedTargetNode {
+                return .move(try model.getTile(for: prioritizedTargetNode.name))
+            }
+
+            guard let furtestTargetNode = targetNodes.max(by: { $0.yootRoll.steps < $1.yootRoll.steps }) else {
+                // Cannot find the furtest target node
+                throw ComputerActionError.noValidTargetForNewMarker
+            }
+            return .move(try model.getTile(for: furtestTargetNode.name))
         }
 
         func selectExistingOrSelectNewMarker() throws -> ComputerAction {
@@ -197,7 +233,8 @@ class ComputerAgent {
             }
 
             // Calcuate target nodes for new marker
-            let targetNodes = model.gameEngine.calculateTargetNodes(starting: .bottomRightVertex, for: result)
+            let targetNodes = model.gameEngine.calculateTargetNodes(starting: nil, for: result)
+
             // If a new marker can caputure a user marker
             if let _ = try findTargetNode(targetNodes, matching: { $0 != Player.computer.team }) {
                 return .placeNewMarker
@@ -208,14 +245,17 @@ class ComputerAgent {
                 return .placeNewMarker
             }
 
-            // TODO: fix
             // If no capture, or piggyback available, select the furthest existing marker on the board.
-            return .tapExisting(trackedMarkers.first!.value)
+            let furtestExistingMarker = trackedMarkers.max(by: { $0.key.name.rawValue < $1.key.name.rawValue })?.value
+            guard let furtestExistingMarker else {
+                throw ComputerActionError.noValidTargetForMarkerSelection
+            }
+            return .tapExisting(furtestExistingMarker)
 
         }
 
         func findTargetNode(_ targetNodes: Set<TargetNode>, matching condition: (Team) -> Bool) throws -> Node? {
-            try targetNodes.lazy.compactMap { targetNode in
+            try targetNodes.compactMap { targetNode in
                 guard let node = try? model.gameEngine.findNode(named: targetNode.name),
                       let marker = model.markerManager.findMarker(for: node),
                       let team = Team(rawValue: try marker.component().team),

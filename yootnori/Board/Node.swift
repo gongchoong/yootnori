@@ -24,6 +24,15 @@ struct Node: Hashable, Codable {
     static func == (lhs: Node, rhs: Node) -> Bool {
         lhs.name == rhs.name && lhs.index == rhs.index && lhs.next == rhs.next && lhs.prev == rhs.prev
     }
+
+    func isCenterNode(_ node: Node) -> Bool {
+        [.center].contains(node.name)
+
+    }
+
+    func isCornerNode(_ node: Node) -> Bool {
+        [.topLeftVertex, .topRightVertex, .bottomRightVertex, .bottomLeftVertex].contains(node.name)
+    }
 }
 
 // MARK: - Node Definitions

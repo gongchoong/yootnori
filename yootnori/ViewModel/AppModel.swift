@@ -806,19 +806,23 @@ extension AppModel: @MainActor SharePlayManagerDelegate {
 
 extension AppModel: @MainActor ComputerAgentDelegate {
 
-    func computerRoll() async throws {
+    func performComputerRoll() async throws {
         try await roll()
     }
 
-    func computerNewMarkerTap() async throws {
+    func tapToPlaceNewComputerMarker() async throws {
         try await handleNewMarkerTap(updateState: true)
     }
 
-    func computerExistingMarkerTap(marker: Entity) async throws {
+    func tapExistingComputerMarker(marker: Entity) async throws {
         try await handleMarkerTap(marker, updateState: true)
     }
 
-    func computerHandleMove(tile: Tile) async throws {
+    func moveComputerMarker(to tile: Tile) async throws {
         try await handleTapTile(tile)
+    }
+
+    func performComputerScore() async throws {
+        try await handleTapScore()
     }
 }

@@ -14,7 +14,11 @@ enum GameStateManagerError: Error {
 
 @MainActor
 final class SharePlayGameStateManager: ObservableObject {
-    @Published private(set) var state: GameState = .idle
+    @Published private(set) var state: GameState = .idle {
+        didSet {
+            print("State changed from \(oldValue) => \(state)")
+        }
+    }
     @Published private(set) var currentTurn: Player = .none {
         didSet {
             isMyTurn = currentTurn == myPlayer
