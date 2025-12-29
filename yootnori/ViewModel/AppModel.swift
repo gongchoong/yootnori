@@ -77,6 +77,19 @@ class AppModel: ObservableObject {
     @Published private(set) var result: [Yoot] = []
     @Published private(set) var trackedMarkers: [Player: [Node: Entity]] = [:]
 
+    var players: [Player] {
+        switch playMode {
+        case .singlePlay:
+            [.playerA, .computer]
+        case .sharePlay:
+            [.playerA, .playerB]
+        }
+    }
+
+    var myPlayer: Player {
+        gameStateManager.myPlayer
+    }
+
     private func observe() {
         Task { @MainActor in
             for await actionEvent in actionEventEmitter.stream {

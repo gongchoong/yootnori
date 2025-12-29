@@ -58,8 +58,12 @@ class ComputerAgent {
     private var currentAction: ComputerAction = .idle
 
     func notifyRollComplete() {
-        rollCompletionContinuation?.resume()
-        rollCompletionContinuation = nil
+        Task {
+            try await Task.sleep(for: .seconds(1))
+            rollCompletionContinuation?.resume()
+            rollCompletionContinuation = nil
+            print("Computer Agent Roll completion notified")
+        }
     }
 
     func startComputerTurn() {
@@ -96,26 +100,27 @@ class ComputerAgent {
                         try await self.delegate?.performComputerRoll()
                     }
                 }
-                print("Roll completed")
 
             case .placeNewMarker:
                 try await delegate?.tapToPlaceNewComputerMarker()
-                print("New marker placed")
+                print("Computer Agent New marker placed")
+                try await Task.sleep(for: .seconds(0.6))
 
             case .tapExisting(let marker):
                 try await delegate?.tapExistingComputerMarker(marker: marker)
-                print("Tapped existing marker")
+                print("Computer Agent Tapped existing marker")
+                try await Task.sleep(for: .seconds(0.6))
 
             case .move(let tile):
                 try await delegate?.moveComputerMarker(to: tile)
-                print("Move completed")
+                print("Computer Agent Move completed")
 
             case .score:
                 try await delegate?.performComputerScore()
-                print("Scored")
+                print("Computer Agent Scored")
 
             case .endTurn:
-                print("Turn ended")
+                print("TComputer Agent urn ended")
                 currentAction = .idle
                 return // Exit the loop
             default:

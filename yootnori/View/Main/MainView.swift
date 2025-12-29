@@ -69,7 +69,13 @@ struct MainView: View {
             }
 
             Attachment(id: mainViewConstants.gameStatusViewName) {
-                GameStatusView(players: [.playerA, .playerB]) {
+                let players: [Player] = switch model.playMode {
+                case .singlePlay:
+                    [.playerA, .computer]
+                case .sharePlay:
+                    [.playerA, .playerB]
+                }
+                GameStatusView(players: players) {
                     model.emit(event: .tapNew)
                 }
             }

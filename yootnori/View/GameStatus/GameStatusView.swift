@@ -16,8 +16,8 @@ struct GameStatusView: View {
             ForEach(players, id: \.self) { player in
                 PlayerStatusView(
                     player: player,
+                    myPlayer: model.myPlayer,
                     rollResult: model.result,
-                    isOutOfThrows: false,
                     isLoading: model.gameState == .animating,
                     currentTurn: model.currentTurn,
                     markersLeftToPlace: model.remainingMarkerCount(for: player))
@@ -34,8 +34,8 @@ struct GameStatusView: View {
 
 struct PlayerStatusView: View {
     var player: Player
+    var myPlayer: Player
     var rollResult: [Yoot]
-    var isOutOfThrows: Bool
     var isLoading: Bool
     var currentTurn: Player
     var markersLeftToPlace: Int
@@ -46,7 +46,7 @@ struct PlayerStatusView: View {
     }
 
     var newMarkerButtonDisabled: Bool {
-        isOutOfThrows || isLoading || !hasMarkersLeftToPlace
+        rollResult.isEmpty || isLoading || !hasMarkersLeftToPlace || player != myPlayer
     }
 
     var isPlayerTurn: Bool {
