@@ -19,8 +19,8 @@ import Foundation
 //  LN4    LBD2                     RBD2    RN1
 //   |   /                                \  |
 //  BLV --- BN1 --- BN2 --- BN3 --- BN4 --- BRV
-enum NodeName: String, Equatable, CaseIterable, Codable {
-    case bottomRightVertex
+enum NodeName: Int, Equatable, CaseIterable, Codable {
+    case bottomRightVertex = 0
     case rightNode1
     case rightNode2
     case rightNode3
@@ -40,15 +40,15 @@ enum NodeName: String, Equatable, CaseIterable, Codable {
     case bottomNode2
     case bottomNode3
     case bottomNode4
-    case leftTopDiagonal1
-    case leftTopDiagonal2
     case leftBottomDiagonal1
     case leftBottomDiagonal2
+    case leftTopDiagonal1
+    case leftTopDiagonal2
     case rightTopDiagonal1
     case rightTopDiagonal2
+    case center
     case rightBottomDiagonal1
     case rightBottomDiagonal2
-    case center
     case empty
 }
 
@@ -79,6 +79,10 @@ extension NodeName {
 
     var isTopLeftDiagonalNode: Bool {
         return [.leftTopDiagonal1, .leftTopDiagonal2].contains(self)
+    }
+
+    var isCornerNode: Bool {
+        return [.topLeftVertex, .topRightVertex, .bottomRightVertex, .bottomLeftVertex].contains(self)
     }
 
     var isCenterNode: Bool {

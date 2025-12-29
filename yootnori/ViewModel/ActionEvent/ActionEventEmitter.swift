@@ -13,6 +13,7 @@ enum ActionEventError: Error {
 }
 
 enum ActionEvent {
+    case startSinglePlay
     case startSharePlay
     case startGame
     case tapMarker(Marker)
@@ -34,6 +35,24 @@ final class ActionEventEmitter {
 
     func emit(_ action: ActionEvent) {
         continuation?.yield(action)
+    }
+
+    func finish() {
+        continuation?.finish()
+    }
+}
+
+final class PlayerTurnEmitter {
+    private var continuation: AsyncStream<Player>.Continuation?
+
+    lazy var stream: AsyncStream<Player> = {
+        AsyncStream { continuation in
+            self.continuation = continuation
+        }
+    }()
+
+    func emit(_ player: Player) {
+        continuation?.yield(player)
     }
 
     func finish() {

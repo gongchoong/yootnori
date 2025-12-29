@@ -15,7 +15,7 @@ struct VertexTileView: View {
     private let tileHeight: CGFloat
 
     private var isHighlighted: Bool {
-        model.isMyTurn && model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable }
+        model.targetNodes.contains { $0.name == tile.nodeName && !$0.isScoreable }
     }
 
     var body: some View {

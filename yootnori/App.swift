@@ -19,7 +19,8 @@ struct yootnoriApp: App {
             gameStateManager: SharePlayGameStateManager(),
             markerManager: MarkerManager(),
             gameEngine: GameEngine(),
-            sharePlayManager: sharePlayManager
+            sharePlayManager: sharePlayManager,
+            boardViewModel: BoardViewModel()
         )
 
         _model = StateObject(wrappedValue: appModel)

@@ -19,6 +19,7 @@ class Player: Equatable, Hashable, Codable {
     static let none = Player(name: "", team: .black)
     static let playerA = Player(name: "Player A", team: .black)
     static let playerB = Player(name: "Player B", team: .white)
+    static let computer = Player(name: "Compter", team: .white)
 
     static func == (lhs: Player, rhs: Player) -> Bool {
         lhs.team == rhs.team
@@ -34,7 +35,7 @@ extension Player {
         switch self {
         case .playerA:
             return .playerB
-        case .playerB:
+        case .playerB, .computer:
             return .playerA
         default:
             return .none
@@ -45,7 +46,7 @@ extension Player {
         switch self {
         case .playerA:
             return "Marker_black"
-        case .playerB:
+        case .playerB, .computer:
             return "Marker_white"
         default:
             return ""
@@ -53,7 +54,7 @@ extension Player {
     }
 }
 
-enum Team: Int, Codable {
+enum Team: Int, Codable, Equatable {
     case black
     case white
 

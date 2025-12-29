@@ -40,7 +40,9 @@ struct MainView: View {
 
             // Subscribe to scene update events
             sceneUpdateSubscription = content.subscribe(to: SceneEvents.Update.self) { event in
-                model.checkForLanding()
+                Task { @MainActor in
+                    await model.checkForLanding()
+                }
             }
         } update: { content, attachments in
             model.rootEntity.scene?.performQuery(Self.runtimeQuery).forEach { entity in
@@ -52,7 +54,7 @@ struct MainView: View {
             }
         } attachments: {
             Attachment(id: mainViewConstants.boardViewName) {
-                BoardView(viewModel: BoardViewModel()) { tile in
+                BoardView { tile in
                     model.emit(event: .tapTile(tile))
                 }
             }
@@ -67,7 +69,13 @@ struct MainView: View {
             }
 
             Attachment(id: mainViewConstants.gameStatusViewName) {
-                GameStatusView(players: [.playerA, .playerB]) {
+                let players: [Player] = switch model.playMode {
+                case .singlePlay:
+                    [.playerA, .computer]
+                case .sharePlay:
+                    [.playerA, .playerB]
+                }
+                GameStatusView(players: players) {
                     model.emit(event: .tapNew)
                 }
             }

@@ -42,7 +42,7 @@ class MarkerManager: ObservableObject {
         attachmentsProvider = AttachmentsProvider()
     }
 
-    private var trackedMarkers: [Player: [Node: Entity]] = [:] {
+    @Published private(set) var trackedMarkers: [Player: [Node: Entity]] = [:] {
         didSet {
             let _ = trackedMarkers.map { (key, value) in
                 value.map { (valueKey, valueValue) in
