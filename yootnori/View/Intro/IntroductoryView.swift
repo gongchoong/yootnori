@@ -102,6 +102,8 @@ struct IntroductoryView: View {
                 #endif
 
                 IntroductoryViewActionButton(image: Image(systemName: "play.fill"), title: "Single Play") {
+                    guard !started else { return }
+                    started = true
                     didTapSinglePlayButton()
                 }
             }

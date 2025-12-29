@@ -131,7 +131,7 @@ class YootRollManager: ObservableObject {
             landed = true
 
             let rollResult = Yoot(rawValue: upsideDownCount) ?? .doe
-            result.append(.doe)
+            result.append(rollResult)
 
             endRecording()
             try delegate?.yootRollDidFinishRoll(with: frameBuffer, result: rollResult)
