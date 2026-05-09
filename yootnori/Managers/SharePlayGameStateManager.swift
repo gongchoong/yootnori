@@ -21,7 +21,11 @@ final class SharePlayGameStateManager: ObservableObject {
     }
     @Published private(set) var currentTurn: Player = .none {
         didSet {
+            #if DEBUG_MODE
+            isMyTurn = true
+            #else
             isMyTurn = currentTurn == myPlayer
+            #endif
         }
     }
     @Published private(set) var shouldRollAgain: Bool = false

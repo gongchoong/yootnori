@@ -18,7 +18,6 @@
 		540A19052C9F6D8000291CEF /* FullSpaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A19042C9F6D8000291CEF /* FullSpaceView.swift */; };
 		540A1EC92E88666C00012CA3 /* SharePlayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1EC82E88666900012CA3 /* SharePlayManager.swift */; };
 		540A1ECC2E8868F000012CA3 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1ECB2E8868EF00012CA3 /* Message.swift */; };
-		540A1ECF2E88777600012CA3 /* SharePlayMock in Frameworks */ = {isa = PBXBuildFile; productRef = 540A1ECE2E88777600012CA3 /* SharePlayMock */; };
 		540A1ED52E88866400012CA3 /* SharePlayManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540A1ED42E88864B00012CA3 /* SharePlayManagerMock.swift */; };
 		540EE1BB2C9F6EC70056F03C /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BA2C9F6EC70056F03C /* MainView.swift */; };
 		540EE1BD2C9F6F290056F03C /* BoardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 540EE1BC2C9F6F290056F03C /* BoardView.swift */; };
@@ -42,6 +41,8 @@
 		5451CEC82CBB21B500025081 /* PositionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5451CEC72CBB21B500025081 /* PositionError.swift */; };
 		5457F5B02CA9F27300C5EFB7 /* TileType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5AF2CA9F27300C5EFB7 /* TileType.swift */; };
 		5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */; };
+		5458C1002FAFC0910085EAAD /* SharePlayManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5458C0FF2FAFC0830085EAAD /* SharePlayManagerProtocol.swift */; };
+		5458C1022FAFC1550085EAAD /* AppGroupActivityMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5458C1012FAFC1510085EAAD /* AppGroupActivityMock.swift */; };
 		5463B8D42EDBCDBC008889D8 /* PlayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5463B8D32EDBCDBB008889D8 /* PlayMode.swift */; };
 		5463B8D72EDC0F39008889D8 /* ComputerAgent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5463B8D62EDC0F33008889D8 /* ComputerAgent.swift */; };
 		546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E32DB4223E0032C0A6 /* NodeConfig.swift */; };
@@ -100,6 +101,8 @@
 		5451CEC72CBB21B500025081 /* PositionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PositionError.swift; sourceTree = "<group>"; };
 		5457F5AF2CA9F27300C5EFB7 /* TileType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileType.swift; sourceTree = "<group>"; };
 		5457F5B22CA9F5CF00C5EFB7 /* Tile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tile.swift; sourceTree = "<group>"; };
+		5458C0FF2FAFC0830085EAAD /* SharePlayManagerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayManagerProtocol.swift; sourceTree = "<group>"; };
+		5458C1012FAFC1510085EAAD /* AppGroupActivityMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppGroupActivityMock.swift; sourceTree = "<group>"; };
 		5463B8D32EDBCDBB008889D8 /* PlayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayMode.swift; sourceTree = "<group>"; };
 		5463B8D62EDC0F33008889D8 /* ComputerAgent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComputerAgent.swift; sourceTree = "<group>"; };
 		546745E32DB4223E0032C0A6 /* NodeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConfig.swift; sourceTree = "<group>"; };
@@ -128,7 +131,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				540A1ECF2E88777600012CA3 /* SharePlayMock in Frameworks */,
 				540A18F02C9F6CD500291CEF /* RealityKitContent in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -210,6 +212,7 @@
 		540A1ED62E888B7700012CA3 /* SharePlay */ = {
 			isa = PBXGroup;
 			children = (
+				5458C0FF2FAFC0830085EAAD /* SharePlayManagerProtocol.swift */,
 				54DADF262ED24E7B009A6388 /* SharePlayMessageProcessor.swift */,
 				540A1ED42E88864B00012CA3 /* SharePlayManagerMock.swift */,
 				540A1EC82E88666900012CA3 /* SharePlayManager.swift */,
@@ -266,6 +269,7 @@
 		5423EBDF2E809367004AD867 /* SharePlay */ = {
 			isa = PBXGroup;
 			children = (
+				5458C1012FAFC1510085EAAD /* AppGroupActivityMock.swift */,
 				5423EBE02E8093B3004AD867 /* AppGroupActivity.swift */,
 			);
 			path = SharePlay;
@@ -433,7 +437,6 @@
 			name = yootnori;
 			packageProductDependencies = (
 				540A18EF2C9F6CD500291CEF /* RealityKitContent */,
-				540A1ECE2E88777600012CA3 /* SharePlayMock */,
 			);
 			productName = yootnori;
 			productReference = 540A18EA2C9F6CD500291CEF /* yootnori.app */;
@@ -464,7 +467,6 @@
 			);
 			mainGroup = 540A18E12C9F6CD500291CEF;
 			packageReferences = (
-				540A1ECD2E88777600012CA3 /* XCRemoteSwiftPackageReference "SharePlayMock" */,
 			);
 			productRefGroup = 540A18EB2C9F6CD500291CEF /* Products */;
 			projectDirPath = "";
@@ -506,6 +508,7 @@
 				541FC51B2E37F62300E3742E /* MarkerManager.swift in Sources */,
 				540A1ECC2E8868F000012CA3 /* Message.swift in Sources */,
 				544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */,
+				5458C1002FAFC0910085EAAD /* SharePlayManagerProtocol.swift in Sources */,
 				541FC51D2E3EABC300E3742E /* GameStateManager.swift in Sources */,
 				5457F5B32CA9F5CF00C5EFB7 /* Tile.swift in Sources */,
 				549AC3922E5B8FEF00150D28 /* Environment+Constants.swift in Sources */,
@@ -536,6 +539,7 @@
 				548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */,
 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
 				5408E1B82CAB4BA800580E82 /* Dimensions.swift in Sources */,
+				5458C1022FAFC1550085EAAD /* AppGroupActivityMock.swift in Sources */,
 				5463B8D72EDC0F39008889D8 /* ComputerAgent.swift in Sources */,
 				5451CEC82CBB21B500025081 /* PositionError.swift in Sources */,
 				540EE1BB2C9F6EC70056F03C /* MainView.swift in Sources */,
@@ -750,26 +754,10 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		540A1ECD2E88777600012CA3 /* XCRemoteSwiftPackageReference "SharePlayMock" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Pixeland-Tech/SharePlayMock";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.3;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
 		540A18EF2C9F6CD500291CEF /* RealityKitContent */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = RealityKitContent;
-		};
-		540A1ECE2E88777600012CA3 /* SharePlayMock */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 540A1ECD2E88777600012CA3 /* XCRemoteSwiftPackageReference "SharePlayMock" */;
-			productName = SharePlayMock;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
