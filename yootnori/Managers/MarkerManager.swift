@@ -122,6 +122,17 @@ class MarkerManager: ObservableObject {
         rootEntity.removeChild(marker)
     }
 
+    func removeAllMarkers() {
+        for (_, markers) in trackedMarkers {
+            for (_, entity) in markers {
+                rootEntity.removeChild(entity)
+            }
+        }
+        trackedMarkers = [:]
+        selectedMarker = .none
+        attachmentsProvider.attachments.removeAll()
+    }
+
     func markerCount(for player: Player) -> Int {
         trackedMarkers[player]?.values.reduce(into: 0) { count, marker in
             guard let level = marker.components[MarkerComponent.self]?.level else {
