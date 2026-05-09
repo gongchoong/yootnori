@@ -13,7 +13,7 @@ struct yootnoriApp: App {
     @StateObject private var model: AppModel
 
     init() {
-        let sharePlayManager = SharePlayManagerMock()
+        let sharePlayManager = SharePlayManager()
         let appModel = AppModel(
             rollManager: YootRollManager(),
             gameStateManager: SharePlayGameStateManager(),

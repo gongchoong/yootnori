@@ -88,7 +88,9 @@ struct MainView: View {
 
             Attachment(id: mainViewConstants.scoreButtonName) {
                 ScoreButton {
-                    model.emit(event: .score)
+                    if model.isMyTurn {
+                        model.emit(event: .score)
+                    }
                 }
             }
 
