@@ -51,7 +51,7 @@ struct FullSpaceView: View {
                 GameOverView(winner: winner) {
                     model.emit(event: .restart)
                 }
-                .frame(maxWidth: 600, maxHeight: 400)
+                .frame(maxWidth: 600, maxHeight: 600)
                 .glassBackgroundEffect()
                 .cornerRadius(20)
                 .transition(.scale.combined(with: .opacity))
