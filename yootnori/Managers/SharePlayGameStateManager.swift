@@ -119,6 +119,12 @@ final class SharePlayGameStateManager: ObservableObject {
         print("GameOver: Winner -> \(currentTurn.team)")
     }
 
+    func reset() {
+        shouldRollAgain = false
+        currentTurn = .none
+        state = .idle
+    }
+
     // MARK: - Helpers
 
     func canPerformAction(_ action: GameAction) -> Bool {

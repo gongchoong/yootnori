@@ -147,6 +147,10 @@ class YootRollManager: ObservableObject {
         result.remove(at: index)
         print("Roll discarded in YootRollManager \(result)")
     }
+
+    func clearResults() {
+        result = []
+    }
 }
 
 // MARK: - Internal Helpers

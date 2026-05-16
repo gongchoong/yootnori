@@ -54,6 +54,7 @@
 		549AC3902E5B8FB800150D28 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC38F2E5B8FB600150D28 /* Constants.swift */; };
 		549AC3922E5B8FEF00150D28 /* Environment+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC3912E5B8FE500150D28 /* Environment+Constants.swift */; };
 		549AC3962E5B937F00150D28 /* VertexTileBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC3952E5B937900150D28 /* VertexTileBackgroundView.swift */; };
+		54BE00032F123ABC00BE0003 /* GameOverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE00022F123ABC00BE0002 /* GameOverView.swift */; };
 		54B6DA2D2E1BA34C00F32A93 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B6DA2C2E1BA34A00F32A93 /* Player.swift */; };
 		54BDEE7A2EA83199007D128D /* ActionEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BDEE792EA83192007D128D /* ActionEventEmitter.swift */; };
 		54BE95542E01E369004D66EE /* YootRollManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* YootRollManager.swift */; };
@@ -115,6 +116,7 @@
 		549AC38F2E5B8FB600150D28 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		549AC3912E5B8FE500150D28 /* Environment+Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Constants.swift"; sourceTree = "<group>"; };
 		549AC3952E5B937900150D28 /* VertexTileBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileBackgroundView.swift; sourceTree = "<group>"; };
+		54BE00022F123ABC00BE0002 /* GameOverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverView.swift; sourceTree = "<group>"; };
 		54B5CFFD2E8083C700632AA2 /* yootnori.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yootnori.entitlements; sourceTree = "<group>"; };
 		54B6DA2C2E1BA34A00F32A93 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		54BDEE792EA83192007D128D /* ActionEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEventEmitter.swift; sourceTree = "<group>"; };
@@ -220,12 +222,21 @@
 			path = SharePlay;
 			sourceTree = "<group>";
 		};
+		54BE00012F123ABC00BE0001 /* GameOver */ = {
+			isa = PBXGroup;
+			children = (
+				54BE00022F123ABC00BE0002 /* GameOverView.swift */,
+			);
+			path = GameOver;
+			sourceTree = "<group>";
+		};
 		540EE1BE2C9F6F740056F03C /* View */ = {
 			isa = PBXGroup;
 			children = (
 				541DF8072DB6055600BF89D2 /* Debug */,
 				549615B52E109B01000E7C60 /* Intro */,
 				542972CD2E1088220028EFF8 /* GameStatus */,
+				54BE00012F123ABC00BE0001 /* GameOver */,
 				546745E72DB43A2A0032C0A6 /* Main */,
 				546745E12DB4207E0032C0A6 /* Board */,
 				5427024B2CF8345E003F017B /* Marker */,
@@ -546,6 +557,7 @@
 				544B33042CB1DBC100365A68 /* Index.swift in Sources */,
 				541B8DC82DB21D9B004B9F38 /* BoardViewModel.swift in Sources */,
 				549AC3962E5B937F00150D28 /* VertexTileBackgroundView.swift in Sources */,
+				54BE00032F123ABC00BE0003 /* GameOverView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

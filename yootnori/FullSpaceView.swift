@@ -45,8 +45,20 @@ struct FullSpaceView: View {
                     removal: .scale.combined(with: .opacity)
                 ))
             }
+
+            // Game over overlay
+            if case .gameOver(let winner) = model.gameState {
+                GameOverView(winner: winner) {
+                    model.emit(event: .restart)
+                }
+                .frame(maxWidth: 600, maxHeight: 600)
+                .glassBackgroundEffect()
+                .cornerRadius(20)
+                .transition(.scale.combined(with: .opacity))
+            }
         }
         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showIntroduction)
+        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: model.gameState)
     }
 }
 

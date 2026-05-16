@@ -171,6 +171,8 @@ extension AppModel {
             try await handleTapDebugRoll(result)
         case .score:
             try await handleTapScore()
+        case .restart:
+            try await restart()
         }
     }
 
@@ -248,6 +250,17 @@ extension AppModel {
 
     func startSinglePlay() async throws {
         try gameStateManager.startSinglePlay()
+    }
+
+    func restart() async throws {
+        markerManager.removeAllMarkers()
+        players.forEach { $0.restart() }
+        rollManager.clearResults()
+        gameEngine.clearAllTargetNodes()
+        gameStateManager.reset()
+        if playMode == .singlePlay {
+            try gameStateManager.startSinglePlay()
+        }
     }
 
     func roll() async throws {
