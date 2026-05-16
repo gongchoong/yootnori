@@ -22,6 +22,7 @@ enum ActionEvent {
     case tapRoll
     case tapDebugRoll(Yoot)
     case score
+    case restart
 }
 
 final class ActionEventEmitter {

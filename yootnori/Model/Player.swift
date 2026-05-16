@@ -7,9 +7,13 @@
 import SwiftUI
 
 class Player: Equatable, Hashable, Codable {
+    enum Constants {
+        static let initialScore = 4
+    }
+
     let name: String
     let team: Team
-    var score: Int = 4
+    var score: Int = Constants.initialScore
 
     private init(name: String, team: Team) {
         self.name = name
@@ -51,6 +55,10 @@ extension Player {
         default:
             return ""
         }
+    }
+
+    func restart() {
+        score = Constants.initialScore
     }
 }
 
