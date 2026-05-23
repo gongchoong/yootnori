@@ -104,7 +104,7 @@ struct MainView: View {
             TapGesture()
                 .targetedToEntity(where: .has(MarkerComponent.self))
                 .onEnded {
-                    guard model.isMyTurn else { return }
+                    guard model.myTurn else { return }
                     model.emit(event: .tapMarker($0.entity))
                 }
         )
