@@ -35,9 +35,9 @@ class YootRollManager: ObservableObject {
 
     enum Constants {
         static var yootEntityNames: [String] = ["yoot_1", "yoot_2", "yoot_3", "yoot_4"]
-        static var xOffset: Float = 0.00005
-        static var yOffset: Float = 0.0004
-        static var zOffset: Float = 0.00005
+        static var xOffset: Float = 0.00003
+        static var yOffset: Float = 0.00035
+        static var zOffset: Float = 0.00003
     }
 
     weak var yootThrowBoard: Entity?
