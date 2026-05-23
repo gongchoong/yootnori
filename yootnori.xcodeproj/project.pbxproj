@@ -48,15 +48,25 @@
 		546745E42DB4223E0032C0A6 /* NodeConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E32DB4223E0032C0A6 /* NodeConfig.swift */; };
 		546745E62DB4296F0032C0A6 /* TileConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546745E52DB4296F0032C0A6 /* TileConfig.swift */; };
 		5473C7572EB6A4A500D5E308 /* ScoreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5473C7562EB6A4A300D5E308 /* ScoreButton.swift */; };
+		548B6FDE2FC203C0005EB09C /* SoundEffectManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548B6FDD2FC203BC005EB09C /* SoundEffectManager.swift */; };
+		548B6FE52FC20409005EB09C /* yoot_2.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE22FC20409005EB09C /* yoot_2.m4a */; };
+		548B6FE62FC20409005EB09C /* yoot_1.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE12FC20409005EB09C /* yoot_1.m4a */; };
+		548B6FE72FC20409005EB09C /* yoot_3.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE32FC20409005EB09C /* yoot_3.m4a */; };
+		548B6FE82FC20409005EB09C /* yoot_4.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE42FC20409005EB09C /* yoot_4.m4a */; };
+		548B6FE92FC20409005EB09C /* jump.wav in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE02FC20409005EB09C /* jump.wav */; };
+		548B6FEC2FC20779005EB09C /* SoundEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548B6FEB2FC20777005EB09C /* SoundEffect.swift */; };
+		548B6FEE2FC20D4A005EB09C /* score.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FED2FC20D4A005EB09C /* score.mp3 */; };
+		548B6FF12FC20F68005EB09C /* capture.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FEF2FC20F68005EB09C /* capture.m4a */; };
+		548B6FF42FC21110005EB09C /* piggyback.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FF32FC21110005EB09C /* piggyback.m4a */; };
 		548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548F23032CC5D64D00A50F3F /* DebugMainView.swift */; };
 		54911FA92CC7551600A9FDDE /* GameRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54911FA82CC7551600A9FDDE /* GameRule.swift */; };
 		549615B72E109B08000E7C60 /* IntroductoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549615B62E109B06000E7C60 /* IntroductoryView.swift */; };
 		549AC3902E5B8FB800150D28 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC38F2E5B8FB600150D28 /* Constants.swift */; };
 		549AC3922E5B8FEF00150D28 /* Environment+Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC3912E5B8FE500150D28 /* Environment+Constants.swift */; };
 		549AC3962E5B937F00150D28 /* VertexTileBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 549AC3952E5B937900150D28 /* VertexTileBackgroundView.swift */; };
-		54BE00032F123ABC00BE0003 /* GameOverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE00022F123ABC00BE0002 /* GameOverView.swift */; };
 		54B6DA2D2E1BA34C00F32A93 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54B6DA2C2E1BA34A00F32A93 /* Player.swift */; };
 		54BDEE7A2EA83199007D128D /* ActionEventEmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BDEE792EA83192007D128D /* ActionEventEmitter.swift */; };
+		54BE00032F123ABC00BE0003 /* GameOverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE00022F123ABC00BE0002 /* GameOverView.swift */; };
 		54BE95542E01E369004D66EE /* YootRollManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54BE95532E01E360004D66EE /* YootRollManager.swift */; };
 		54C879CA2CD1E876003B88A6 /* NodeName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54C879C92CD1E876003B88A6 /* NodeName.swift */; };
 		54CEB39E2CD6A9A500E1F5C2 /* Node.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CEB39D2CD6A9A500E1F5C2 /* Node.swift */; };
@@ -109,6 +119,16 @@
 		546745E32DB4223E0032C0A6 /* NodeConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeConfig.swift; sourceTree = "<group>"; };
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
 		5473C7562EB6A4A300D5E308 /* ScoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreButton.swift; sourceTree = "<group>"; };
+		548B6FDD2FC203BC005EB09C /* SoundEffectManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffectManager.swift; sourceTree = "<group>"; };
+		548B6FE02FC20409005EB09C /* jump.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = jump.wav; sourceTree = "<group>"; };
+		548B6FE12FC20409005EB09C /* yoot_1.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_1.m4a; sourceTree = "<group>"; };
+		548B6FE22FC20409005EB09C /* yoot_2.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_2.m4a; sourceTree = "<group>"; };
+		548B6FE32FC20409005EB09C /* yoot_3.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_3.m4a; sourceTree = "<group>"; };
+		548B6FE42FC20409005EB09C /* yoot_4.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_4.m4a; sourceTree = "<group>"; };
+		548B6FEB2FC20777005EB09C /* SoundEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffect.swift; sourceTree = "<group>"; };
+		548B6FED2FC20D4A005EB09C /* score.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = score.mp3; sourceTree = "<group>"; };
+		548B6FEF2FC20F68005EB09C /* capture.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = capture.m4a; sourceTree = "<group>"; };
+		548B6FF32FC21110005EB09C /* piggyback.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = piggyback.m4a; sourceTree = "<group>"; };
 		548F23032CC5D64D00A50F3F /* DebugMainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugMainView.swift; sourceTree = "<group>"; };
 		54911FA82CC7551600A9FDDE /* GameRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameRule.swift; sourceTree = "<group>"; };
 		549615B62E109B06000E7C60 /* IntroductoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroductoryView.swift; sourceTree = "<group>"; };
@@ -116,10 +136,10 @@
 		549AC38F2E5B8FB600150D28 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		549AC3912E5B8FE500150D28 /* Environment+Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Environment+Constants.swift"; sourceTree = "<group>"; };
 		549AC3952E5B937900150D28 /* VertexTileBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileBackgroundView.swift; sourceTree = "<group>"; };
-		54BE00022F123ABC00BE0002 /* GameOverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverView.swift; sourceTree = "<group>"; };
 		54B5CFFD2E8083C700632AA2 /* yootnori.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = yootnori.entitlements; sourceTree = "<group>"; };
 		54B6DA2C2E1BA34A00F32A93 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		54BDEE792EA83192007D128D /* ActionEventEmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionEventEmitter.swift; sourceTree = "<group>"; };
+		54BE00022F123ABC00BE0002 /* GameOverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOverView.swift; sourceTree = "<group>"; };
 		54BE95532E01E360004D66EE /* YootRollManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YootRollManager.swift; sourceTree = "<group>"; };
 		54C879C92CD1E876003B88A6 /* NodeName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeName.swift; sourceTree = "<group>"; };
 		54CEB39D2CD6A9A500E1F5C2 /* Node.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Node.swift; sourceTree = "<group>"; };
@@ -161,6 +181,7 @@
 		540A18EC2C9F6CD500291CEF /* yootnori */ = {
 			isa = PBXGroup;
 			children = (
+				548B6FDF2FC203FB005EB09C /* Resources */,
 				540A1ECA2E8868EA00012CA3 /* Model */,
 				5423EBDF2E809367004AD867 /* SharePlay */,
 				54B5CFFD2E8083C700632AA2 /* yootnori.entitlements */,
@@ -222,14 +243,6 @@
 			path = SharePlay;
 			sourceTree = "<group>";
 		};
-		54BE00012F123ABC00BE0001 /* GameOver */ = {
-			isa = PBXGroup;
-			children = (
-				54BE00022F123ABC00BE0002 /* GameOverView.swift */,
-			);
-			path = GameOver;
-			sourceTree = "<group>";
-		};
 		540EE1BE2C9F6F740056F03C /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -267,6 +280,7 @@
 		541FC5172E35488A00E3742E /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				548B6FDC2FC203B8005EB09C /* Sound */,
 				542709FB2EBB0219006198DC /* SharePlayGameStateManager.swift */,
 				54D1F1182EB686FF00AA6A37 /* YootRoll */,
 				540A1ED62E888B7700012CA3 /* SharePlay */,
@@ -380,6 +394,7 @@
 		546745E22DB422340032C0A6 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				548B6FEA2FC20771005EB09C /* Sound */,
 				546745E32DB4223E0032C0A6 /* NodeConfig.swift */,
 				546745E52DB4296F0032C0A6 /* TileConfig.swift */,
 			);
@@ -394,6 +409,37 @@
 				540EE1BA2C9F6EC70056F03C /* MainView.swift */,
 			);
 			path = Main;
+			sourceTree = "<group>";
+		};
+		548B6FDC2FC203B8005EB09C /* Sound */ = {
+			isa = PBXGroup;
+			children = (
+				548B6FDD2FC203BC005EB09C /* SoundEffectManager.swift */,
+			);
+			path = Sound;
+			sourceTree = "<group>";
+		};
+		548B6FDF2FC203FB005EB09C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				548B6FEF2FC20F68005EB09C /* capture.m4a */,
+				548B6FE02FC20409005EB09C /* jump.wav */,
+				548B6FED2FC20D4A005EB09C /* score.mp3 */,
+				548B6FE12FC20409005EB09C /* yoot_1.m4a */,
+				548B6FE22FC20409005EB09C /* yoot_2.m4a */,
+				548B6FE32FC20409005EB09C /* yoot_3.m4a */,
+				548B6FE42FC20409005EB09C /* yoot_4.m4a */,
+				548B6FF32FC21110005EB09C /* piggyback.m4a */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		548B6FEA2FC20771005EB09C /* Sound */ = {
+			isa = PBXGroup;
+			children = (
+				548B6FEB2FC20777005EB09C /* SoundEffect.swift */,
+			);
+			path = Sound;
 			sourceTree = "<group>";
 		};
 		549615B52E109B01000E7C60 /* Intro */ = {
@@ -419,6 +465,14 @@
 				54BDEE792EA83192007D128D /* ActionEventEmitter.swift */,
 			);
 			path = ActionEvent;
+			sourceTree = "<group>";
+		};
+		54BE00012F123ABC00BE0001 /* GameOver */ = {
+			isa = PBXGroup;
+			children = (
+				54BE00022F123ABC00BE0002 /* GameOverView.swift */,
+			);
+			path = GameOver;
 			sourceTree = "<group>";
 		};
 		54D1F1182EB686FF00AA6A37 /* YootRoll */ = {
@@ -494,7 +548,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				540A18FA2C9F6CD800291CEF /* Assets.xcassets in Resources */,
+				548B6FF42FC21110005EB09C /* piggyback.m4a in Resources */,
+				548B6FF12FC20F68005EB09C /* capture.m4a in Resources */,
+				548B6FEE2FC20D4A005EB09C /* score.mp3 in Resources */,
 				540A18FD2C9F6CD800291CEF /* Preview Assets.xcassets in Resources */,
+				548B6FE52FC20409005EB09C /* yoot_2.m4a in Resources */,
+				548B6FE62FC20409005EB09C /* yoot_1.m4a in Resources */,
+				548B6FE72FC20409005EB09C /* yoot_3.m4a in Resources */,
+				548B6FE82FC20409005EB09C /* yoot_4.m4a in Resources */,
+				548B6FE92FC20409005EB09C /* jump.wav in Resources */,
 				540A18F82C9F6CD500291CEF /* ImageBasedLighting.skybox in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -550,9 +612,11 @@
 				548F23042CC5D64D00A50F3F /* DebugMainView.swift in Sources */,
 				540A18F62C9F6CD500291CEF /* ImmersiveView.swift in Sources */,
 				5408E1B82CAB4BA800580E82 /* Dimensions.swift in Sources */,
+				548B6FEC2FC20779005EB09C /* SoundEffect.swift in Sources */,
 				5458C1022FAFC1550085EAAD /* AppGroupActivityMock.swift in Sources */,
 				5463B8D72EDC0F39008889D8 /* ComputerAgent.swift in Sources */,
 				5451CEC82CBB21B500025081 /* PositionError.swift in Sources */,
+				548B6FDE2FC203C0005EB09C /* SoundEffectManager.swift in Sources */,
 				540EE1BB2C9F6EC70056F03C /* MainView.swift in Sources */,
 				544B33042CB1DBC100365A68 /* Index.swift in Sources */,
 				541B8DC82DB21D9B004B9F38 /* BoardViewModel.swift in Sources */,
