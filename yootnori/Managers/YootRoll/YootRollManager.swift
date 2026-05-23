@@ -111,6 +111,9 @@ class YootRollManager: ObservableObject {
                 await physicsEntity.applyImpulse(impulse, at: .zero, relativeTo: nil)
             }
         }
+
+        let yootSounds: [SoundEffect] = [.yoot_1, .yoot_2, .yoot_3, .yoot_4]
+        SoundEffectManager.shared.playSound(yootSounds.randomElement()!)
     }
 
     @MainActor func checkForLanding() throws {

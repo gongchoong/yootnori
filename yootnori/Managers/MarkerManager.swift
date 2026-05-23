@@ -87,6 +87,7 @@ class MarkerManager: ObservableObject {
         let filteredRoute = route.filter { $0.name != currentNode.name }
 
         for routeNode in filteredRoute {
+            SoundEffectManager.shared.playSound(.jump)
             try await stepMarker(marker, to: routeNode)
         }
     }
@@ -94,6 +95,7 @@ class MarkerManager: ObservableObject {
     func piggyBack(rider: Entity, carrier: Entity) async throws {
         try addLevel(to: carrier, from: rider)
         rootEntity.removeChild(rider)
+        SoundEffectManager.shared.playSound(.piggyback)
     }
 
     func capture(capturing: Entity, captured: Entity) async {
@@ -103,6 +105,7 @@ class MarkerManager: ObservableObject {
            let capturedNode = findNode(for: captured, player: capturedPlayer) {
             detachMarker(from: capturedNode, player: capturedPlayer)
         }
+        SoundEffectManager.shared.playSound(.capture)
     }
 
     func handleScore(player: Player) throws {
@@ -120,6 +123,8 @@ class MarkerManager: ObservableObject {
         detachMarker(from: startingNode, player: player)
         detachMarker(from: .bottomRightVertex, player: player)
         rootEntity.removeChild(marker)
+
+        SoundEffectManager.shared.playSound(.score)
     }
 
     func removeAllMarkers() {
