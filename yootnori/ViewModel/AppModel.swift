@@ -90,6 +90,10 @@ class AppModel: ObservableObject {
         gameStateManager.myPlayer
     }
 
+    var myTurn: Bool {
+        currentTurn == myPlayer
+    }
+
     private func observe() {
         Task { @MainActor in
             for await actionEvent in actionEventEmitter.stream {

@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import Combine
 
 enum SelectedMarker: Equatable {
     case new
@@ -155,52 +156,59 @@ class MarkerManager: ObservableObject {
 // MARK: - Animation Helpers
 extension MarkerManager {
     /// Elevates a marker upward for a visual highlight effect (e.g., when selected).
-    /// - Parameters:
-    ///   - marker: The entity to elevate.
-    ///   - duration: The duration of the elevation animation.
     func elevate(entity marker: Entity, duration: CGFloat = 0.6) async {
-        do {
-            var translation = marker.position
-            translation.z = Dimensions.Marker.elevated
-            marker.move(to: .init(translation: translation),
-                                 relativeTo: self.rootEntity,
-                                 duration: duration)
-            try? await Task.sleep(for: .seconds(duration))
-        }
-    }
-
-    /// Drops a marker back to its resting Z-position after elevation or movement.
-    /// - Parameters:
-    ///   - marker: The marker entity to drop.
-    ///   - duration: The duration of the drop animation.
-    func drop(_ marker: Entity, duration: CGFloat = 0.6) async {
         var translation = marker.position
-        translation.z = Dimensions.Marker.dropped
-        marker.move(
+        translation.z = Dimensions.Marker.elevated
+        let controller = marker.move(
             to: .init(translation: translation),
             relativeTo: rootEntity,
             duration: duration
         )
-        try? await Task.sleep(for: .seconds(duration))
+        await awaitAnimation(controller: controller, on: marker, fallbackDuration: duration)
+    }
+
+    /// Drops a marker back to its resting Z-position after elevation or movement.
+    func drop(_ marker: Entity, duration: CGFloat = 0.6) async {
+        var translation = marker.position
+        translation.z = Dimensions.Marker.dropped
+        let controller = marker.move(
+            to: .init(translation: translation),
+            relativeTo: rootEntity,
+            duration: duration
+        )
+        await awaitAnimation(controller: controller, on: marker, fallbackDuration: duration)
     }
 
     /// Animates a marker step-by-step along a path by moving and then dropping it.
-    /// - Parameters:
-    ///   - marker: The marker entity to move.
-    ///   - node: The target node the marker is stepping to.
     private func stepMarker(_ marker: Entity, to node: Node) async throws {
         let newPosition = try node.index.position()
         var translation = newPosition
         translation.z = Dimensions.Marker.elevated
 
-        marker.move(
+        let controller = marker.move(
             to: .init(translation: translation),
             relativeTo: rootEntity,
             duration: Dimensions.Marker.duration
         )
-
-        try? await Task.sleep(for: .seconds(Dimensions.Marker.duration))
+        await awaitAnimation(controller: controller, on: marker, fallbackDuration: Dimensions.Marker.duration)
         await drop(marker, duration: Dimensions.Marker.duration)
+    }
+
+    // Waits until the RealityKit animation driven by `controller` fires PlaybackCompleted.
+    // Falls back to Task.sleep if the entity has no scene (e.g. not yet attached).
+    private func awaitAnimation(controller: AnimationPlaybackController, on entity: Entity, fallbackDuration: CGFloat) async {
+        guard let scene = entity.scene else {
+            try? await Task.sleep(for: .seconds(fallbackDuration))
+            return
+        }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            var subscription: (any Cancellable)?
+            subscription = scene.subscribe(to: AnimationEvents.PlaybackCompleted.self, on: entity) { event in
+                guard event.playbackController == controller else { return }
+                subscription?.cancel()
+                continuation.resume()
+            }
+        }
     }
 }
 
