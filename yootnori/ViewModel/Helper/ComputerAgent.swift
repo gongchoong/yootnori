@@ -53,14 +53,14 @@ protocol ComputerAgentDelegate: AnyObject {
 class ComputerAgent {
     unowned var model: AppModel!
     weak var delegate: ComputerAgentDelegate?
-    private var rollCompletionContinuation: CheckedContinuation<Void, Never>?
+    private var rollCompletionContinuation: CheckedContinuation<Void, any Error>?
     private var isRunning = false
     private var currentAction: ComputerAction = .idle
 
     func notifyRollComplete() {
         Task {
             try await Task.sleep(for: .seconds(1))
-            rollCompletionContinuation?.resume()
+            rollCompletionContinuation?.resume(returning: ())
             rollCompletionContinuation = nil
             print("Computer Agent Roll completion notified")
         }
@@ -94,10 +94,15 @@ class ComputerAgent {
 
             switch action {
             case .roll:
-                await withCheckedContinuation { continuation in
+                try await withCheckedThrowingContinuation { continuation in
                     self.rollCompletionContinuation = continuation
                     Task {
-                        try await self.delegate?.performComputerRoll()
+                        do {
+                            try await self.attemptRollWithRetry()
+                        } catch {
+                            self.rollCompletionContinuation?.resume(throwing: error)
+                            self.rollCompletionContinuation = nil
+                        }
                     }
                 }
 
@@ -125,6 +130,23 @@ class ComputerAgent {
                 return // Exit the loop
             default:
                 return
+            }
+        }
+    }
+
+    private func attemptRollWithRetry(maxAttempts: Int = 3) async throws {
+        for attempt in 1...maxAttempts {
+            do {
+                try await delegate?.performComputerRoll()
+                print("Computer roll successfull")
+                return
+            } catch {
+                guard attempt < maxAttempts else {
+                    print("Computer roll unsuccessful after max attempts.")
+                    throw error
+                }
+                print("Computer roll unsuccessful. Retrying after 1 second.")
+                try await Task.sleep(for: .seconds(1))
             }
         }
     }

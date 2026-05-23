@@ -95,9 +95,9 @@ class YootRollManager: ObservableObject {
 
         for entity in yootEntities {
             if let physicsEntity = entity as? (Entity & HasPhysicsBody) {
-                // Generate a small random X offset
-                let randomX = Float.random(in: -Constants.xOffset...Constants.xOffset)
-                let randomZ = Float.random(in: -Constants.zOffset...Constants.zOffset)
+                // Generate a small random X offset, avoiding near-zero values
+                let randomX = Float.random(in: Constants.xOffset / 2...Constants.xOffset) * (Bool.random() ? 1 : -1)
+                let randomZ = Float.random(in: Constants.zOffset / 2...Constants.zOffset) * (Bool.random() ? 1 : -1)
 
                 // Apply impulse with random lateral component
                 var impulse = SIMD3<Float>(randomX, Constants.yOffset, randomZ)
