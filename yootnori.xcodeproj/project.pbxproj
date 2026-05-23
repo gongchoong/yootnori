@@ -34,6 +34,7 @@
 		5427024D2CF83466003F017B /* MarkerLevelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5427024C2CF83466003F017B /* MarkerLevelView.swift */; };
 		542709FC2EBB0225006198DC /* SharePlayGameStateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542709FB2EBB0219006198DC /* SharePlayGameStateManager.swift */; };
 		542972CF2E10882D0028EFF8 /* GameStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 542972CE2E10882A0028EFF8 /* GameStatusView.swift */; };
+		5432AEE12FC24BCC00DD142F /* jump.wav in Resources */ = {isa = PBXBuildFile; fileRef = 5432AEE02FC24BCC00DD142F /* jump.wav */; };
 		5436D5102CA0C9C10065A4E3 /* VertexTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */; };
 		5436D5122CA0CDC60065A4E3 /* TilePathView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5436D5112CA0CDC60065A4E3 /* TilePathView.swift */; };
 		544044472CE16A3A0023360C /* Entity+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544044462CE16A3A0023360C /* Entity+Extensions.swift */; };
@@ -53,7 +54,6 @@
 		548B6FE62FC20409005EB09C /* yoot_1.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE12FC20409005EB09C /* yoot_1.m4a */; };
 		548B6FE72FC20409005EB09C /* yoot_3.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE32FC20409005EB09C /* yoot_3.m4a */; };
 		548B6FE82FC20409005EB09C /* yoot_4.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE42FC20409005EB09C /* yoot_4.m4a */; };
-		548B6FE92FC20409005EB09C /* jump.wav in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FE02FC20409005EB09C /* jump.wav */; };
 		548B6FEC2FC20779005EB09C /* SoundEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 548B6FEB2FC20777005EB09C /* SoundEffect.swift */; };
 		548B6FEE2FC20D4A005EB09C /* score.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FED2FC20D4A005EB09C /* score.mp3 */; };
 		548B6FF12FC20F68005EB09C /* capture.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 548B6FEF2FC20F68005EB09C /* capture.m4a */; };
@@ -105,6 +105,7 @@
 		5427024C2CF83466003F017B /* MarkerLevelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkerLevelView.swift; sourceTree = "<group>"; };
 		542709FB2EBB0219006198DC /* SharePlayGameStateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayGameStateManager.swift; sourceTree = "<group>"; };
 		542972CE2E10882A0028EFF8 /* GameStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameStatusView.swift; sourceTree = "<group>"; };
+		5432AEE02FC24BCC00DD142F /* jump.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = jump.wav; sourceTree = "<group>"; };
 		5436D50F2CA0C9C10065A4E3 /* VertexTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VertexTileView.swift; sourceTree = "<group>"; };
 		5436D5112CA0CDC60065A4E3 /* TilePathView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TilePathView.swift; sourceTree = "<group>"; };
 		544044462CE16A3A0023360C /* Entity+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entity+Extensions.swift"; sourceTree = "<group>"; };
@@ -120,7 +121,6 @@
 		546745E52DB4296F0032C0A6 /* TileConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TileConfig.swift; sourceTree = "<group>"; };
 		5473C7562EB6A4A300D5E308 /* ScoreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreButton.swift; sourceTree = "<group>"; };
 		548B6FDD2FC203BC005EB09C /* SoundEffectManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEffectManager.swift; sourceTree = "<group>"; };
-		548B6FE02FC20409005EB09C /* jump.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = jump.wav; sourceTree = "<group>"; };
 		548B6FE12FC20409005EB09C /* yoot_1.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_1.m4a; sourceTree = "<group>"; };
 		548B6FE22FC20409005EB09C /* yoot_2.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_2.m4a; sourceTree = "<group>"; };
 		548B6FE32FC20409005EB09C /* yoot_3.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = yoot_3.m4a; sourceTree = "<group>"; };
@@ -423,7 +423,7 @@
 			isa = PBXGroup;
 			children = (
 				548B6FEF2FC20F68005EB09C /* capture.m4a */,
-				548B6FE02FC20409005EB09C /* jump.wav */,
+				5432AEE02FC24BCC00DD142F /* jump.wav */,
 				548B6FED2FC20D4A005EB09C /* score.mp3 */,
 				548B6FE12FC20409005EB09C /* yoot_1.m4a */,
 				548B6FE22FC20409005EB09C /* yoot_2.m4a */,
@@ -547,6 +547,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5432AEE12FC24BCC00DD142F /* jump.wav in Resources */,
 				540A18FA2C9F6CD800291CEF /* Assets.xcassets in Resources */,
 				548B6FF42FC21110005EB09C /* piggyback.m4a in Resources */,
 				548B6FF12FC20F68005EB09C /* capture.m4a in Resources */,
@@ -556,7 +557,6 @@
 				548B6FE62FC20409005EB09C /* yoot_1.m4a in Resources */,
 				548B6FE72FC20409005EB09C /* yoot_3.m4a in Resources */,
 				548B6FE82FC20409005EB09C /* yoot_4.m4a in Resources */,
-				548B6FE92FC20409005EB09C /* jump.wav in Resources */,
 				540A18F82C9F6CD500291CEF /* ImageBasedLighting.skybox in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
