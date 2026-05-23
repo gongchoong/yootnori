@@ -90,10 +90,6 @@ class AppModel: ObservableObject {
         gameStateManager.myPlayer
     }
 
-    var myTurn: Bool {
-        currentTurn == myPlayer
-    }
-
     private func observe() {
         Task { @MainActor in
             for await actionEvent in actionEventEmitter.stream {
@@ -415,8 +411,12 @@ private extension AppModel {
             if currentTurn.team == Team(rawValue: markerComponent.team) &&
                 [.waitingForRollOrSelect, .waitingForSelect].contains(gameStateManager.state) {
                 // No marker was selected — now selecting the tapped existing marker on the board.
-//                try gameStateManager.selectMarker()
                 await markerManager.elevate(entity: destinationMarker)
+
+                // Re-check after the async animation: another task may have already
+                // called selectMarker() and transitioned state to waitingForMove.
+                guard [.waitingForRollOrSelect, .waitingForSelect].contains(gameStateManager.state) else { return }
+
                 markerManager.setSelectedMarker(.existing(destinationMarker))
 
                 // Show valid target tiles based on this marker's position.
@@ -691,7 +691,7 @@ extension AppModel {
 
 extension AppModel: MarkerManagerDelegate {
     func didTapPromotedMarkerLevel(marker: Entity) {
-        if !rollManager.result.isEmpty {
+        if isMyTurn && !rollManager.result.isEmpty {
             self.emit(event: .tapMarker(marker))
         }
     }
