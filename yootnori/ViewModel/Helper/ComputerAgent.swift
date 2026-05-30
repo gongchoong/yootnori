@@ -125,7 +125,7 @@ class ComputerAgent {
                 print("Computer Agent Scored")
 
             case .endTurn:
-                print("TComputer Agent urn ended")
+                print("Computer Agent turn ended")
                 currentAction = .idle
                 return // Exit the loop
             default:
@@ -154,12 +154,16 @@ class ComputerAgent {
     private func determineNextAction() throws -> ComputerAction {
         print("Determining next action - State: \(model.gameState)")
 
-        // If need to roll
-        if [.waitingForRoll, .waitingForRollOrSelect].contains(model.gameState) {
+        switch model.gameState {
+        case .gameOver:
+            return .endTurn
+        case .waitingForRoll, .waitingForRollOrSelect:
             return .roll
+        default:
+            break
         }
 
-        // If can score
+        // If computer can score
         if model.shouldDisplayScoreButton {
             return .score
         }
